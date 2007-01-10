@@ -1,5 +1,5 @@
 AsciiGridPredict = function(object,xfiles,outfiles,xtypes=NULL,rows=NULL,cols=NULL,
-                            nodata=NULL,myPredFunc=get("predict",asNamespace("stats")),...)
+                            nodata=NULL,myPredFunc=NULL,...)
 {
    if (missing(xfiles)   || is.null(xfiles))   stop ("xfiles required")
    if (missing(outfiles) || is.null(outfiles)) stop ("outfiles required")
@@ -274,19 +274,28 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
             if (!is.null(outdata) && !is.null(useIds)) outdata=cbind(outdata,useIds)
             else if (is.null(outdata)) outdata=useIds
          }
-         else outdata=data.frame(predict=predict(object,newdata,...),row.names=rownames(newdata))
+         else
+         {
+            predict=predict(object,newdata,...)
+            if (is.factor(predict))
+            {
+               predict = levels(predict)[predict]
+               pdnum = as.numeric(predict)
+               if (sum(is.na(pdnum)) == 0) predict = pdnum
+            }
+            outdata=data.frame(predict=predict,row.names=rownames(newdata))
+         }
          if (length(omitted)>0)
          {
             # add omitted observations back into data frame in the proper location
 
-            more = data.frame(matrix(nodout,length(omitted),length(outfh)),
+            more = data.frame(matrix(nodout,length(omitted),length(names(outdata))),
                               row.names=origRowNames[omitted])
             names(more)=names(outdata)
             outdata = rbind(outdata,more)
-            outdata = outdata[sort(as.numeric(rownames(outdata)),index.return = TRUE)$ix,]
+            outdata = outdata[sort(as.numeric(rownames(outdata)),index.return = TRUE)$ix,,FALSE]
          }
       }
-
       for (i in 1:length(outfh))
       {
          vname=names(outfh)[i]

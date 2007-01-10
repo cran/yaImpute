@@ -12,10 +12,9 @@
    input grid maps and outputs maps of the prediction(s) in one or more
    output grid maps.
 
-   One row of the each grid maps is read and processed at a time thereby
-   avoiding the need to build huge objects in R that would be necessary all
-   the rows of all the maps were processed together.
-}
+  One row of the each grid maps is read and processed at a time thereby
+  avoiding the need to build huge objects in R that would be necessary all
+  the rows of all the maps were processed together.}
 
 \usage{
 AsciiGridImpute(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL,
@@ -23,14 +22,13 @@ AsciiGridImpute(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL,
                 nodata=NULL,myPredFunc=NULL,\dots)
 
 AsciiGridPredict(object,xfiles,outfiles,xtypes=NULL,rows=NULL,
-                cols=NULL,nodata=NULL,
-                myPredFunc=get("predict",asNamespace("stats")),\dots)
+                cols=NULL,nodata=NULL,myPredFunc=NULL,\dots)
 }
 
 \arguments{
   \item{object}{An object of class \code{\link{yai}}, any other object for which
        a \code{\link[stats]{predict}} function is defined, or when \code{myPredFunc} is
-       specified, \code{object} may optionally be \code{NULL} (but not missing).}
+       specified, \code{myPredFunc} may optionally be \code{NULL} (but not missing).}
   \item{xfiles}{A \code{\link[base]{list}} of input file names where there is one
        grid file for each X-variable. List elements must be given the same names
        as the X-variables they correspond with and there must be one file for
@@ -67,14 +65,15 @@ AsciiGridPredict(object,xfiles,outfiles,xtypes=NULL,rows=NULL,
        input grids.}
   \item{myPredFunc}{called to predict output using the \code{object} and newdata from
        the \code{xfiles}. Two arguments are required, the first is \code{object} and the
-       second is a data frame of the new predictor variables.}
-  \item{\dots}{passed to \code{myPredFunc}.}
+       second is a data frame of the new predictor variables. If NULL, the generic
+       \code{predict} function is called.}
+  \item{\dots}{passed to \code{myPredFunc} or \code{predict}.}
 }
 
 \details{
-  The input maps are assumed to be Ascii Grid maps with 6-line headers
-  containing the following tags: \code{NCOLS, NROWS, XLLCORNER, YLLCORNER,
-  CELLSIZE} and \code{NODATA_VALUE} (case insensitive).
+   The input maps are assumed to be Ascii Grid maps with 6-line headers
+   containing the following tags: \code{NCOLS, NROWS, XLLCORNER, YLLCORNER,
+   CELLSIZE} and \code{NODATA_VALUE} (case insensitive).
 
   The function builds a data frame from the input maps and builds
   predictions using that data frame as new data. Each row of the input maps
@@ -89,16 +88,19 @@ AsciiGridPredict(object,xfiles,outfiles,xtypes=NULL,rows=NULL,
   value. This approach is done despite the fact that most predict functions
   will simply fail in these circumstances.
 
-  The methods used for checking factors depend on \code{object} containing a
+  The methods used for checking depend on \code{object} containing a
   meaningful member list named \code{xlevels}, as done objects model objects
   produced by \code{\link[stats]{lm}}. Note that objects produced by
   \code{\link[randomForest]{randomForest}} do not contain \code{xlevels};
   use function \code{\link{addXlevels}} to add the necessary element if one
   or more \code{\link[base]{factor}}\code{s} are used.
 
-  Missing data are first removed from the data frame (if all are missing, an
-  output frame is built of just missing data), then predictions are made for
-  each element where no missing data are present.
+  Missing data is first removed from the data frame (if all are missing, an
+  output frame is built of just missing data). After the new neighbors are
+  found for the observations in the input data frame, imputed values for
+  the Y-variables are computed using \code{\link{impute.yai}} with its
+  default arguments. Missing data, if any, are added into the output and
+  written to the grid maps.
 }
 
 \seealso{

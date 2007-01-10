@@ -68,7 +68,7 @@ yai(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
 }
 
 \details{
-See \url{./../doc/yaImpute.pdf}
+See \url{./../doc/yaImpute.pdf} or this alternate \url{http://forest.moscowfsl.wsu.edu/gems/yaImpute.pdf}
 }
 
 
