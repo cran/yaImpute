@@ -1,0 +1,17 @@
+citHeader("To cite package 'yaImpute' in publications use:")
+
+citEntry(entry="Manual",
+  title = "yaImpute: An R Package for k-NN Imputation",
+  author = personList(as.person("Nicholas L. Crookston"),
+	                   as.person("Andrew O. Finley")),
+  year = "In prep",
+  organization = "USDA Forest Service, Rocky Mountain Research Station",
+  address      = "1221 South Main, Moscow, Idaho, USA",
+  note         = "ncrookston@fs.fed.us, afinley@stat.umn.edu",
+  textVersion =
+	paste("Crookston, Nicholas L.; Finley, Andrew O. (In prep). ",
+	"yaImpute: An R Package for k-NN Imputation. ",
+	"USDA Forest Service, Rocky Mountain Research Station, ",
+	"1221 South Main, Moscow, Idaho, USA.",
+   sep="")
+)

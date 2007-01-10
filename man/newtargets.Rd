@@ -1,0 +1,75 @@
+\name{newtargets}
+\alias{newtargets}
+\title{Finds K nearest neighbors for new target observations}
+
+\description{
+   Finds nearest neighbor \emph{reference} observations for a given set of \emph{target}
+   observations using an established (see \code{\link{yai}}) object. Intended use is to
+   facilitate breaking up large imputation problems.
+}
+
+\usage{
+newtargets(object,newdata,ann=NULL)
+}
+
+\arguments{
+  \item{object}{an object of class \code{\link{yai}}.}
+  \item{newdata}{a data frame or matrix of new \emph{targets} for which neighbors are
+       are found.}
+  \item{ann}{if NULL, the value is taken from \code{object}. When TRUE \code{\link{ann}} is
+       used to find neighbors, and when FALSE a slow exact search is used.}
+}
+
+\value{
+  An object of class \code{yai}, which is a copy of the first argument with the
+  following elements replaced:
+ \item{call}{the call.}
+  \item{obsDropped}{a list of the row names for observations
+     dropped for various reasons (missing data).}
+  \item{trgRows}{a list of the row names for target observations
+     as a subset of all observations.}
+  \item{xall}{the \emph{X}-variables for all observations.}
+  \item{neiDstTrgs}{a data frame of distances between a target
+     (identified by its row name) and the k references. There are k columns.}
+  \item{neiIdsTrgs}{A data frame of reference identifications
+      that correspond to neiDstTrgs.}
+  \item{neiDstRefs}{set NULL as if \code{noRefs=TRUE} in the original call to \code{\link{yai}}.}
+  \item{neiIdsRefs}{set NULL as if \code{noRefs=TRUE} in the original call to \code{\link{yai}}.}
+  \item{ann}{the value of the ann argument.}
+}
+
+\seealso{
+\code{\link{yai}}}
+
+\examples{
+
+require (yaImpute)
+
+data(iris)
+
+# form some test data
+refs=sample(rownames(iris),50) # just the reference observations
+x <- iris[refs,1:3]  # Sepal.Length Sepal.Width Petal.Length
+y <- iris[refs,4:5]  # Petal.Width Species
+
+# build a yai object using mahalanobis
+mal <- yai(x=x,y=y,method="mahalanobis")
+
+# get imputations for the target observations (not references)
+malNew <- newtargets(mal,iris[!(rownames(iris) \%in\% rownames(x)),])
+
+# output a data frame of observed and imputed values for
+# the observations that are not in the original yai object
+
+impute(malNew,vars=yvars(malNew))
+
+}
+
+
+\author{
+  Nicholas L. Crookston \email{ncrookston@fs.fed.us} \cr
+  Andrew O. Finley \email{afinley@stat.umn.edu}
+}
+
+\keyword{multivariate}
+

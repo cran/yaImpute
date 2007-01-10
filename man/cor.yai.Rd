@@ -1,0 +1,41 @@
+\name{cor.yai}
+\alias{cor.yai}
+\title{Correlation between observed and imputed}
+
+\description{Computes the correlation between observed and imputed values
+  for each observation that has both.
+}
+
+\usage{
+cor.yai (object,vars=NULL,\dots)
+}
+
+\arguments{
+  \item{object}{an object created by \code{\link{yai}} or \code{\link{impute.yai}}.}
+  \item{vars}{a list of variables names you want to include, if NULL all available
+    variables are included.}
+  \item{\dots}{passed to called methods (not currently used)}
+}
+
+\value{
+  A data frame with the row names as vars and the column as \code{cor}.
+}
+
+\details{
+  The correlations are computed using \code{\link{cor.yai}}. For data imputation, such
+  correlations are likely not appropriate; a warning message is issued when
+  this function is used.
+}
+
+\seealso{
+\code{\link{yai}}, \code{\link{impute.yai}}, \code{\link{rmsd.yai}}}
+
+\author{
+  Nicholas L. Crookston \email{ncrookston@fs.fed.us} \cr
+  Andrew O. Finley \email{afinley@stat.umn.edu}
+}
+
+\keyword{misc}
+\keyword{multivariate}
+
+

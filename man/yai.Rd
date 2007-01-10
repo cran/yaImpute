@@ -1,0 +1,167 @@
+\name{yai}
+\alias{yai}
+\alias{yaImpute}
+\title{Find K nearest neighbors}
+
+\description{
+  Given a set of observations, \code{yai} 1) separates the observations
+  into \emph{reference} and \emph{target} observations, 2) applies the
+  specified method to project X-variables into a Euclidean space   (not
+  always, see argument \code{method}), and 3) finds the \emph{k}-nearest
+  neighbors   within the referenece observations and between the reference
+  and target   observations. An alternative method using randomForest
+  classification and   regression trees is provided for steps 2 and 3.
+}
+
+\usage{
+yai(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
+    nVec=NULL,pVal=.05,method="msn",mtry=NULL,ntree=500,ann=TRUE)
+}
+
+\arguments{
+  \item{x}{1) a matrix or data frame containing the X-variables for all
+    observations. Row names are the identification for the observation, or 2) a
+    one-sided formula defining the X-variables as a linear formula. If
+    a formula is coded for \code{x}, one must be used for \code{y} as well, if
+    needed.}
+  \item{y}{1) a matrix or data frame containing the Y-variables for the
+    reference observations, or 2) a one-sided formula defining the
+    Y-variables as a linear formula.}
+  \item{data}{when \code{x} and \code{y} are formulas, then data is a data frame or
+    matrix that contains all the variables. The observations are split by \code{yai}
+    into two sets. \emph{Reference} observations are those with no missing values for X-
+    and Y-variables. \emph{Target} observations are those with values for X-variables
+    and NAs for Y-variables.}
+  \item{k}{the number of nearest neighbors; default is 1.}
+  \item{noTrgs}{when TRUE, skip finding neighbors for target observations.}
+  \item{noRefs}{when TRUE, skip finding neighbors for reference observations.}
+  \item{nVec}{number of canonical vectors to use (methods \code{msn} and \code{msn2}),
+     or number of independent of X-variables reference data when method
+     \code{mahalanobis}. When NULL, the number is set by the function.}
+  \item{pVal}{significant level for canonical vectors, used when \code{method} is
+    \code{msn} or \code{msn2}.}
+  \item{method}{is the strategy finding neighbors; the
+    options are the quoted key words (see details):
+    \describe{
+      \item \code{euclidean} - distance is computed in a normalized X space.
+      \item \code{raw} - like euclidean, except no normalization is done.
+      \item \code{mahalanobis} - distance is computed in its namesakes space.
+      \item \code{ica} - like mahalanobis, but based on \emph{Independent Component Analysis} using
+           package \code{\link[fastICA]{fastICA}}.
+      \item \code{msn} - distance is computed in a projected canonical space.
+      \item \code{msn2} - like msn, but with variance weighting (canonical regression
+             rather than correlation).
+      \item \code{gnn} -  distance is computed using a projected ordination of
+         Xs found using canonical correspondence analysis
+         (\code{\link[vegan]{cca}} from package \pkg{vegan}).
+      \item \code{randomForest} - distance is one minus the
+         proportion of randomForest trees where a target observation is in
+         the same terminal node as a reference observation (see \code{\link[randomForest]{randomForest}}).
+    }
+  }
+  \item{mtry}{the number of X-variables picked at random, see randomForest
+    documentation, default is sqrt(number of X-variables).}
+  \item{ntree}{the number of classification and regression trees in the randomForest. When more than
+               one Y-variable is used, the trees are divided among the variables. Alternatively,
+               ntree can be a vector of values corresponding to each Y-variable.}
+  \item{ann}{TRUE if \code{\link{ann}} is used to find neighbors, FALSE if a slow search is used.}
+}
+
+\details{
+See \url{./../doc/yaImpute.pdf}
+}
+
+
+\value{
+  An object of class \code{yai}, which is a list with
+  the following tags:
+  \item{call}{the call.}
+  \item{yRefs, xRefs}{matrices of the X- and Y-variables for just
+     the reference observations (unscaled). The scale factors
+     are attached as attributes.}
+  \item{obsDropped}{a list of the row names for observations
+     dropped for various reasons (missing data).}
+  \item{trgRows}{a list of the row names for target observations
+     as a subset of all observations.}
+  \item{xall}{the X-variables for all observations.}
+  \item{cancor}{returned from cancor function when method \code{msn} or
+    \code{msn2} is used (NULL otherwise).}
+  \item{ccaVegan}{an object of class cca (from package \pkg{vegan}) when
+    method \emph{gnn} is used.}
+  \item{ftest}{a list containing partial F statistics and a vector of
+    Pr>F (pgf) corresponding to the canonical correlation coefficients
+    when method msn or msn2 is used (NULL otherwise).}
+  \item{yScale, xScale}{scale data used on yRefs and xRefs as needed.}
+  \item{k}{the value of \emph{k}.}
+  \item{pVal}{as input; only used when method \code{msn} or \code{msn2} is used.}
+  \item{projector}{NULL when not used. For methods \emph{msn}, \emph{msn2}, \emph{gnn}
+     and \emph{mahalanobis}, this is a matrix that projects normalized X-variables
+     into a space suitable for doing Eculidian distances.}
+  \item{nVec}{number of canonical vectors used (methods \code{msn} and \code{msn2}),
+     or number of independent X-variables in the reference data when method
+     \code{mahalanobis} is used.}
+  \item{method}{as input, the method used.}
+  \item{ranForest}{a list of the forests if method \code{randomForest} is used. There is
+     one forest for each Y-variable, or just one forest when there are no
+     Y-variables.}
+  \item{ICA}{a list of information from \code{\link[fastICA]{fastICA}}
+      when method \code{ica} is used.}
+  \item{ann}{the value of ann, TRUE when \code{\link{ann}} is used, FALSE otherwise.}
+  \item{xlevels}{NULL if no factors are used as predictors; otherwise a list
+        of predictors that have factors and their levels (see \code{\link[stats]{lm}}).}
+  \item{neiDstTrgs}{a data frame of distances between a target
+     (identified by its row name) and the \emph{k} references. There are \emph{k} columns.}
+  \item{neiIdsTrgs}{a data frame of reference identifications
+      that correspond to neiDstTrgs.}
+  \item{neiDstRefs, neiIdsRefs}{counterparts for references.}
+
+}
+
+\examples{
+
+require (yaImpute)
+
+# running these examples will load packages vegan and randomForest
+
+data(MoscowMtStJoe)
+
+# convert polar slope and aspect measurements to cartesian
+# (which is the same as Stage's (1976) expression).
+
+polar <- MoscowMtStJoe[,40:41]
+polar[,1] <- polar[,1]*.01      # slope proportion
+polar[,2] <- polar[,2]*(pi/180) # aspect radians
+cartesian <- t(apply(polar,1,function (x)
+               {return (c(x[1]*cos(x[2]),x[1]*sin(x[2]))) }))
+colnames(cartesian) <- c("xSlAsp","ySlAsp")
+x <- cbind(MoscowMtStJoe[,37:39],cartesian,MoscowMtStJoe[,42:64])
+y <- MoscowMtStJoe[,1:35]
+
+mal <- yai(x=x, y=y, method="mahalanobis", k=1)
+gnn <- yai(x=x, y=y, method="gnn", k=1)
+msn <- yai(x=x, y=y, method="msn", k=1)
+
+plot(mal)
+
+# reduce the plant community data for randomForest.
+yba  <- MoscowMtStJoe[,1:17]
+ybaB <- whatsMax(yba,nbig=7)  # see help on whatsMax
+
+rf <- yai(x=x, y=ybaB, method="randomForest", k=1)
+
+# build the imputations for the original y's
+rforig <- impute(rf,ancillaryData=y)
+
+# compare the results
+compare.yai(mal,gnn,msn,rforig)
+plot(compare.yai(mal,gnn,msn,rforig))
+}
+
+
+\author{
+  Nicholas L. Crookston \email{ncrookston@fs.fed.us} \cr
+  Andrew O. Finley \email{afinley@stat.umn.edu}
+}
+
+\keyword{multivariate}
+

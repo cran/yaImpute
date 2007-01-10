@@ -1,0 +1,62 @@
+\name{yaiVarImp}
+\alias{yaiVarImp}
+\title{Plots Gini importance scores for method randomForest}
+
+\description{
+  When method \code{randomforest} is used to build a \code{\link{yai}}
+  object, the \code{\link[randomForest]{randomForest}} package computes
+  variable importance scores. This function plots a composite of the
+  scores. The scores themselves are invisibly returned.
+}
+
+\arguments{
+  \item{object}{an object of class \code{\link{yai}}}
+  \item{nTop}{the \code{nTop} most important variables are plotted (returned); if NA or zero, all are returned}
+  \item{plot}{if FALSE, no plotting is done, but the scores are returned.}
+}
+
+\usage{
+yaiVarImp(object, nTop=20, plot=TRUE)
+}
+
+\value{
+  A data frame with the rows corresponding to the randomForest
+  built for each \emph{Y}-variable and the columns corresponding to the
+  \code{nTop} most important Y-variables in sorted order.
+}
+
+\examples{
+data(MoscowMtStJoe)
+
+# get the basal area by species columns
+yba  <- MoscowMtStJoe[,1:17]
+ybaB <- whatsMax(yba,nbig=7)  # see help on whatsMax
+
+ba <- cbind(ybaB,TotalBA=MoscowMtStJoe[,18])
+x <- MoscowMtStJoe[,37:64]
+x <- x[,-(4:5)]
+rf <- yai(x=x,y=ba,method="randomForest")
+
+keep=colnames(yaiVarImp(rf,plot=FALSE,nTop=9))
+
+newx <- x[,keep]
+rf2 <- yai(x=newx,y=ba,method="randomForest")
+
+compare.yai(rf,rf2)
+
+}
+
+\seealso{
+\code{\link{yai}}, \code{\link{yaiRFsummary}}, \code{\link{compare.yai}}
+}
+
+\author{
+  Nicholas L. Crookston \email{ncrookston@fs.fed.us} \cr
+  Andrew O. Finley \email{afinley@stat.umn.edu}
+}
+
+\keyword{misc}
+\keyword{multivariate}
+\keyword{tree}
+
+
