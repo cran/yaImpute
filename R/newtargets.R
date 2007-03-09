@@ -95,7 +95,7 @@ newtargets=function(object,newdata,ann=NULL)
    if (object$method == "euclidean")
       xcvRefs=scale(object$xRefs,center=object$xScale$center,scale=object$xScale$scale)
 
-   xTrgs=as.matrix(xall[trgs,theCols,drop=FALSE]) # this is needed by gnn unscalled.
+   xTrgs=as.data.frame(xall[trgs,theCols,drop=FALSE]) # this is needed by gnn unscalled.
    if (nrow(xTrgs)==0) stop("no observations")
 
    if (object$method == "gnn") # GNN
@@ -125,7 +125,7 @@ newtargets=function(object,newdata,ann=NULL)
       }
       INTrefNodes=as.integer(nodes[rownames(object$xRefs),])
       INTnrow=as.integer(nrow(object$xRefs))
-     INTncol=as.integer(ncol(nodes))
+      INTncol=as.integer(ncol(nodes))
    }
    else
    {

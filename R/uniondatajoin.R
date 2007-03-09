@@ -34,8 +34,7 @@ unionDataJoin=function(...,warn=TRUE)
    if (warn & length(haveCol)>0)
       warning ("Columns: \"",paste(haveCol,collapse=", "),
                "\" were defined more than once")
-   all=matrix(data=NA,nrow=length(rows),ncol=length(cols))
-   all=data.frame(all)
+   all=as.data.frame(matrix(data=NA,nrow=length(rows),ncol=length(cols)))
    rownames(all)=rows
    colnames(all)=cols
    factors=matrix(data=FALSE,nrow=length(cols),ncol=1)
@@ -44,6 +43,7 @@ unionDataJoin=function(...,warn=TRUE)
    for (d in args)
    {
       theCols=colnames(d)
+      both = intersect(rownames(all),rownames(d))
       if (is.data.frame(d))
       {
          for (var in theCols)
@@ -51,12 +51,12 @@ unionDataJoin=function(...,warn=TRUE)
             if (is.factor(d[,var]))
             {
                factors[var,1] = TRUE
-               all[rownames(all) %in% rownames(d),var]=levels(d[,var])[d[,var]]
+               all[both,var]=levels(d[,var])[d[both,var]]
             }
-            else all[rownames(all) %in% rownames(d),var]=d[,var]
+            else all[both,var]=d[both,var]
          }
       }
-      else all[rownames(all) %in% rownames(d),theCols]=d
+      else all[both,theCols]=d[both,]
    }
    for (var in colnames(all)) if (factors[var,1]) all[,var]=as.factor(all[,var])
    all

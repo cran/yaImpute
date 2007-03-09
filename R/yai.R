@@ -336,6 +336,7 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
    }
    else if (method == "randomForest")
    {
+      xTrgs=xall[trgs,1,drop=FALSE]
       RF = get("modified.randomForest.default",asNamespace("yaImpute"))
       if (is.null(mtry)) mtry=max(sqrt(ncol(xRefs)),1)
       if (is.null(ntree)) ntree=500

@@ -5,7 +5,7 @@
 \description{
 Error properties of estimates derived from imputation differ from those of regression-based
 estimates because the two methods include a different mix of error components. This function
-computes a partitioning of error statistics as proposed by Stage and Crookston (In press).
+computes a partitioning of error statistics as proposed by Stage and Crookston (2007).
 }
 
 \usage{
@@ -43,7 +43,7 @@ errorStats(mahal,\dots,scale=FALSE,pzero=0.1,plg=0.5,seeMethod="lm")
   \item{rmsdlg}{root mean square error of the observations with larger distances.}
   \item{sei}{standard error of imputation \eqn{sqrt(rmsd^2 - (rmmsd0^2/2))}.}
   \item{dstc}{distance component: \eqn{sqrt(rmsd^2 - rmmsd0^2)}.}
-  Note that unlike Stage and Crookston (In press), all statistics reported here are in the natural
+  Note that unlike Stage and Crookston (2007), all statistics reported here are in the natural
   units, not squared units.
 }
 
@@ -80,9 +80,10 @@ errorStats(mal,msn)
 }
 
 \references{
-  Stage, A.R.; Crookston, N.L. (In press). Partitioning error components
+  Stage, A.R.; Crookston, N.L. (2007). Partitioning error components
   for accuracy-assessment of near neighbor methods of imputation.
-  \emph{For. Sci.} \url{./../doc/StagePartitioningFS.pdf}
+  \emph{For. Sci.} 53(1):62-72.
+  \url{http://forest.moscowfsl.wsu.edu/gems/StagePartitioningFS.pdf}
 }
 
 

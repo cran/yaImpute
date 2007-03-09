@@ -29,8 +29,8 @@ yaiVarImp = function(object, nTop=20, plot=TRUE)
       boxplot(as.data.frame(MeanDecreaseGini[,best]), horizontal=TRUE, par(plt=plt), las=1,
               main=deparse(substitute(object)), xlab="MeanDecreaseGini")
       par(plt=oldplt)
-      invisible(MeanDecreaseGini[,best])
+      invisible(MeanDecreaseGini[,best,FALSE])
    }
-   else return(MeanDecreaseGini[,best])
+   else return(MeanDecreaseGini[,best,FALSE])
 }
 
