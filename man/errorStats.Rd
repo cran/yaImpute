@@ -73,7 +73,8 @@ msn=yai(x=TallyLake[,9:29],y=TallyLake[,1:8],ann=FALSE,
 
 
 # variable "see" for "mal" matches col B (when squared and scaled)
-# other columns don't match exactly as Stage used different software
+# other columns don't match exactly as Stage and Crookston used different 
+# software to compute values 
 
 errorStats(mal,msn)
 

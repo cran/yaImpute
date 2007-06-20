@@ -22,10 +22,12 @@ foruse = function (object,kth=NULL)
    {
       if (is.null(kth))
          fu1=data.frame(use=rownames(object$neiIdsRefs),
-                        dist=rep(0,nrow(object$neiIdsRefs)))
+                        dist=rep(0,nrow(object$neiIdsRefs)),
+                        stringsAsFactors = FALSE)
       else
          fu1=data.frame(use=object$neiIdsRefs[,kth],
-                        dist=object$neiDstRefs[,kth])
+                        dist=object$neiDstRefs[,kth],
+                        stringsAsFactors = FALSE)
       rownames(fu1)=rownames(object$neiIdsRefs)
    }
 
@@ -34,7 +36,8 @@ foruse = function (object,kth=NULL)
    {
       if (is.null(kth)) kth=1
       fu2=data.frame(use=object$neiIdsTrgs[,kth],
-                     dist=object$neiDstTrgs[,kth])
+                     dist=object$neiDstTrgs[,kth],
+                     stringsAsFactors = FALSE)
       rownames(fu2)=rownames(object$neiIdsTrgs)
    }
    else fu2=NULL

@@ -10,18 +10,19 @@
 }
 
 \usage{
-\method{plot}{yai}(x,\dots,vars=NULL,colxy=NULL,colspine=NULL,residual=FALSE)
+\method{plot}{yai}(x,vars=NULL,pointColor=1,lineColor=2,spineColor=NULL,residual=FALSE,\dots)
 }
 
 \arguments{
   \item{x}{(1) a data frame created by \code{\link{impute.yai}}, or (2) an object
     created by \code{\link{yai}}.}
-  \item{\dots}{passed to called functions.}
   \item{vars}{a list of variable names you want to include, if NULL all available
     Y-variables are included.}
-  \item{colxy}{a color vector for the xy plots (continuous variables).}
-  \item{colspine}{a color vector for the spine plots (factors).}
+  \item{pointColor}{a color vector for the xy plots (continuous variables).}
+  \item{lineColor}{a color 1:1 lines in xy plots.}
+  \item{spineColor}{a color vector for the spine plots (factors), one value per level.}
   \item{residual}{plots in a residual format (observed-imputed over imputed).}
+  \item{\dots}{passed to called functions.}
 }
 
 \examples{
@@ -42,7 +43,7 @@ plot(malImp)
 
 \author{
   Nicholas L. Crookston \email{ncrookston@fs.fed.us} \cr
-  Andrew O. Finley \email{afinley@stat.umn.edu}
+  Andrew O. Finley \email{finleya@msu.edu}
 }
 
 \keyword{hplot}

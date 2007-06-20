@@ -1,22 +1,24 @@
 \name{yaiVarImp}
 \alias{yaiVarImp}
-\title{Plots Gini importance scores for method randomForest}
+\title{Reprots or plots importance scores for method randomForest}
 
 \description{
   When method \code{randomforest} is used to build a \code{\link{yai}}
   object, the \code{\link[randomForest]{randomForest}} package computes
-  variable importance scores. This function plots a composite of the
-  scores. The scores themselves are invisibly returned.
+  variable importance scores. This function computes a composite of the
+  scores and scales them. By default the scores are plotted and scores 
+  themselves are invisibly returned.
 }
 
 \arguments{
   \item{object}{an object of class \code{\link{yai}}}
   \item{nTop}{the \code{nTop} most important variables are plotted (returned); if NA or zero, all are returned}
   \item{plot}{if FALSE, no plotting is done, but the scores are returned.}
+  \item{\dots}{passed to boxplot function.}
 }
 
 \usage{
-yaiVarImp(object, nTop=20, plot=TRUE)
+yaiVarImp(object, nTop=20, plot=TRUE, \dots)
 }
 
 \value{
@@ -37,10 +39,14 @@ x <- MoscowMtStJoe[,37:64]
 x <- x[,-(4:5)]
 rf <- yai(x=x,y=ba,method="randomForest")
 
+yaiVarImp(rf)
+
 keep=colnames(yaiVarImp(rf,plot=FALSE,nTop=9))
 
 newx <- x[,keep]
 rf2 <- yai(x=newx,y=ba,method="randomForest")
+
+yaiVarImp(rf2,col="gray")
 
 compare.yai(rf,rf2)
 
@@ -52,7 +58,7 @@ compare.yai(rf,rf2)
 
 \author{
   Nicholas L. Crookston \email{ncrookston@fs.fed.us} \cr
-  Andrew O. Finley \email{afinley@stat.umn.edu}
+  Andrew O. Finley \email{finleya@msu.edu}
 }
 
 \keyword{misc}

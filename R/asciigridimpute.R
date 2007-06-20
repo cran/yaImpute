@@ -1,4 +1,4 @@
-AsciiGridPredict = function(object,xfiles,outfiles,xtypes=NULL,rows=NULL,cols=NULL,
+AsciiGridPredict = function(object,xfiles,outfiles,xtypes=NULL,lon=NULL,lat=NULL,rows=NULL,cols=NULL,
                             nodata=NULL,myPredFunc=NULL,...)
 {
    if (missing(xfiles)   || is.null(xfiles))   stop ("xfiles required")
@@ -9,13 +9,13 @@ AsciiGridPredict = function(object,xfiles,outfiles,xtypes=NULL,rows=NULL,cols=NU
 
    return (
       AsciiGridImpute(object,xfiles,outfiles,xtypes=xtypes,ancillaryData=NULL,ann=NULL,
-                      rows=rows,cols=cols,nodata=nodata,myPredFunc=myPredFunc,...)
+                      lon=lon,lat=lat,rows=rows,cols=cols,nodata=nodata,myPredFunc=myPredFunc,...)
           )
 }
 
 
 AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL,ann=NULL,
-                           rows=NULL,cols=NULL,nodata=NULL,myPredFunc=NULL,...)
+                           lon=NULL,lat=NULL,rows=NULL,cols=NULL,nodata=NULL,myPredFunc=NULL,...)
 {
    if (missing(xfiles)   || is.null(xfiles))   stop ("xfiles required")
    if (missing(outfiles) || is.null(outfiles)) stop ("outfiles required")
@@ -106,6 +106,7 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
       infh[[i]]=file(xfiles[[i]])
       open(infh[[i]],open="rt")
    }
+   on.exit(lapply(infh,close))
 
 #  make a list of out file handles and open the files.
 
@@ -118,6 +119,7 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
          outfh[[i]]=file(outfiles[[i]])
          open(outfh[[i]],open="wt")
       }
+      on.exit(lapply(outfh,close),add=TRUE)
    }
 
 #  get and check headers from each input file
@@ -161,6 +163,17 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
    csz = getVal(header,"CELLSIZE")
    nodv= getVal(header,"NODATA_VALUE")
 
+   if (!is.null(lon)) 
+   {
+     lon=sort(lon)
+     cols=c(max(floor((lon[1]-xllc)/csz),1),min(ceiling((lon[2]-xllc)/csz),nc))
+   }
+   if (!is.null(lat)) 
+   { 
+     lat=sort(lat)
+     rows=c(max(floor(((yllc+nr*csz)-lat[2])/csz),1),min(nr-ceiling((lat[1]-yllc)/csz),nr))
+   }
+     
    if (is.null(rows) && is.null(cols) && is.null(nodata)) #header does not change
    {
       for (i in 1:length(outfh))
@@ -197,6 +210,17 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
       }
    }
 
+   # set up the xlevels. In randomForest version >= 4.5-20, the xlevels
+   # are stored in the forest. 
+   xlevels = object$xlevels
+   if (is.null(xlevels) && class(object) == "randomForest") xlevels=object$forest$xlevels
+   if (!is.null(xlevels))
+   {  
+      if (length(xlevels)>0) for (i in names(xlevels)) if (is.numeric(xlevels[[i]]) && 
+                                  length(xlevels[[i]]) == 1) xlevels[[i]] = NULL
+      if (length(xlevels) == 0) xlevels=NULL
+   }
+       
    nskip=0
    if (rows[1]>1) nskip=rows[1]-1
 
@@ -216,15 +240,15 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
       names(indata)=names(infh)
       for (i in 1:length(infh))
       {
-         indata[[i]]=scan(infh[[i]],nlines=1,what=vector(mode=xtypes[[i]],lengt=0),
+         indata[[i]]=scan(infh[[i]],nlines=1,what=vector(mode=xtypes[[i]],length=0),
                      skip=nskip,na.strings=nodv,quiet=TRUE)
       }
       nskip=0
       if (newnc == nc) newdata=data.frame(indata)
-      else             newdata=data.frame(indata)[cols[1]:cols[2],]
-
+      else             newdata=data.frame(indata)[cols[1]:cols[2],,FALSE]
       origRowNames=rownames(newdata)
-      if (!is.null(object$xlevels) && length(x$xlevels) > 0)
+
+      if (!is.null(xlevels))
       {
          newdata=factorMatch(newdata,object$xlevels)
          ills = attr(newdata,"illegalLevelCounts")
@@ -256,6 +280,10 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
             outdata=myPredFunc(object,newdata,...)
             if (class(outdata) != "data.frame")
                outdata=data.frame(predict=outdata,row.names=rownames(newdata))
+         }
+         else if (is.null(object))
+         {
+            outdata=newdata
          }
          else if (class(object) == "yai")
          {
@@ -312,8 +340,6 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
       }
    }
    cat ("\n");flush.console()
-   for (i in 1:length(outfh)) close(outfh[[i]])
-   for (i in 1:length(infh))  close(infh[[i]])
 
    if (!is.null(sumIlls))
    {

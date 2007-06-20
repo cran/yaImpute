@@ -41,7 +41,7 @@ rmsd.yai (object,vars=NULL,scale=FALSE,\dots)
 
 \author{
   Nicholas L. Crookston \email{ncrookston@fs.fed.us} \cr
-  Andrew O. Finley \email{afinley@stat.umn.edu}
+  Andrew O. Finley \email{finleya@msu.edu}
 }
 
 \keyword{multivariate}

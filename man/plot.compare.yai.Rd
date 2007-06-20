@@ -7,14 +7,14 @@
 }
 
 \usage{
-\method{plot}{compare.yai}(x,\dots,colors=1,lineColor=2)
+\method{plot}{compare.yai}(x,pointColor=1,lineColor=2,\dots)
 }
 
 \arguments{
   \item{x}{a data frame created by \code{\link{compare.yai}}.}
-  \item{\dots}{passed to plot functions.}
-  \item{colors}{the colors (recycled as necessary) used for the points.}
+  \item{pointColor}{the color used for the points.}
   \item{lineColor}{the color of the 1:1 line.}
+  \item{\dots}{passed to plot functions.}
 }
 
 \seealso{
@@ -24,7 +24,7 @@
 
 \author{
   Nicholas L. Crookston \email{ncrookston@fs.fed.us} \cr
-  Andrew O. Finley \email{afinley@stat.umn.edu}
+  Andrew O. Finley \email{finleya@msu.edu}
 }
 
 \keyword{hplot}

@@ -27,15 +27,19 @@ x <- iris[,1:3]      # Sepal.Length Sepal.Width Petal.Length
 y <- iris[refs,4:5]  # Petal.Width Species
 
 # build a yai object using mahalanobis
-mal <- yai(x=x,y=y,method="mahalanobis")
+mal <- yai(x=x,y=y,method="mahalanobis",k=3)
 
-foruse(mal)
+foruse(mal)  # for references, use is equal to the rowname
+foruse(mal,kth=1) # for references, use is an row to the kth reference.
+
+# get all the choices:
+cbind(foruse(mal),foruse(mal,kth=1),foruse(mal,kth=2),foruse(mal,kth=3))
 
 }
 
 \author{
   Nicholas L. Crookston \email{ncrookston@fs.fed.us} \cr
-  Andrew O. Finley \email{afinley@stat.umn.edu}
+  Andrew O. Finley \email{finleya@msu.edu}
 }
 
 \keyword{multivariate}

@@ -20,9 +20,9 @@ yaiRFsummary(object, nTop=0)
 
 \value{
   A list containing:
-  \item{forestAttributes}{a data frame reporting the OOB Error and other data
+  \item{forestAttributes}{a data frame reporting the error rates and other data
      from the randomForest(s).}
-  \item{MeanDecreaseGini}{the data frame computed by \code{\link{yaiVarImp}}.}
+  \item{scaledImportance}{the data frame computed by \code{\link{yaiVarImp}}.}
 }
 
 \seealso{
@@ -31,7 +31,7 @@ yaiRFsummary(object, nTop=0)
 
 \author{
   Nicholas L. Crookston \email{ncrookston@fs.fed.us} \cr
-  Andrew O. Finley \email{afinley@stat.umn.edu}
+  Andrew O. Finley \email{finleya@msu.edu}
 }
 
 \keyword{misc}

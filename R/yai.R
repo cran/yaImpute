@@ -1,5 +1,6 @@
 yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
-                 nVec=NULL,pVal=.05,method="msn",mtry=NULL,ntree=500,ann=TRUE)
+                 nVec=NULL,pVal=.05,method="msn",ann=TRUE,mtry=NULL,ntree=500,
+                 rfMode="buildClasses")
 {
    # define functions used internally.
    sumSqDiff=function(x,y) { d=x-y; sum(d*d) }
@@ -91,6 +92,11 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       }
       if (!is.null(y))
       {
+         if (is.null(dim(y)))
+         {
+           if (length(y) == nrow (x)) y=data.frame(y,row.names=rownames(x), stringsAsFactors = TRUE)
+           else stop("when formulas are not used, y must be a matrix or dataframe, or a vector the same length of rows in x")
+         } 
          if (is.matrix(y) | is.data.frame(y))
          {
             if (mode(rownames(y)) != "character") rownames(y)=as.character(rownames(y))
@@ -101,7 +107,6 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
                obsDropped=union(obsDropped,names(attributes(na.omit(y))$na.action))
             }
          }
-         else stop("when formulas are not used, y must be a matrix or dataframe")
          theFormula=NULL
       }
    }
@@ -335,33 +340,50 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       nVec = ncol(xcvRefs)
    }
    else if (method == "randomForest")
-   {
+   {  
+      rfBuildClasses=NULL
       xTrgs=xall[trgs,1,drop=FALSE]
-      RF = get("modified.randomForest.default",asNamespace("yaImpute"))
+      rfVersion=packageDescription("randomForest")[["Version"]]  
+      if (compareVersion(rfVersion,"4.5-22") < 0)
+           RF = get("modified.randomForest.default",asNamespace("yaImpute"))
+      else RF = get("randomForest.default",asNamespace("randomForest"))    
       if (is.null(mtry)) mtry=max(sqrt(ncol(xRefs)),1)
       if (is.null(ntree)) ntree=500
       if (ydum)
       {
          yone=NULL
-         ranForest=RF(x=xRefs,y=yone,importance=TRUE,keep.forest=TRUE,mtry=mtry,ntree=ntree)
+         ranForest=RF(x=xRefs,y=yone,proximity=FALSE,importance=TRUE,keep.forest=TRUE,mtry=mtry,ntree=ntree)
          ranForest$type="yaImputeUnsupervised"
          ranForest=list(unsupervised=ranForest)
       }
       else
-      {
+      { 
          ranForest=vector("list",ncol(yRefs))
          if (length(ntree) < ncol(yRefs)) ntree=rep(trunc(ntree/ncol(yRefs)),ncol(yRefs))
          for (i in 1:ncol(yRefs))
          {
             yone=yRefs[,i]
-            if (!is.factor(yone))  # make a set of classes. the problem is RF does not return the nodes for regression
-            {
-               yone=as.numeric(yone)
-               breaks <- pretty(yone, n = min(20,nclass.Sturges(yone)), min.n = 1)
-               div <- diff(breaks)[1]
-               yone=as.factor(floor(yone/div))
+            if (!is.factor(yone))
+            { 
+              if (is.null(rfBuildClasses) && rfMode=="buildClasses") rfBuildClasses=TRUE
+              if (is.null(rfBuildClasses))
+              {
+                 if (compareVersion(rfVersion,"4.5-19") < 0) # if the version is prior to 19
+                 {
+                   warning("yaImpute directly supports regression for continuous y's for randomForest version 4.5-19 and later.")
+                   rfBuildClasses=TRUE
+                 }
+                 else rfBuildClasses=FALSE
+              }
+              if (rfBuildClasses)
+              {
+                yone=as.numeric(yone)
+                breaks <- pretty(yone, n = min(20,nclass.Sturges(yone)), min.n = 1)
+                div <- diff(breaks)[1]
+                yone=as.factor(floor(yone/div))
+              }
             }
-            ranForest[[i]]=RF(x=xRefs,y=yone,importance=TRUE,keep.forest=TRUE,mtry=mtry,ntree=ntree[i])
+            ranForest[[i]]=RF(x=xRefs,y=yone,proximity=FALSE,importance=TRUE,keep.forest=TRUE,mtry=mtry,ntree=ntree[i])
          }
          names(ranForest)=colnames(yRefs)
       }

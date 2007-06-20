@@ -42,7 +42,7 @@ print.yai = function(x,...)
    }
    else
    {
-      cat ("randomForest analysis (one forest per y variable):\n")
+      cat ("randomForest analysis:\n")
       if (!require (randomForest)) stop("install randomForest and try again")
       print(yaiRFsummary(x))
    }
@@ -55,7 +55,8 @@ print.yai = function(x,...)
    else
    {
       nPr=min(10,nrow(x$neiDstTrgs))
-      part=data.frame(x$neiDstTrgs[1:nPr,],x$neiIdsTrgs[1:nPr,])
+      part=data.frame(x$neiDstTrgs[1:nPr,],x$neiIdsTrgs[1:nPr,],
+                      stringsAsFactors = FALSE)
       names(part)=c(colnames(x$neiDstTrgs),colnames(x$neiIdsTrgs))
       cat ("First",nPr,"targets:\n")
       print (part)
@@ -64,7 +65,8 @@ print.yai = function(x,...)
    else
    {
       nPr=min(10,nrow(x$neiDstRefs))
-      part=data.frame(x$neiDstRefs[1:nPr,],x$neiIdsRefs[1:nPr,])
+      part=data.frame(x$neiDstRefs[1:nPr,],x$neiIdsRefs[1:nPr,],
+                      stringsAsFactors = FALSE)
       names(part)=c(colnames(x$neiDstRefs),colnames(x$neiIdsRefs))
       cat ("First",nPr,"references:\n")
       print (part)

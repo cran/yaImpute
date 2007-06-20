@@ -9,7 +9,7 @@
 }
 
 \usage{
-mostused(object,n=20,k=NULL)
+mostused(object,n=20,kth=NULL)
 }
 
 \seealso{
@@ -20,7 +20,7 @@ mostused(object,n=20,k=NULL)
   \item{object}{(1) a data frame created by \code{\link{foruse}}, or (2) an object
     created by \code{\link{yai}} in which case \code{\link{foruse}} is called automatically.}
   \item{n}{the number of mostused in sorted order.}
-  \item{k}{passed to \code{\link{foruse}}, if called.}
+  \item{kth}{passed to \code{\link{foruse}}, if called.}
 }
 
 \examples{
@@ -36,13 +36,13 @@ y <- iris[refs,4:5]  # Petal.Width Species
 # build a yai object using mahalanobis
 mal <- yai(x=x,y=y,method="mahalanobis")
 
-mostused(mal)
+mostused(mal,kth=1)
 
 }
 
 \author{
   Nicholas L. Crookston \email{ncrookston@fs.fed.us} \cr
-  Andrew O. Finley \email{afinley@stat.umn.edu}
+  Andrew O. Finley \email{finleya@msu.edu}
 }
 
 \keyword{misc}

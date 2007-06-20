@@ -47,17 +47,20 @@ x <- iris[,1:2]      # Sepal.Length Sepal.Width
 y <- iris[refs,3:4]  # Petal.Length Petal.Width
 
 # build yai objects using 2 methods
+msn <- yai(x=x,y=y)
 mal <- yai(x=x,y=y,method="mahalanobis")
-gnn <- yai(x=x,y=y,method="gnn")
 
 # compare the y variables
-compare.yai(mal,gnn)
+compare.yai(msn,mal)
+
+# compare the all variables in iris
+compare.yai(msn,mal,ancillaryData=iris)  # Species is a factor, no comparison is made
 }
 
 
 \author{
   Nicholas L. Crookston \email{ncrookston@fs.fed.us} \cr
-  Andrew O. Finley \email{afinley@stat.umn.edu}
+  Andrew O. Finley \email{finleya@msu.edu}
 }
 
 \keyword{multivariate}

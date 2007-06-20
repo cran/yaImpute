@@ -12,11 +12,15 @@
 #       closest     = the value from the nearest neighbor is imputed for
 #                     target observations. For reference observations,
 #                     the value form the observation itself is excluded.
-#                     When k==1, closest is always used.
+#                     When k==1, closest is always used. 
+#       allk        = a column for each variable and for each k is returned. 
+#       onek        = a column for each variable and for the kth neighbor is 
+#                     returned.
 #       mean        = An average over the k neighbors is taken
 #       dstWeighted = a weighted average is taken over the k
 #                     neighbors where the weights are 1/(1+d)
-#  method.factor defines how factors are imputed, where:
+#  method.factor defines how factors are imputed, where: 
+#       if method is allk or onek, method.factor is ignored.
 #       closest     = same a continous (always used with k==1).
 #       random      = random pick with sampling proportional to 1/max(d,.0001)
 #                     NOT YET SUPPORTED
@@ -144,7 +148,7 @@ impute.yai <- function (object,ancillaryData=NULL,method="closest",
    {
       factors <- findFactors(refs)
       nfactors <- sum(factors)
-      if (nfactors>0 & method.factor != "closest" & k==1)
+      if (nfactors>0 && method.factor != "closest" && k==1)
       {
          warning ("method.factor was set to closest because k=1")
          method.factor <- "closest"
@@ -165,7 +169,7 @@ impute.yai <- function (object,ancillaryData=NULL,method="closest",
          colnames(tmp) <- colnames(refs)[factors]
          p2 <- pred.f(refs=tmp,ids=ids,w=w,method=method.factor,
                    k=k,vars=vars,observed=observed)
-         if      (is.null(p1) & is.null(p2)) out <- NULL
+         if      (is.null(p1) && is.null(p2)) out <- NULL
          else if (is.null(p1)) out <- p2
          else if (is.null(p2)) out <- p1
          else                  out <- cbind(p1,p2)
@@ -181,10 +185,13 @@ impute.yai <- function (object,ancillaryData=NULL,method="closest",
 
    if (is.null(vars))
    {
-      if (is.null(ancillaryData)) vars <- yvars(object)
-      else                  vars <= colnames(ancillaryData)
+      if (is.null(ancillaryData)) 
+      {
+         if (object$method != "randomForest") vars <- yvars(object)
+         else if (names(object$ranForest)[[1]] == "unsupervised") vars <- xvars(object)
+      }            
+      else vars <- colnames(ancillaryData)
    }
-
    posMethods <- c("closest","mean","dstWeighted")
    if (length(intersect(method,posMethods))==0)
       stop (paste("method=",method," must be one of: {",
@@ -197,7 +204,7 @@ impute.yai <- function (object,ancillaryData=NULL,method="closest",
       k <- object$k
    }
 
-   if (method != "closest" & k==1)
+   if (method != "closest" && k==1)
    {
       warning ("method was set to closest because k==1")
       method <- "closest"
@@ -208,13 +215,13 @@ impute.yai <- function (object,ancillaryData=NULL,method="closest",
       r <- NULL
       if (length(object$neiIdsRefs)>0)
       {
-         if (!(ncol(object$yRefs) == 1 & names(object$yRefs)[1]=="ydummy"))
+         if (!(ncol(object$yRefs) == 1 && names(object$yRefs)[1]=="ydummy"))
               yPredRefs <- pred(refs=object$yRefs,ids=object$neiIdsRefs,w=object$neiDstRefs,
                            method=method,method.factor=method.factor,k=k,vars=vars,observed=observed)
          else yPredRefs <- NULL
          xPredRefs <- pred(refs=object$xall,ids=object$neiIdsRefs,w=object$neiDstRefs,
                            method=method,method.factor=method.factor,k=k,vars=vars,observed=observed)
-         if      (is.null(yPredRefs) & is.null(xPredRefs)) r <- NULL
+         if      (is.null(yPredRefs) && is.null(xPredRefs)) r <- NULL
          else if (is.null(yPredRefs)) r <- xPredRefs
          else if (is.null(xPredRefs)) r <- yPredRefs
          else                         r <- cbind(yPredRefs,xPredRefs)
@@ -223,19 +230,19 @@ impute.yai <- function (object,ancillaryData=NULL,method="closest",
       t <- NULL
       if (length(object$neiIdsTrgs)>0)
       {
-         if (!(ncol(object$yRefs) == 1 & names(object$yRefs)[1]=="ydummy"))
+         if (!(ncol(object$yRefs) == 1 && names(object$yRefs)[1]=="ydummy"))
              yPredTrgs <- pred(refs=object$yRefs,ids=object$neiIdsTrgs,w=object$neiDstTrgs,
                                method=method,method.factor=method.factor,k=k,vars=vars,observed=observed)
          else yPredTrgs <- NULL
          xPredTrgs <- pred(refs=object$xall,ids=object$neiIdsTrgs,w=object$neiDstTrgs,
                            method=method,method.factor=method.factor,k=k,vars=vars,observed=observed)
 
-         if      (is.null(yPredTrgs) & is.null(xPredTrgs)) t <- NULL
+         if      (is.null(yPredTrgs) && is.null(xPredTrgs)) t <- NULL
          else if (is.null(yPredTrgs)) t <- xPredTrgs
          else if (is.null(xPredTrgs)) t <- yPredTrgs
          else                         t <- cbind(yPredTrgs,xPredTrgs)
       }
-      if      (is.null(r) & is.null(t)) out <- NULL
+      if      (is.null(r) && is.null(t)) out <- NULL
       else if (is.null(r)) out <- t
       else if (is.null(t)) out <- r
       else                 out <- rbind(r,t)
@@ -248,8 +255,8 @@ impute.yai <- function (object,ancillaryData=NULL,method="closest",
       out <- NULL
       if (!is.null(vars))
       {
-         ancillaryData=ancillaryData[,vars]
-         if (ncol(ancillaryData) == 0) stop ("requesed variables not present in ancillaryData")
+         ancillaryData=ancillaryData[,vars,FALSE]
+         if (is.null(ncol(ancillaryData))) stop ("requested variables not present in ancillaryData")
       }
       rownames(ancillaryData)=as.character(rownames(ancillaryData))
       ids <- as.character(rownames(object$xRefs))

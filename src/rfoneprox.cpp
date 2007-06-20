@@ -1,10 +1,12 @@
 //----------------------------------------------------------------------
-// File:                        rfoneprox.c
+// File:                rfoneprox.cpp
 // Programmer:          Nicholas Crookston
 // Description:         computes a proximity vector for one observation
-// Last modified:       2006/06/30 (Version 0.1)
+// Last modified:       2007/10/25 (Version 0.2)
 //----------------------------------------------------------------------
-// Copyright (c) None
+// Copyright Notice:
+// This code was written and prepared by a U.S. Government employee on official 
+// time and therefore is in the public domain and not subject to copyright.
 //
 //----------------------------------------------------------------------
 #include <R.h>
@@ -21,7 +23,7 @@ extern "C" {
       for (iob=0; iob<INTEGER(nobs)[0]; iob++)
       {
          if (INTEGER(nodes)[INTEGER(nobs)[0]*itr+iob] == myNode) 
-		 INTEGER(prox)[iob]++;
+            INTEGER(prox)[iob]++;
       }
    }
  return(prox);

@@ -97,8 +97,7 @@ ann(ref, target, k=1, eps=0.0, tree.type="kd",
 
 
 \author{
-  Andrew O. Finley \email{afinley@stat.umn.edu} \cr
-  Nicholas L. Crookston \email{ncrookston@fs.fed.us}
+  Andrew O. Finley \email{finleya@msu.edu} \cr
 }
 
 \examples{

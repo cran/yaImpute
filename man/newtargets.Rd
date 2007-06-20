@@ -5,7 +5,7 @@
 \description{
    Finds nearest neighbor \emph{reference} observations for a given set of \emph{target}
    observations using an established (see \code{\link{yai}}) object. Intended use is to
-   facilitate breaking up large imputation problems.
+   facilitate breaking up large imputation problems (see \code{\link{AsciiGridImpute}}.
 }
 
 \usage{
@@ -61,14 +61,24 @@ malNew <- newtargets(mal,iris[!(rownames(iris) \%in\% rownames(x)),])
 # output a data frame of observed and imputed values for
 # the observations that are not in the original yai object
 
-impute(malNew,vars=yvars(malNew))
+impute(malNew,vars=yvars(malNew)) 
+
+# in this example, Y is not specified (not required for mahalanobis).
+mal2 <- yai(x=x,method="mahalanobis")
+identical(foruse(mal),foruse(mal2))
+
+# here, method randomForest's unsupervised classification is used (no Y).
+rf <- yai(x=x,method="randomForest")
+# now get imputations for the targets in the iris data (those that are 
+# not references.
+rfNew <- newtargets(rf,iris[!(rownames(iris) \%in\% rownames(x)),])
 
 }
 
 
 \author{
   Nicholas L. Crookston \email{ncrookston@fs.fed.us} \cr
-  Andrew O. Finley \email{afinley@stat.umn.edu}
+  Andrew O. Finley \email{finleya@msu.edu}
 }
 
 \keyword{multivariate}

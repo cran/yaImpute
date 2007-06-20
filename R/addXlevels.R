@@ -2,10 +2,10 @@ addXlevels = function (object,origDataFrame)
 {
    if (class(object) != "randomForest") stop ("object must be class randomForest")
    if (class(origDataFrame) != "data.frame") stop ("origDataFrame must be class data.frame")
-   xlevels=vector(mode="list",length=nrow(object$importance))
-   names(xlevels)=rownames(object$importance)
+   xlevels=vector("list",length(object$forest$ncat)) 
+   names(xlevels)=names(object$forest$ncat)
    if (length(intersect(names(xlevels),names(origDataFrame))) != length(names(xlevels)))
-      stop ("missing columns in origDataFrame")
+      stop ("Variables used in training data missing from origDataFrame: ",paste(setdiff(vars,names(x)),collapse=","))
    for (var in names(xlevels))
    {
       ivar = match(var,names(origDataFrame))

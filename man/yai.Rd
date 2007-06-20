@@ -8,14 +8,19 @@
   into \emph{reference} and \emph{target} observations, 2) applies the
   specified method to project X-variables into a Euclidean space   (not
   always, see argument \code{method}), and 3) finds the \emph{k}-nearest
-  neighbors   within the referenece observations and between the reference
-  and target   observations. An alternative method using randomForest
-  classification and   regression trees is provided for steps 2 and 3.
+  neighbors within the referenece observations and between the reference
+  and target observations. An alternative method using randomForest
+  classification and regression trees is provided for steps 2 and 3.
+  \emph{Target} observations are those with values for X-variables and
+  not for Y-variables, while \emph{reference} observations are those 
+  with no missing values for X-and Y-variables (see Details for the
+  exception).
 }
 
 \usage{
 yai(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
-    nVec=NULL,pVal=.05,method="msn",mtry=NULL,ntree=500,ann=TRUE)
+    nVec=NULL,pVal=.05,method="msn",ann=TRUE,mtry=NULL,ntree=500,
+    rfMode="buildClasses")
 }
 
 \arguments{
@@ -29,9 +34,7 @@ yai(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
     Y-variables as a linear formula.}
   \item{data}{when \code{x} and \code{y} are formulas, then data is a data frame or
     matrix that contains all the variables. The observations are split by \code{yai}
-    into two sets. \emph{Reference} observations are those with no missing values for X-
-    and Y-variables. \emph{Target} observations are those with values for X-variables
-    and NAs for Y-variables.}
+    into two sets.} 
   \item{k}{the number of nearest neighbors; default is 1.}
   \item{noTrgs}{when TRUE, skip finding neighbors for target observations.}
   \item{noRefs}{when TRUE, skip finding neighbors for reference observations.}
@@ -59,16 +62,38 @@ yai(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
          the same terminal node as a reference observation (see \code{\link[randomForest]{randomForest}}).
     }
   }
-  \item{mtry}{the number of X-variables picked at random, see randomForest
-    documentation, default is sqrt(number of X-variables).}
-  \item{ntree}{the number of classification and regression trees in the randomForest. When more than
-               one Y-variable is used, the trees are divided among the variables. Alternatively,
-               ntree can be a vector of values corresponding to each Y-variable.}
   \item{ann}{TRUE if \code{\link{ann}} is used to find neighbors, FALSE if a slow search is used.}
+  \item{mtry}{the number of X-variables picked at random when method is \code{randomForest}, 
+      see \code{\link[randomForest]{randomForest}}, default is sqrt(number of X-variables).}
+  \item{ntree}{the number of classification and regression trees when method is \code{randomForest}. 
+      When more than one Y-variable is used, the trees are divided among the variables. 
+      Alternatively, ntree can be a vector of values corresponding to each Y-variable.} 
+  \item{rfMode}{when \code{buildClasses} and method is \code{randomForest}, continuous variables
+      are internally converted to classes forcing randomForest to build classification trees for
+      the variable. Otherwise, regression trees are built if your version of 
+      \code{\link[randomForest]{randomForest}} is newer than \code{4.5-18}.} 
 }
 
 \details{
-See \url{./../doc/yaImputePaper.pdf} or this alternate \url{http://forest.moscowfsl.wsu.edu/gems/yaImputePaper.pdf}
+See \url{./../doc/yaImputePaper.pdf} or this alternate 
+\url{http://forest.moscowfsl.wsu.edu/gems/yaImputePaper.pdf}  
+
+This software is in review at the \emph{Journal of Statistical Software}. The draft paper
+is available at \url{http://forest.moscowfsl.wsu.edu/gems/yaImputeJSSDraft.pdf} 
+
+The following information is in addition to the content in the papers. 
+
+You need not have any Y-variables to run yai for the following methods: 
+\code{euclidean}, \code{raw}, \code{mahalanobis}, \code{ica}, and 
+\code{randomForest} (in which case unsupervised classification is 
+performed). However, normally \code{yai} classifies \emph{reference} 
+observations as those with no missing values for X- and Y- variables and 
+\emph{target} observations are those with values for X- variables and 
+missing data for Y-variables. When Y is NULL (there are no Y-variables), 
+all the observations are considered \emph{references}. See 
+\code{\link{newtargets}} for an example of how to use yai in this 
+situation.
+
 }
 
 
@@ -121,12 +146,25 @@ See \url{./../doc/yaImputePaper.pdf} or this alternate \url{http://forest.moscow
 
 require (yaImpute)
 
-# running these examples will load packages vegan and randomForest
+data(iris)
+
+# form some test data, y's are defined only for reference 
+# observations.
+refs=sample(rownames(iris),50)
+x <- iris[,1:2]      # Sepal.Length Sepal.Width
+y <- iris[refs,3:4]  # Petal.Length Petal.Width
+
+# build yai objects using 2 methods
+msn <- yai(x=x,y=y)
+mal <- yai(x=x,y=y,method="mahalanobis")
+
+# running the following examples will load packages vegan 
+# and randomForest, and is more complicated.
 
 data(MoscowMtStJoe)
 
 # convert polar slope and aspect measurements to cartesian
-# (which is the same as Stage's (1976) expression).
+# (which is the same as Stage's (1976) transformation).
 
 polar <- MoscowMtStJoe[,40:41]
 polar[,1] <- polar[,1]*.01      # slope proportion
@@ -155,12 +193,21 @@ rforig <- impute(rf,ancillaryData=y)
 # compare the results
 compare.yai(mal,gnn,msn,rforig)
 plot(compare.yai(mal,gnn,msn,rforig))
+
+# build another randomForest case forcing regression
+# to be used for continuous variables. The answers differ
+# but one is set not clearly better than the other.
+
+rf2 <- yai(x=x, y=ybaB, method="randomForest", rfMode="regression")
+rforig2 <- impute(rf2,ancillaryData=y)
+compare.yai(rforig2,rforig)
+
 }
 
 
 \author{
   Nicholas L. Crookston \email{ncrookston@fs.fed.us} \cr
-  Andrew O. Finley \email{afinley@stat.umn.edu}
+  Andrew O. Finley \email{finleya@msu.edu}
 }
 
 \keyword{multivariate}

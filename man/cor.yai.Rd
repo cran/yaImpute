@@ -24,7 +24,7 @@ cor.yai (object,vars=NULL,\dots)
 \details{
   The correlations are computed using \code{\link{cor.yai}}. For data imputation, such
   correlations are likely not appropriate; a warning message is issued when
-  this function is used.
+  this function is used (Stage and Crookston 2007).
 }
 
 \seealso{
@@ -32,8 +32,16 @@ cor.yai (object,vars=NULL,\dots)
 
 \author{
   Nicholas L. Crookston \email{ncrookston@fs.fed.us} \cr
-  Andrew O. Finley \email{afinley@stat.umn.edu}
+  Andrew O. Finley \email{finleya@msu.edu}
 }
+
+\references{
+  Stage, A.R.; Crookston, N.L. (2007). Partitioning error components
+  for accuracy-assessment of near neighbor methods of imputation.
+  \emph{For. Sci.} 53(1):62-72.
+  \url{http://forest.moscowfsl.wsu.edu/gems/StagePartitioningFS.pdf}
+}
+
 
 \keyword{misc}
 \keyword{multivariate}
