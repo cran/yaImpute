@@ -7,11 +7,7 @@ unionDataJoin=function(...,warn=TRUE)
 #  when warn is TRUE, columns that occur in more than one source are listed in a warning.
 
    args=list(...)
-   if (length(args)==1)
-   {
-      args=args[[1]]
-      if (class(args) != "list" ) stop("single argument must be a list")
-   }
+   if (length(args)==1 && class(args[[1]]) == "list") args=args[[1]]
    for (d in args)
    {
       if (!is.data.frame(d) & !is.matrix(d)) stop ("arguments or list members must be matrices or data frames")
@@ -34,7 +30,8 @@ unionDataJoin=function(...,warn=TRUE)
    if (warn & length(haveCol)>0)
       warning ("Columns: \"",paste(haveCol,collapse=", "),
                "\" were defined more than once")
-   all=as.data.frame(matrix(data=NA,nrow=length(rows),ncol=length(cols)))
+   all=matrix(data=NA,nrow=length(rows),ncol=length(cols))
+   all=data.frame(all)
    rownames(all)=rows
    colnames(all)=cols
    factors=matrix(data=FALSE,nrow=length(cols),ncol=1)
@@ -43,7 +40,6 @@ unionDataJoin=function(...,warn=TRUE)
    for (d in args)
    {
       theCols=colnames(d)
-      both = intersect(rownames(all),rownames(d))
       if (is.data.frame(d))
       {
          for (var in theCols)
@@ -51,12 +47,12 @@ unionDataJoin=function(...,warn=TRUE)
             if (is.factor(d[,var]))
             {
                factors[var,1] = TRUE
-               all[both,var]=levels(d[,var])[d[both,var]]
+               all[rownames(all) %in% rownames(d),var]=levels(d[,var])[d[,var]]
             }
-            else all[both,var]=d[both,var]
+            else all[rownames(all) %in% rownames(d),var]=d[,var]
          }
       }
-      else all[both,theCols]=d[both,]
+      else all[rownames(all) %in% rownames(d),theCols]=d
    }
    for (var in colnames(all)) if (factors[var,1]) all[,var]=as.factor(all[,var])
    all

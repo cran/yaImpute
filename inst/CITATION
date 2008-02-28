@@ -1,17 +1,25 @@
 citHeader("To cite package 'yaImpute' in publications use:")
 
-citEntry(entry="Manual",
-  title = "yaImpute: An R Package for k-NN Imputation",
-  author = personList(as.person("Nicholas L. Crookston"),
-	                   as.person("Andrew O. Finley")),
-  year = "In prep",
-  organization = "USDA Forest Service, Rocky Mountain Research Station",
-  address      = "1221 South Main, Moscow, Idaho, USA",
-  note         = "ncrookston@fs.fed.us, afinley@stat.umn.edu",
+citEntry(
+  entry = "article",
+  title =	"yaImpute: An R Package for kNN Imputation",
+  author =	"Nicholas L. Crookston and Andrew O. Finley",
+  journal =	"Journal of Statistical Software",
+  volume =	"23",
+  number =	"10",
+  day =  	"10",
+  month =	"10",
+  year = 	"2007",
+  CODEN =	"JSSOBK",
+  ISSN = 	"1548-7660",
+  bibdate =	"2007-10-10",
+  URL =  	"http://www.jstatsoft.org/v23/i10",
+  accepted =	"2007-10-10",
+  submitted =	"2007-06-20",
+
   textVersion =
-	paste("Crookston, Nicholas L.; Finley, Andrew O. (In prep). ",
-	"yaImpute: An R Package for k-NN Imputation. ",
-	"USDA Forest Service, Rocky Mountain Research Station, ",
-	"1221 South Main, Moscow, Idaho, USA.",
-   sep="")
+        paste("Crookston, Nicholas L.; Finley, Andrew O. 2007. ",
+        "yaImpute: An R Package for k-NN Imputation. ",
+        "Journal of Statistical Software. 23(10):1-16.",
+   sep="")   
 )

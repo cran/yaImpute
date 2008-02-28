@@ -17,25 +17,47 @@ factorMatch = function (x,xlevels)
 
    if (!is.null(attr(x,"illegalLevelCounts"))) return(x = x)
    facts=intersect(names(x),names(xlevels))
-   if (length(facts)==0) return(x)
+   if (length(facts)==0) return(x = x)
+
    nas=NULL
    miss=NULL
    for (varName in facts)
-   {
+   {  	
       origLevs= unique(I(as.character(x[,varName])))
+      lt=xlevels[[varName]]
+      fn=lt[suppressWarnings(as.numeric(origLevs))]
+      if (any(is.na(fn))) fn[is.na(fn)] = origLevs[is.na(fn)]
+      x[,varName]=as.factor(x[,varName])
+      attr(x[,varName],"levels")=fn
       new = match(x[,varName],xlevels[[varName]])
       nas=is.na(new)
-      if (sum(nas)>0)
+      if (any(nas))
       {
-         class(new)="factor"
-         attr(new,"levels")=xlevels[[varName]]
          mtb=table(as.character(x[nas,varName]))
-         miss=if(is.null(miss)) list(mtb) else c(miss,list(mtb))
-         x[,varName]=new
+         if(is.null(miss)) 
+         {
+           miss=list(mtb)
+           names(miss)=varName
+          } 
+          else 
+          {
+             miss=c(miss,list(mtb))
+             names(miss)[length(miss)]=varName
+          }
       }
+      class(new)="factor"
+      attr(new,"levels")=xlevels[[varName]]
+      x[,varName]=new
    }
-   names(miss)=facts
-   attr(x,"illegalLevelCounts")=if (is.null(miss)) 0 else miss
+   if (is.null(miss))
+   { 
+      attr(x,"illegalLevelCounts")= 0 
+   }
+   else 
+   {
+   	  x=na.omit(x)
+      attr(x,"illegalLevelCounts")= miss
+   }
    x
 }
 

@@ -111,7 +111,12 @@ AsciiGridPredict(object,xfiles,outfiles,xtypes=NULL,lon=NULL,lat=NULL,
   \code{\link[randomForest]{randomForest}} version 4.5-19 and prior do 
   not contain \code{xlevels}; use function \code{\link{addXlevels}} to 
   add the necessary element if one or more 
-  \code{\link[base]{factor}}\code{s} are used. 
+  \code{\link[base]{factor}}\code{s} are used.
+  
+  Asciigrid maps do not contain character data, only numbers. If the numbers 
+  in the maps correspond to levels, care must be taken by the user to insure
+  that the coding scheme used in building the maps is identical to that 
+  used in building the \code{object}. 
 }  
   
 
@@ -131,7 +136,11 @@ level was found.
 
 # Use the iris data
 data(iris)
-
+                                 
+# Section 1: Imagine that the iris are planted in a planting bed. 
+# The following set of commands create asciigrid map 
+# files for four attributes to illustrate the planting layout.
+                                 
 # Change species from a character factor to numeric (the sp classes
 # can not handle character data).
 
@@ -142,7 +151,7 @@ pLen <- matrix(iris[,3],10,15)
 pWid <- matrix(iris[,4],10,15)
 spcd <- matrix(as.numeric(iris[,5]),10,15)
 
-# Make a "map" of each variable.
+# Make maps of each variable.
 
 header = c("NCOLS 15","NROWS 10","XLLCORNER 1","YLLCORNER 1",
            "CELLSIZE 1","NODATA_VALUE -9999")
@@ -164,12 +173,16 @@ write.table(pWid,file="pwid.txt",append=TRUE,col.names=FALSE,
 write.table(spcd,file="spcd.txt",append=TRUE,col.names=FALSE,
             row.names=FALSE)
 
+# Section 2: Create functions to predict species
+
 # sample the data
 refs <- sample(rownames(iris),50)
 y <- data.frame(Species=iris[refs,5],row.names=rownames(iris[refs,]))
 
 # build a yai imputation for the reference data.
 rfNN <- yai(x=iris[refs,1:4],y=y,method="randomForest")
+
+# make lists of input and output map files.
 
 xfiles <- list(Sepal.Length="slen.txt",Sepal.Width="swid.txt",
                Petal.Length="plen.txt",Petal.Width="pwid.txt")

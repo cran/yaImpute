@@ -75,11 +75,7 @@ yai(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
 }
 
 \details{
-See \url{./../doc/yaImputePaper.pdf} or this alternate 
-\url{http://forest.moscowfsl.wsu.edu/gems/yaImputePaper.pdf}  
-
-This software is in review at the \emph{Journal of Statistical Software}. The draft paper
-is available at \url{http://forest.moscowfsl.wsu.edu/gems/yaImputeJSSDraft.pdf} 
+See the paper at \url{http://www.jstatsoft.org/v23/i10/paper} (it includes examples).  
 
 The following information is in addition to the content in the papers. 
 
@@ -93,7 +89,6 @@ missing data for Y-variables. When Y is NULL (there are no Y-variables),
 all the observations are considered \emph{references}. See 
 \code{\link{newtargets}} for an example of how to use yai in this 
 situation.
-
 }
 
 
@@ -179,7 +174,7 @@ mal <- yai(x=x, y=y, method="mahalanobis", k=1)
 gnn <- yai(x=x, y=y, method="gnn", k=1)
 msn <- yai(x=x, y=y, method="msn", k=1)
 
-plot(mal)
+plot(mal,vars=yvars(mal)[1:16])
 
 # reduce the plant community data for randomForest.
 yba  <- MoscowMtStJoe[,1:17]

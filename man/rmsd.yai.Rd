@@ -35,8 +35,7 @@ rmsd.yai (object,vars=NULL,scale=FALSE,\dots)
 }
 
 \seealso{
-\code{\link{yai}}, \code{\link{impute.yai}} and \url{./../doc/yaImputePaper.pdf}
-(or this alternate \url{http://forest.moscowfsl.wsu.edu/gems/yaImputePaper.pdf}).
+\code{\link{yai}}, \code{\link{impute.yai}} and \url{http://www.jstatsoft.org/v23/i10/paper}.
 }
 
 \author{

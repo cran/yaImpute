@@ -48,8 +48,7 @@ errorStats(mahal,\dots,scale=FALSE,pzero=0.1,plg=0.5,seeMethod="lm")
 }
 
 \details{
-See \url{./../doc/StagePartitioningFS.pdf} or this
-alternate \url{http://forest.moscowfsl.wsu.edu/gems/StagePartitioningFS.pdf}
+See \url{http://www.fs.fed.us/rm/pubs_other/rmrs_2007_stage_a001.pdf}
 }
 
 \seealso{

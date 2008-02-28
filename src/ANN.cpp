@@ -22,12 +22,16 @@
 //		Initial release
 //	Revision 1.0  04/01/05
 //		Added performance counting to annDist()
+//      Modified 2/28/08
+//              Added cstdlib and std::
 //----------------------------------------------------------------------
 
+#include <cstdlib>
 #include "ANN/ANNx.h"					// all ANN include
 #include "ANN/ANNperf.h"				// ANN performance 
+//using namespace std;					// make std:: accessible
 
-using namespace std;					// make std:: accessible
+#include <R.h>
 
 //----------------------------------------------------------------------
 //	Point methods
@@ -166,11 +170,13 @@ ANNbool ANNorthRect::inside(int dim, ANNpoint p)
 void annError(char *msg, ANNerr level)
 {
 	if (level == ANNabort) {
-		cerr << "ANN: ERROR------->" << msg << "<-------------ERROR\n";
-		exit(1);
+	  //cerr << "ANN: ERROR------->" << msg << "<-------------ERROR\n";
+	  Rprintf("ANN: ERROR");
+	  std::exit(1);
 	}
 	else {
-		cerr << "ANN: WARNING----->" << msg << "<-------------WARNING\n";
+	  //cerr << "ANN: WARNING----->" << msg << "<-------------WARNING\n";
+	  Rprintf("ANN: ERROR");
 	}
 }
 

@@ -73,4 +73,4 @@ print.yai = function(x,...)
    }
 }
 
-summary.yai = function (object,...) print.yai(x,...)
+summary.yai = function (object,...) print.yai(object,...)

@@ -23,6 +23,8 @@
 //	Revision 1.0  04/01/05
 //		Moved dump out of kd_tree.cc into this file.
 //		Added kd-tree load constructor.
+//      Revision 2/29/08
+//              added cstdlib and std:: along with cstdlib. and sting.h
 //----------------------------------------------------------------------
 // This file contains routines for dumping kd-trees and bd-trees and
 // reloading them. (It is an abuse of policy to include both kd- and
@@ -31,10 +33,15 @@
 // desired.)
 //----------------------------------------------------------------------
 
+#include <cstdlib>
+#include <stdio.h>
+#include <string.h>
+
+//using namespace std;					// make std:: available
+
 #include "kd_tree.h"					// kd-tree declarations
 #include "bd_tree.h"					// bd-tree declarations
 
-using namespace std;					// make std:: available
 
 //----------------------------------------------------------------------
 //		Constants
@@ -439,6 +446,6 @@ static ANNkd_ptr annReadTree(
 	}
 	else {
 		annError("Illegal node type in dump file", ANNabort);
-		exit(0);								// to keep the compiler happy
+		std::exit(0);								// to keep the compiler happy
 	}
 }

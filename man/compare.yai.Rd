@@ -33,8 +33,9 @@ compare.yai(\dots,ancillaryData=NULL,vars=NULL,method="rmsd")
 
 \seealso{
 \code{\link{yai}}, \code{\link{plot.compare.yai}},
-\code{\link{impute.yai}}, \code{\link{rmsd.yai}}}
+\code{\link{impute.yai}}, \code{\link{rmsd.yai}}
 }
+
 
 \examples{
 require(yaImpute)

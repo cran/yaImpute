@@ -65,7 +65,7 @@ newtargets=function(object,newdata,ann=NULL)
           stop(paste("required column(s) missing:",paste(is.null(have) ? vold : vold[-have],collapse=", ")))
       xall=na.omit(newdata[,have])
       obsDropped=names(attributes(na.omit(xall))$na.action)
-      if (length(obsDropped)>0) warning (nrow(newdata)-nrow(newx)," observation(s) removed")
+      if (length(obsDropped)>0) warning (nrow(newdata)-nrow(xall)," observation(s) removed")
    }
    else
    {

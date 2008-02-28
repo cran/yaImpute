@@ -19,8 +19,9 @@
 
 \seealso{
 \code{\link{yai}}, \code{\link{compare.yai}},
-\code{\link{impute.yai}}, \code{\link{rmsd.yai}}}
+\code{\link{impute.yai}}, \code{\link{rmsd.yai}}
 }
+
 
 \author{
   Nicholas L. Crookston \email{ncrookston@fs.fed.us} \cr

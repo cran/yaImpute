@@ -6,9 +6,11 @@
   This function adds \code{xlevels} (see \code{\link[stats]{lm}}) to
   \code{\link[randomForest]{randomForest}} objects. Function
   \code{\link{AsciiGridImpute}} will check the levels on the input
-  maps to insure that only those used in the fitting are used in the predictions.
-
- }
+  maps to insure that only those used in the fitting are used in the predictions. 
+  
+  Note that this function is not needed for objects built
+  using randomForest version 4.5-21 or later. 
+}
 
 \usage{
 addXlevels(object,origDataFrame)
