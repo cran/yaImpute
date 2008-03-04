@@ -13,14 +13,10 @@
 #                     target observations. For reference observations,
 #                     the value form the observation itself is excluded.
 #                     When k==1, closest is always used. 
-#       allk        = a column for each variable and for each k is returned. 
-#       onek        = a column for each variable and for the kth neighbor is 
-#                     returned.
 #       mean        = An average over the k neighbors is taken
 #       dstWeighted = a weighted average is taken over the k
 #                     neighbors where the weights are 1/(1+d)
 #  method.factor defines how factors are imputed, where: 
-#       if method is allk or onek, method.factor is ignored.
 #       closest     = same a continous (always used with k==1).
 #       random      = random pick with sampling proportional to 1/max(d,.0001)
 #                     NOT YET SUPPORTED
@@ -255,10 +251,10 @@ impute.yai <- function (object,ancillaryData=NULL,method="closest",
       out <- NULL
       if (!is.null(vars))
       {
-         ancillaryData=ancillaryData[,vars,FALSE]
+         ancillaryData <- ancillaryData[,vars,FALSE]
          if (is.null(ncol(ancillaryData))) stop ("requested variables not present in ancillaryData")
       }
-      rownames(ancillaryData)=as.character(rownames(ancillaryData))
+      rownames(ancillaryData) <- as.character(rownames(ancillaryData))
       ids <- as.character(rownames(object$xRefs))
       common <- intersect(ids,rownames(ancillaryData))
       missing <- setdiff(common,rownames(ancillaryData))

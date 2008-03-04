@@ -22,9 +22,11 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
    if (is.null(names(xfiles))) stop ("xfiles elements must be named")
    if (is.null(names(outfiles))) stop ("outfiles elements must be named")
 
-#  legend is a list of factor levels and their index values for output
+#  outLegend is a list of factor levels and their index values for output
+#  inLegend is a the same idea but for input. 
 
-   legend=NULL
+   outLegend=NULL
+   inLegend=NULL
 
 #  nasum is a matrix of the number of NAs generated for each row
 
@@ -86,7 +88,7 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
             colnames(allY)=toKeep
          }
       }
-      if (is.null(names(allY))) stop ("ancillaryData can not be used")
+      if (is.null(names(allY))) stop ("ancillaryData can not be used because no variables in it match the names in outfiles")
    }
    if (is.null(names(allY)) && class(object)[1]=="yai")
    {
@@ -231,6 +233,12 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
       if (length(xlevels)>0) for (i in names(xlevels)) if (is.numeric(xlevels[[i]]) &&
                                   length(xlevels[[i]]) == 1) xlevels[[i]] = NULL
       if (length(xlevels) == 0) xlevels=NULL
+      else 
+      {
+      	inLegend=lapply(xlevels,data.frame)
+      	inLegend=unionDataJoin(inLegend)
+      	names(inLegend)=names(xlevels) 
+      }
    }
 
    nskip=0
@@ -321,19 +329,20 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
             predict=predict(object,newdata,...)
             outdata=data.frame(predict=predict,row.names=rownames(newdata))
          }
-         if (is.null(legend))
+         if (is.null(outLegend))
          {
-           legend=vector("list",ncol(outdata))
-           names(legend)=names(outdata)
-           for (n in names(legend)) legend[[n]]=if (is.factor(outdata[,n])) levels(outdata[,n]) else NULL
+           outLegend=vector("list",ncol(outdata))
+           names(outLegend)=names(outdata)
+           for (n in names(outLegend)) outLegend[[n]]=if (is.factor(outdata[,n])) levels(outdata[,n]) else NULL
          }
          if (nrow(outdata) != nrow(newdata))
          {
-            cat ("First 6 columns (printed as data table rows) of non-missing predictions for row ",ir,"\n")
-         	head(outdata)
-         	cat ("First 6 columns of non-missing xfiles data for row ",ir,"\n")
-         	head(newdata)
-         	stop ("Unexpected results for row = ",ir)
+            cat ("First six lines non-missing predictions for row ",ir,"\n")
+          	print(head(outdata))
+         	  cat ("First six lines of non-missing xfiles data for row ",ir,"\n")
+          	head(head(newdata))
+         	  flush.console()        	
+          	stop ("Unexpected results for row = ",ir)
          }
          outrs = nrow(outdata) # the predict might send NA's, strip them
          outdata=na.omit(outdata)
@@ -357,7 +366,13 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
       for (i in 1:length(outfh))
       {
          vname=names(outfh)[i]
-         if (length(intersect(names(outdata),vname))==0) stop (vname," is not present in the prediction")
+         if (length(intersect(names(outdata),vname))==0) 
+         {
+         	  cat ("\nFirst six lines of predicted data for map row: ",ir,"\n")
+         	  print(head(outdata))
+         	  flush.console()
+         	  stop (vname," is not present in the predicted data")
+         }
          write (outdata[,vname],outfh[[i]],ncolumns=newnc)
       }
 
@@ -370,10 +385,10 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
    }
    cat ("\n");flush.console()
 
-   for (n in names(legend))
+   for (n in names(outLegend))
    {
-      legend[[n]]=as.data.frame(legend[[n]],stringsAsFactors=FALSE)
-      names(legend[[n]])=n
+      outLegend[[n]]=as.data.frame(outLegend[[n]],stringsAsFactors=FALSE)
+      names(outLegend[[n]])=n
    }
    if (! is.null(nasum))
    {
@@ -383,13 +398,19 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
       warning("Unexpected NA values generated")
    }
 
-   if (length(legend)>0)
+   if (length(outLegend)>0)
    {
-     legend=unionDataJoin(legend)
+     outLegend=unionDataJoin(outLegend)
      cat ("Legend of levels in output grids:\n")
-     print (legend)
+     print (outLegend)
    }
-   else legend=NULL
+   else outLegend=NULL
+
+   if (! is.null(inLegend))
+   {
+     cat ("Legend of levels in input grids (assumed):\n")
+     print (inLegend)
+   }
 
    if (!is.null(sumIlls))
    {
@@ -403,5 +424,5 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
          cat ("\n")
       }
    }
-   invisible(list(unexpectedNAs=nasum,illegalLevels=sumIlls,factorLegend=legend))
+   invisible(list(unexpectedNAs=nasum,illegalLevels=sumIlls,outputLegend=outLegend,inputLegend=inLegend))
 }

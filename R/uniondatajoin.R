@@ -10,9 +10,9 @@ unionDataJoin=function(...,warn=TRUE)
    if (length(args)==1 && class(args[[1]]) == "list") args=args[[1]]
    for (d in args)
    {
-      if (!is.data.frame(d) & !is.matrix(d)) stop ("arguments or list members must be matrices or data frames")
+      if (!is.data.frame(d) && !is.matrix(d)) stop ("arguments or list members must be matrices or data frames")
       if (is.matrix(d))
-     {
+      {
          if (is.null(colnames(d))) stop ("column names are requried within all input matrices")
          if (is.null(rownames(d))) stop ("row names are requried within all input matrices")
          if (length(unique(colnames(d))) != length(colnames(d))) stop("column names must be unique within all input matrices")
