@@ -32,8 +32,6 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
 
    nasum=NULL
 
-#  factorMatch = get("factorMatch",asNamespace("yaImpute"))
-
 #  make sure there is a type for every xfile
 
    if (is.null(xtypes))
@@ -230,6 +228,12 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
    if (is.null(xlevels) && length(intersect(class(object),"randomForest")) > 0) xlevels=object$forest$xlevels
    if (!is.null(xlevels))
    {
+      # some objects use xlevel names in the form of "factor(varName)" (gam, for example. Fix this...
+      name1 = names(xlevels)[1]
+      if (nchar(name1) > 8 && substr(name1,1,7) == "factor(") 
+      {
+         names(xlevels) = lapply(names(xlevels), function (x) unlist(strsplit(unlist(strsplit(x,"\\("))[2],"\\)")))
+      }
       if (length(xlevels)>0) for (i in names(xlevels)) if (is.numeric(xlevels[[i]]) &&
                                   length(xlevels[[i]]) == 1) xlevels[[i]] = NULL
       if (length(xlevels) == 0) xlevels=NULL
@@ -240,7 +244,6 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
       	names(inLegend)=names(xlevels) 
       }
    }
-
    nskip=0
    if (rows[1]>1) nskip=rows[1]-1
 
@@ -267,6 +270,8 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
       nskip=0
       if (newnc == nc) newdata=data.frame(indata)
       else             newdata=data.frame(indata)[cols[1]:cols[2],,FALSE]
+      width=floor(log(nrow(newdata),10))+1
+      rownames(newdata)=paste(ir,formatC(1:nrow(newdata),width=width,flag="0"),sep="x")
       origRowNames=rownames(newdata)
 
       newdata=na.omit(newdata)
@@ -274,6 +279,7 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
       if (!is.null(xlevels) && length(omitted)<length(origRowNames))
       {
          moreOrigRowNames=rownames(newdata)
+         factorMatch = get("factorMatch",asNamespace("yaImpute"))
          newdata=factorMatch(newdata,xlevels)
          ills = attr(newdata,"illegalLevelCounts")
          if (class(ills)=="list")
@@ -327,7 +333,9 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
          else
          {
             predict=predict(object,newdata,...)
-            outdata=data.frame(predict=predict,row.names=rownames(newdata))
+            if (class(predict) != "data.frame")
+               outdata=data.frame(predict=predict,row.names=rownames(newdata))
+            else outdata=predict
          }
          if (is.null(outLegend))
          {
@@ -360,7 +368,7 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
                               row.names=omitted)
             names(more)=names(outdata)
             outdata = rbind(outdata,more)
-            outdata = outdata[sort(as.numeric(rownames(outdata)),index.return = TRUE)$ix,,FALSE]
+            outdata = outdata[sort(rownames(outdata),index.return = TRUE)$ix,,FALSE]
          }
       }
       for (i in 1:length(outfh))

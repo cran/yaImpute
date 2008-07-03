@@ -1,6 +1,6 @@
 yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
-                 nVec=NULL,pVal=.05,method="msn",ann=TRUE,mtry=NULL,ntree=500,
-                 rfMode="buildClasses")
+                nVec=NULL,pVal=.05,method="msn",ann=TRUE,mtry=NULL,ntree=500,
+                rfMode="buildClasses")
 {
    # define functions used internally.
    sumSqDiff=function(x,y) { d=x-y; sum(d*d) }
@@ -134,6 +134,7 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       if (fy+sum(findFactors(xall)>0)>0) stop("factors allowed only for method randomForest")
    }
    refs=intersect(rownames(yall),rownames(xall))
+   if (length(refs) == 0) stop ("no reference observations.")
    yRefs=yall[refs,,drop=FALSE]
    xRefs=xall[refs,,drop=FALSE]
    trgs=setdiff(rownames(xall),refs)
@@ -210,13 +211,21 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
          yScale$scale=yScale$scale[!yDrop]
          yScale$center=yScale$center[!yDrop]
       }
-      cancor=cancor(xRefs, yRefs, xcenter = xScale$center, ycenter = yScale$center)
+      xcvRefs=scale(xRefs,center=xScale$center,scale=xScale$scale)
+      ycvRefs=scale(yRefs,center=yScale$center,scale=yScale$scale)
+      cancor=cancor(xcvRefs,ycvRefs,xcenter = FALSE, ycenter = FALSE)  
+                    
+      # scale the coefficients so that the cononical vectors will have unit variance.
+      
+      cscal = 1/sd(xcvRefs %*% cancor$xcoef[,1])
+      cancor$ycoef = cancor$ycoef * cscal
+      cancor$xcoef = cancor$xcoef * cscal
+     
       ftest=ftest.can(p=nrow(cancor$ycoef),q=nrow(cancor$xcoef),N=nrow(yRefs),cancor$cor)
 
       if (is.null(nVec)) nVec=length(cancor$cor)-sum(ftest$pgF>pVal)
       nVec=min(nVec,length(cancor$cor))
       nVec=max(nVec,1)
-
       if (method == "msn" ) projector = cancor$xcoef[,1:nVec,drop=FALSE] %*%
                                         diag(cancor$cor[1:nVec,drop=FALSE],nVec,nVec)
       if (method == "msn2") projector = cancor$xcoef[,1:nVec,drop=FALSE] %*%
@@ -232,8 +241,8 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
          xRefs=xRefs[,theCols,drop=FALSE]
          xScale$center=xScale$center[theCols]
          xScale$scale=xScale$scale[theCols]
+         xcvRefs=scale(xRefs,center=xScale$center,scale=xScale$scale)
       }
-      xcvRefs=scale(xRefs,center=xScale$center,scale=xScale$scale)
       xcvRefs=xcvRefs %*% projector
       if (!noTrgs && length(trgs) > 0)
       {
