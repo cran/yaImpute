@@ -23,7 +23,7 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
    if (is.null(names(outfiles))) stop ("outfiles elements must be named")
 
 #  outLegend is a list of factor levels and their index values for output
-#  inLegend is a the same idea but for input. 
+#  inLegend is a the same idea but for input.
 
    outLegend=NULL
    inLegend=NULL
@@ -92,7 +92,11 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
    {
       toKeep = intersect(colnames(object$yRefs),names(outfiles))
       if (length(toKeep) == 0) allY = NULL
-      else allY = data.frame(object$yRefs[,toKeep],row.names=rownames(object$yRefs))
+      else
+      {
+        allY = data.frame(object$yRefs[,toKeep],row.names=rownames(object$yRefs))
+        colnames(allY) = toKeep
+      }
    }
 
 #  if using yai, deal with ann
@@ -228,20 +232,17 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
    if (is.null(xlevels) && length(intersect(class(object),"randomForest")) > 0) xlevels=object$forest$xlevels
    if (!is.null(xlevels))
    {
-      # some objects use xlevel names in the form of "factor(varName)" (gam, for example. Fix this...
-      name1 = names(xlevels)[1]
-      if (nchar(name1) > 8 && substr(name1,1,7) == "factor(") 
-      {
-         names(xlevels) = lapply(names(xlevels), function (x) unlist(strsplit(unlist(strsplit(x,"\\("))[2],"\\)")))
-      }
+      # we need just the variable names...
+      names(xlevels) = lapply(names(xlevels), function (x) unlist(all.vars(formula(paste("~",x)))[1]))
+
       if (length(xlevels)>0) for (i in names(xlevels)) if (is.numeric(xlevels[[i]]) &&
                                   length(xlevels[[i]]) == 1) xlevels[[i]] = NULL
       if (length(xlevels) == 0) xlevels=NULL
-      else 
+      else
       {
       	inLegend=lapply(xlevels,data.frame)
       	inLegend=unionDataJoin(inLegend)
-      	names(inLegend)=names(xlevels) 
+      	names(inLegend)=names(xlevels)
       }
    }
    nskip=0
@@ -289,12 +290,16 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
                sumIlls = ills
                warning ("NA's generated due to illegal level(s).")
             }
-            else sumIlls = addIllegalLevels(sumIlls,ills)
+            else
+            {
+               addIllegalLevels = get("addIllegalLevels",asNamespace("yaImpute"))
+               sumIlls = addIllegalLevels(sumIlls,ills)
+            }
             omitted=c(omitted,moreOrigRowNames[as.vector(attr(newdata,"na.action"))])
          }
       }
-      else  attr(newdata,"illegalLevelCounts")=0   # tag the vector so newtargets
-                                                   # will not duplicate the data
+      else  attr(newdata,"illegalLevelCounts")=0   # tag the vector so newtargets() will not duplicate
+                                                   # the creation of this attribute data
       if (length(omitted)==length(origRowNames)) # all missing.
       {
          outdata=data.frame(matrix(nodout,length(omitted),length(outfh)),
@@ -346,11 +351,11 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
          if (nrow(outdata) != nrow(newdata))
          {
             cat ("First six lines non-missing predictions for row ",ir,"\n")
-          	print(head(outdata))
-         	  cat ("First six lines of non-missing xfiles data for row ",ir,"\n")
-          	head(head(newdata))
-         	  flush.console()        	
-          	stop ("Unexpected results for row = ",ir)
+            print(head(outdata))
+            cat ("First six lines of non-missing xfiles data for row ",ir,"\n")
+            head(head(newdata))
+            flush.console()
+            stop ("Unexpected results for row = ",ir)
          }
          outrs = nrow(outdata) # the predict might send NA's, strip them
          outdata=na.omit(outdata)
@@ -374,7 +379,7 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
       for (i in 1:length(outfh))
       {
          vname=names(outfh)[i]
-         if (length(intersect(names(outdata),vname))==0) 
+         if (length(intersect(names(outdata),vname))==0)
          {
          	  cat ("\nFirst six lines of predicted data for map row: ",ir,"\n")
          	  print(head(outdata))
@@ -422,8 +427,8 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
 
    if (!is.null(sumIlls))
    {
-      cat ("Summary of factors with levels found in input maps but are\n")
-      cat ("not present data used to fit the model (number of map cells):\n")
+      cat ("Factors with levels found in input maps but not present in data used to fit the model\n")
+      cat ("(number of map cells; counts do not include cells coded NODATA on other maps):\n")
       if (class(sumIlls[[1]]) == "table") print (sumIlls)
       else
       {
