@@ -141,11 +141,11 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
 
    if (method == "gnn") # remove rows with zero sums or vegan will error off.
    {
-      zero = apply(yRefs,1,sum) < .01
+      zero = apply(yRefs,1,sum) <= 0
       ndrop=sum(zero)
       if (ndrop>0)
       {
-         warning (ndrop," rows have y-variable row sums < .01 were deleted for method gnn")
+         warning (ndrop," rows have y-variable row sums <= 0 were converted to target observations for method gnn")
          if (ndrop==length(refs)) stop ("all references were deleted")
          obsDropped=union(obsDropped,refs[zero])
          refs=refs[!zero]
@@ -154,7 +154,7 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
          trgs=setdiff(rownames(xall),refs)
       }
 
-      yDrop=apply(yRefs,2,sum) < 1e-10
+      yDrop=apply(yRefs,2,sum) <= 0
       if (sum(yDrop) > 0) warning ("y variables with zero sums: ",
                                     paste(colnames(yRefs)[yDrop],collapse=","))
       if (sum(yDrop) == ncol(yRefs)) stop("no y variables")
@@ -405,9 +405,16 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
          colnames(nodeset)=paste(colnames(nodeset),i,sep=".")
          nodes=if (is.null(nodes)) nodeset else cbind(nodes,nodeset)
       }
-      INTrefNodes=as.integer(nodes[rownames(xRefs),])
-      INTrows=as.integer(nrow(xRefs))
-      INTcols=as.integer(ncol(nodes))
+      refNodes=nodes[rownames(xRefs),]
+      INTrefNodes=as.integer(refNodes)
+      INTnrow=as.integer(nrow(xRefs))
+      INTncol=as.integer(ncol(nodes))
+      INTsort = INTrefNodes
+      dim(INTsort) = c(INTnrow,INTncol)
+      INTsort=apply(INTsort,2,function (x) sort(x,index.return = TRUE, decreasing = FALSE)$ix-1)
+      attributes(INTsort)=NULL
+      INTsort = as.integer(INTsort)
+      attr(ranForest,"rfRefNodeSort") = list(INTrefNodes=INTrefNodes, INTnrow=INTnrow, INTncol=INTncol, INTsort=INTsort)
    }
    else # default
    {
@@ -451,14 +458,20 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       }
       else
       {
-         for (row in rownames(xTrgs))
-         {
-            prox=.Call("rfoneprox", INTrefNodes, INTrows, INTcols,
-                        as.integer(nodes[row,]), vector("integer",INTrows))
-            px=sort(prox,index.return = TRUE, decreasing = TRUE)$ix[1:k]
-            neiDstTrgs[row,]=(INTcols-prox[px])/INTcols
-            neiIdsTrgs[row,]=rownames(xRefs)[px]
-        }
+        prox=lapply(apply(nodes[rownames(xTrgs),],1,as.list),function (x) 
+          {
+             prx=.Call("rfoneprox", INTrefNodes, INTsort, INTnrow, INTncol,
+                       as.integer(x), vector("integer",INTnrow),dup=FALSE) 
+             if (k > 1)  px=sort(prx,index.return = TRUE, decreasing = TRUE)$ix[1:k]
+             else        px=which.max(prx)
+             c(prx[px],px)  # counts followed by pointers to references
+          })
+        for (i in 1:k)
+        {
+          neiDstTrgs[,i]=unlist(lapply(prox,function (x,i) (INTncol-x[i])/INTncol,i))
+          neiIdsTrgs[,i]=unlist(lapply(prox,function (x,i,k,Rnames) 
+                 Rnames[x[k+i]],i,k,rownames(xRefs)))
+        } 
       }
    }
 
@@ -498,14 +511,25 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       }
       else
       {
-         for (row in rownames(xRefs))
-         {
-            prox=.Call("rfoneprox", INTrefNodes, INTrows, INTcols,
-                        as.integer(nodes[row,]), vector("integer",INTrows))
-            px=sort(prox,index.return = TRUE, decreasing = TRUE)$ix[2:l]
-            neiDstRefs[row,]=(INTcols-prox[px])/ncol(nodes)
-            neiIdsRefs[row,]=rownames(xRefs)[px]
-         }
+        prox=lapply(apply(refNodes,1,as.list),function (x) 
+          {
+             prx=.Call("rfoneprox", INTrefNodes, INTsort, INTnrow, INTncol,
+                       as.integer(x), vector("integer",INTnrow),dup=FALSE) 
+             if (k > 1) px=sort(prx,index.return = TRUE, decreasing = TRUE)$ix[2:l]
+             else
+             { 
+               px=which.max(prx)
+               prx[px]=-1
+               px=which.max(prx)
+             }
+             c(prx[px],px)  # counts followed by pointers to references
+           })
+        for (i in 1:k)
+        {
+           neiDstRefs[,i]=unlist(lapply(prox,function (x,i) (INTncol-x[i])/INTncol,i))
+           neiIdsRefs[,i]=unlist(lapply(prox,function (x,i,k,Rnames) 
+                  Rnames[x[k+i]],i,k,rownames(xRefs)))
+        } 
       }
    }
 

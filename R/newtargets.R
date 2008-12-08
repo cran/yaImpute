@@ -27,7 +27,6 @@
 
 newtargets=function(object,newdata,ann=NULL)
 {
-
    if (class(object) != "yai") stop ("object must be class yai")
    if (is.null(newdata) | nrow(newdata)==0) stop ("newdata is required")
    if (object$method == "gnn") # (GNN), make sure we have package vegan loaded
@@ -60,9 +59,10 @@ newtargets=function(object,newdata,ann=NULL)
    if (is.null(object$theFormula))
    {
       vold =colnames(object$xall)
-      have=intersect(vold,colnames(newdata))
-      if (length(have) != length(vold))
-          stop(paste("required column(s) missing:",paste(is.null(have) ? vold : vold[-have],collapse=", ")))
+      have=match(intersect(vold,colnames(newdata)),vold)
+      if (length(have) != length(vold))      
+          stop(paste("required column(s) missing:",
+               paste(if (length(have)==0) vold else vold[-have],collapse=", ")))
       xall=na.omit(newdata[,have])
       obsDropped=names(attributes(na.omit(xall))$na.action)
       if (length(obsDropped)>0) warning (nrow(newdata)-nrow(xall)," observation(s) removed")
@@ -84,21 +84,16 @@ newtargets=function(object,newdata,ann=NULL)
 
    theCols = colnames(object$xRefs)  # may be changed for reduced rank, depending on method.
 
-   if (object$method == "msn" | object$method == "msn2" |
-       object$method == "mahalanobis" | object$method == "ica")
+   if (object$method %in% c("msn","msn2","mahalanobis","ica"))
    {
       theCols = rownames(object$projector)
       xcvRefs=scale(object$xRefs,center=object$xScale$center,scale=object$xScale$scale)
       if (length(theCols)<ncol(xcvRefs)) xcvRefs=xcvRefs[,theCols,drop=FALSE]
    }
 
-   if (object$method == "euclidean")
-      xcvRefs=scale(object$xRefs,center=object$xScale$center,scale=object$xScale$scale)
-
-   xTrgs=as.data.frame(xall[trgs,theCols,drop=FALSE]) # this is needed by gnn unscalled.
+   xTrgs=as.data.frame(xall[trgs,theCols,drop=FALSE]) # this is needed by randomForest and gnn unscalled.
    if (nrow(xTrgs)==0) stop("no observations")
-
-   if (object$method == "gnn") # GNN
+   if (object$method == "gnn") # gnn
    {
       # create a projected space for the reference observations
       predCCA = get("modified.predict.cca",asNamespace("yaImpute"))
@@ -111,31 +106,56 @@ newtargets=function(object,newdata,ann=NULL)
       xcvTrgs=xcvTrgs %*% diag(sqrt(object$ccaVegan$CCA$eig/sum(object$ccaVegan$CCA$eig)))
       nVec = ncol(xcvRefs)
    }
-   if (object$method == "randomForest") # randomForest
+   else if (object$method == "randomForest") # randomForest
    {
       nodes=NULL
+      predObs = if (is.null(attr(object$ranForest,"rfRefNodeSort"))) rbind(object$xRefs,xTrgs) else xTrgs
       for (i in 1:length(object$ranForest))
       {
          predRF = getS3method("predict","randomForest")
-         nodeset=attr(predRF(object$ranForest[[i]],rbind(object$xRefs,xTrgs),
+         nodeset=attr(predRF(object$ranForest[[i]],predObs,
                       proximity=FALSE,nodes=TRUE),"nodes")
          if (is.null(nodeset)) stop("randomForest did not return nodes")
          colnames(nodeset)=paste(colnames(nodeset),i,sep=".")
          nodes=if (is.null(nodes)) nodeset else cbind(nodes,nodeset)
       }
-      INTrefNodes=as.integer(nodes[rownames(object$xRefs),])
-      INTnrow=as.integer(nrow(object$xRefs))
-      INTncol=as.integer(ncol(nodes))
-   }
-   else
-   {
-      if (object$method != "raw") xcvTrgs=scale(xTrgs,center=object$xScale$center,scale=object$xScale$scale)[,theCols]
-      else                        xcvTrgs=xTrgs[,theCols]
-      if (!is.null(object$projector))
+      if (is.null(attr(object$ranForest,"rfRefNodeSort")))
       {
-         xcvRefs=xcvRefs[,theCols,drop=FALSE] %*% object$projector
-         xcvTrgs=xcvTrgs[,theCols,drop=FALSE] %*% object$projector
+        INTrefNodes=as.integer(nodes[rownames(object$xRefs),])
+        INTnrow=as.integer(nrow(object$xRefs))
+        INTncol=as.integer(ncol(nodes))
+        INTsort = INTrefNodes
+        dim(INTsort) = c(INTnrow,INTncol)
+        INTsort=apply(INTsort,2,function (x) sort(x,index.return = TRUE, decreasing = FALSE)$ix-1)
+        attributes(INTsort)=NULL
+        INTsort = as.integer(INTsort)
+        nodes = nodes[rownames(xTrgs),]
       }
+      else
+      { 
+        INTrefNodes = attr(object$ranForest,"rfRefNodeSort")[["INTrefNodes"]]
+        INTnrow     = attr(object$ranForest,"rfRefNodeSort")[["INTnrow"]]
+        INTncol     = attr(object$ranForest,"rfRefNodeSort")[["INTncol"]]
+        INTsort     = attr(object$ranForest,"rfRefNodeSort")[["INTsort"]]
+      }
+   }  
+   else if (object$method %in% c("msn","msn2","mahalanobis","ica"))
+   {  
+      xcvRefs=as.matrix(xcvRefs[,theCols,drop=FALSE]) %*% object$projector
+      xcvTrgs=scale(xTrgs,center=object$xScale$center,scale=object$xScale$scale)
+      xcvTrgs=as.matrix(xcvTrgs[,theCols,drop=FALSE]) %*% object$projector
+   }
+   else if (object$method == "euclidean") 
+   {      
+      xcvRefs=scale(object$xRefs,center=object$xScale$center,scale=object$xScale$scale)
+      xcvRefs=as.matrix(xcvRefs[,theCols,drop=FALSE])
+      xcvTrgs=scale(xTrgs,center=object$xScale$center,scale=object$xScale$scale)         
+      xcvTrgs=as.matrix(xcvTrgs[,theCols,drop=FALSE]) 
+   }
+   else # method is raw
+   {
+      xcvRefs=as.matrix(object$xRefs[,theCols,drop=FALSE])
+      xcvTrgs=as.matrix(xTrgs[,theCols,drop=FALSE])   
    }
 
    neiDstTrgs=matrix(data=NA,nrow=nrow(xTrgs),ncol=object$k)
@@ -167,14 +187,19 @@ newtargets=function(object,newdata,ann=NULL)
    }
    else
    {
-      for (row in rownames(xTrgs))
-      {
-         prox=.Call("rfoneprox", INTrefNodes, INTnrow, INTncol,
-                     as.integer(nodes[row,]), vector("integer",INTnrow))
-         px=sort(prox,index.return = TRUE, decreasing = TRUE)$ix[1:object$k]
-         neiDstTrgs[row,]=(INTncol-prox[px])/INTncol
-         neiIdsTrgs[row,]=rownames(object$xRefs)[px]
-      }
+      prox=lapply(apply(nodes,1,as.list),function (x) {
+           prx=.Call("rfoneprox", INTrefNodes, INTsort, INTnrow, INTncol,
+                     as.integer(x), vector("integer",INTnrow),dup=FALSE) 
+           if (object$k > 1) px=sort(prx,index.return = TRUE, decreasing = TRUE)$ix[1:object$k]
+           else              px=which.max(prx)
+           c(prx[px],px)  # counts followed by pointers to references
+           })
+     for (i in 1:object$k)
+     {
+       neiDstTrgs[,i]=unlist(lapply(prox,function (x,i) (INTncol-x[i])/INTncol,i))
+       neiIdsTrgs[,i]=unlist(lapply(prox,function (x,i,k,Rnames) 
+              Rnames[x[k+i]],i,object$k,rownames(object$xRefs)))
+     } 
    }
    object$obsDropped=obsDropped
    object$trgRows=trgs

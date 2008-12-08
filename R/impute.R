@@ -15,13 +15,14 @@
 #                     When k==1, closest is always used. 
 #       mean        = An average over the k neighbors is taken
 #       dstWeighted = a weighted average is taken over the k
-#                     neighbors where the weights are 1/(1+d)
-#  method.factor defines how factors are imputed, where: 
+#                     neighbors where the weights are (1/(1+d))/sum(1/(1+d))
+#  method.factor defines how factors are imputed, default is to use the 
+#             "method", where: 
 #       closest     = same a continous (always used with k==1).
-#       random      = random pick with sampling proportional to 1/max(d,.0001)
-#                     NOT YET SUPPORTED
-#       overallfactors = the closest considering all factors
-#                     NOT YET SUPPORTED
+#       mean        = actually, the mode. The factor level that is the most 
+#                     frequent
+#       dstWeighted = the factor level with the largest weight, 
+#                     where weights are (1/(1+d))/sum(1/(1+d))
 #  k is the number of neighbors to use. When NULL, all those available
 #    in the yai object are used.
 #  vars a character vector of variable names desired. If NULL (the default),
@@ -39,7 +40,7 @@ impute <- function(object,...) UseMethod("impute")
 
 
 impute.yai <- function (object,ancillaryData=NULL,method="closest",
-                       method.factor="closest",k=NULL,
+                       method.factor=method,k=NULL,
                        vars=NULL,observed=TRUE,...)
 {
    # ======== predict functions used internally
@@ -60,17 +61,14 @@ impute.yai <- function (object,ancillaryData=NULL,method="closest",
          }
          else ans <- refs[ids[,1],vars]
       }
-      else
-      {
-         ans <- matrix(data=NA, nrow = nrow(ids), ncol = length(vars))
-         colnames(ans) <- vars
-      }
-      rownames(ans) <- rownames(ids)
-      ans <- as.data.frame(ans)
 
       if (method=="mean")
       {
-         for (row in 1:nrow(ans)) ans[row,vars] <- apply(refs[ids[row,1:k],vars],2,mean)
+
+         ans <- lapply(vars, function (v,idset)
+                 apply(idset, 1, function (x,refs,v) mean(refs[x,v]), refs, v), ids[,1:k])
+         names(ans) <- vars 
+         ans <- as.data.frame(ans)              
       }
       if (method=="dstWeighted")
       {
@@ -78,14 +76,16 @@ impute.yai <- function (object,ancillaryData=NULL,method="closest",
          {
             warning ("w is required when method is dstWeighted")
             return(NULL)
-         }
-         for (row in 1:nrow(ans))
-         {
-            wei <- 1/(1+w[row,1:k])
-            wei/sum(wei)
-            ans[row,vars] <- apply(refs[ids[row,1:k],vars],2,weighted.mean,wei)
-         }
+         } 
+         wei <- apply(w[,1:k],1,function (x) {x <- 1/(1+x); x <- x/sum(x)})
+         ans <- lapply(rownames(ids),function(row)
+              apply(refs[ids[row, 1:k], vars, FALSE], 2, function (x) weighted.mean(x,wei[,row])))
+         ans <- matrix(unlist(ans),nrow=length(ans),ncol=length(vars),byrow=TRUE)
+         colnames(ans) <- vars
+         ans <- data.frame(ans)
       }
+      rownames(ans) <- rownames(ids)
+
       if (observed)
       {
          obs <- matrix(data=NA, nrow = nrow(ans), ncol = ncol(ans))
@@ -99,16 +99,11 @@ impute.yai <- function (object,ancillaryData=NULL,method="closest",
       }
       ans
    }
-   pred.f <- function (refs,ids,w=NULL,method="closest",k=1,vars,observed)
+   pred.f <- function (refs,ids,w=NULL,method="closest",k=1,vars,observed)   
    {
       if (is.null(vars)) vars <- colnames(refs)
       else vars <- intersect(vars,colnames(refs))
       if (is.null(vars) | length(vars)==0) return (NULL)
-      if (method != "closest")
-      {
-         warning ("only method closest is supported for factors")
-         method <- "closest"
-      }
       if (method=="closest" | k==1)
       {
          if (length(vars)==1)
@@ -117,7 +112,43 @@ impute.yai <- function (object,ancillaryData=NULL,method="closest",
             colnames(ans) <- vars
          }
          else ans <- data.frame(refs[ids[,1],vars])
+      }        
+      if (method == "mean") 
+      {
+         ans <- lapply(vars, function (v,idset)
+                 apply(idset, 1, 
+                 function (x,refs,v)
+                 {
+                   t=table(refs[x,v])
+                   t=t+(runif(length(t))*.01)
+                   names(which.max(t))
+                 }, refs, v), ids[,1:k])
+         names(ans) <- vars 
+         ans <- as.data.frame(ans)              
       }
+      else if (method == "dstWeighted") 
+      {
+         if (is.null(w)) 
+         {
+            warning("w is required when method is dstWeighted")
+            return(NULL)
+         }        
+         wei <- apply(w[,1:k],1,function (x) {x=1/(1+x); x=x/sum(x)})
+         ans <- lapply(rownames(ids),function(row) 
+            {
+               apply(refs[ids[row, 1:k], vars, FALSE],
+                  2, function (x) 
+                  {
+                     t=tapply (wei[,row], x, sum)
+                     t=t+(runif(length(t))*.01*min(t))
+                     names(which.max(t))
+                  })
+            })
+         ans=matrix(unlist(ans),nrow=length(ans),ncol=length(vars),byrow=TRUE)
+         colnames(ans) <- vars
+         ans <- data.frame(ans)
+      }
+           
       rownames(ans) <- rownames(ids)
       if (observed)
       {

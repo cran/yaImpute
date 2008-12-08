@@ -277,6 +277,7 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
 
       newdata=na.omit(newdata)
       omitted=origRowNames[as.vector(attr(newdata,"na.action"))]
+      moreOrigRowNames=NULL      
       if (!is.null(xlevels) && length(omitted)<length(origRowNames))
       {
          moreOrigRowNames=rownames(newdata)
@@ -358,12 +359,13 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
             stop ("Unexpected results for row = ",ir)
          }
          outrs = nrow(outdata) # the predict might send NA's, strip them
-         outdata=na.omit(outdata)
+         outdata=na.omit(outdata)  
          if (outrs > nrow(outdata))
          {
             nasum = if (is.null(nasum)) c(ir,outrs-nrow(outdata)) else
                             rbind(nasum,c(ir,outrs-nrow(outdata)))
-            omitted=c(omitted,moreOrigRowNames[as.vector(attr(outdata,"na.action"))])
+            if (!is.null(moreOrigRowNames)) 
+               omitted=c(omitted,moreOrigRowNames[as.vector(attr(outdata,"na.action"))])
          }
          if (length(omitted)>0)
          {
@@ -372,7 +374,8 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
             more = data.frame(matrix(nodout,length(omitted),length(names(outdata))),
                               row.names=omitted)
             names(more)=names(outdata)
-            outdata = rbind(outdata,more)
+            for (i in 1:ncol(more)) if (is.factor(outdata[,i])) more[,i]=as.factor(more[,i])
+            outdata =  rbind(outdata,more)
             outdata = outdata[sort(rownames(outdata),index.return = TRUE)$ix,,FALSE]
          }
       }

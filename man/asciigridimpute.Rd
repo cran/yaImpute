@@ -195,7 +195,7 @@ write.table(spcd,file="spcd.txt",append=TRUE,col.names=FALSE,
 # Section 2: Create functions to predict species
 
 # set the random number seed so that example results are consistant
-# normally, one would leave out this next command
+# normally, leave out this command
 set.seed(12345) 
 
 # sample the data

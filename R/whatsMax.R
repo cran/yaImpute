@@ -20,14 +20,12 @@ whatsMax <- function (x,nbig=30)
    x <- na.omit(x)
    if (nrow(x) != orgRows) warning (orgRows-nrow(x)," rows had missing data and were deleted")
    n <- colnames(x)
-   ans <- data.frame(matrix(0,nrow(x),2),row.names=as.character(rownames(x)))
-   names(ans) <- paste(ag,c("maxCol","maxVal"),sep=".")
-   for (i in 1:nrow(ans))
-   {
-      themax <- which.max(x[i,num])
-      ans[i,1] <- names(themax)
-      ans[i,2] <- x[i,themax]
-   }
+   ans <- apply(x,1,function (x1) which.max(x1))
+   nm  <- lapply(ans,function (i,n) n[i], colnames(x))
+   ans <- apply(x,1,function (x1) x1[which.max(x1)])
+   ans <- as.data.frame(list(a=unlist(nm),unlist(ans)),stringsAsFactors=FALSE)
+   rownames(ans) <- rownames(x)
+   colnames(ans) <- paste(ag,c("maxCol","maxVal"),sep=".")
    ans[ans[,2]==0,1] <- "zero"
    nf <- length(levels(as.factor(ans[,1])))
    if (nf > nbig)

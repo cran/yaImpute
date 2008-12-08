@@ -25,7 +25,7 @@ yai(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
 
 \arguments{
   \item{x}{1) a matrix or data frame containing the X-variables for all
-    observations. Row names are the identification for the observation, or 2) a
+    observations with row names are the identification for the observations, or 2) a
     one-sided formula defining the X-variables as a linear formula. If
     a formula is coded for \code{x}, one must be used for \code{y} as well, if
     needed.}
@@ -33,8 +33,8 @@ yai(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
     reference observations, or 2) a one-sided formula defining the
     Y-variables as a linear formula.}
   \item{data}{when \code{x} and \code{y} are formulas, then data is a data frame or
-    matrix that contains all the variables. The observations are split by \code{yai}
-    into two sets.} 
+    matrix that contains all the variables with row names are the identification for the observations. 
+    The observations are split by \code{yai} into two sets.} 
   \item{k}{the number of nearest neighbors; default is 1.}
   \item{noTrgs}{when TRUE, skip finding neighbors for target observations.}
   \item{noRefs}{when TRUE, skip finding neighbors for reference observations.}
@@ -75,7 +75,7 @@ yai(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
 }
 
 \details{
-See the paper at \url{http://www.jstatsoft.org/v23/i10/paper} (it includes examples).  
+See the paper at \url{http://www.jstatsoft.org/v23/i10} (it includes examples).  
 
 The following information is in addition to the content in the papers. 
 
@@ -142,6 +142,10 @@ situation.
 require (yaImpute)
 
 data(iris)
+
+# set the random number seed so that example results are consistant
+# normally, leave out this command
+set.seed(12345) 
 
 # form some test data, y's are defined only for reference 
 # observations.

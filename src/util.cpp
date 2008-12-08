@@ -21,7 +21,7 @@ void showMatrix(double *x, int xnrow, int xncol){
   }      
 }
 
-SEXP getListElement (SEXP list, char *str)
+SEXP getListElement (SEXP list, const char *str)
 {
   SEXP elmt = R_NilValue, names = getAttrib(list, R_NamesSymbol);
   int i;

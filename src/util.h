@@ -11,4 +11,4 @@ using namespace std;
 
 
 void showMatrix(double *x, int xnrow, int xncol);
-SEXP getListElement (SEXP list, char *str);
+SEXP getListElement (SEXP list, const char *str);

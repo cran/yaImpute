@@ -12,7 +12,7 @@
 
 \usage{
 \method{impute}{yai}(object,ancillaryData=NULL,method="closest",
-           method.factor="closest",k=NULL,vars=NULL,
+           method.factor=method,k=NULL,vars=NULL,
            observed=TRUE,\dots)
 }
 
@@ -32,8 +32,10 @@
   \item{method.factor}{the method used to compute the imputed values for factors, as follows: \cr
    \code{closest}: use the single neighbor that is closest (this is the default and is
        always used when \emph{k}=1); \cr
-   \emph{other methods are not yet supported}.}
-
+   \code{mean}: actually is the \emph{mode}\-\-it is the factor level that occurs 
+       the most often among the \emph{k} neighbors;\cr
+   \code{dstWeighted}: a \emph{mode} where the count is the sum of the weights (1/(1+d)) rather than
+       each having a weight of 1.}
   \item{k}{the number neighbors to use in averages, when NULL all present are used.}
   \item{vars}{a character vector of variables to impute, when NULL, the behaviour depends
      on the value of \code{ancillaryData}: when it is NULL, the Y-variables are imputed
@@ -79,10 +81,10 @@ plot(malImp)
 
 }
 
-
 \author{
   Nicholas L. Crookston \email{ncrookston@fs.fed.us} \cr
-  Andrew O. Finley \email{finleya@msu.edu}
+  Andrew O. Finley \email{finleya@msu.edu} \cr
+  Emilie Grossmann \email{Emilie.Grossmann@oregonstate.edu}
 }
 
 \keyword{misc}

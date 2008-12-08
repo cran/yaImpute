@@ -50,7 +50,7 @@ print.yai = function(x,...)
         paste(names(x$yDrop[x$yDrop]),collapse=","),"\n")
    cat (sum(x$xDrop),"x variables dropped ",
            paste(names(x$xDrop[x$xDrop]),collapse=","),"\n")
-   if (x$ann) cat ("Note: ann used\n") else cat ("ann not used\n")
+   if (x$ann & x$method!="randomForest")  cat ("Note: ann used\n") else cat ("ann not used\n")
    if (length(x$neiDstTrgs)==0) cat ("No target neighbors computed.\n")
    else
    {

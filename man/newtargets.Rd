@@ -47,6 +47,10 @@ require (yaImpute)
 
 data(iris)
 
+# set the random number seed so that example results are consistant
+# normally, leave out this command
+set.seed(12345) 
+
 # form some test data
 refs=sample(rownames(iris),50) # just the reference observations
 x <- iris[refs,1:3]  # Sepal.Length Sepal.Width Petal.Length
