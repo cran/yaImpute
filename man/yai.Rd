@@ -45,21 +45,21 @@ yai(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
     \code{msn} or \code{msn2}.}
   \item{method}{is the strategy finding neighbors; the
     options are the quoted key words (see details):
-    \describe{
-      \item \code{euclidean} - distance is computed in a normalized X space.
-      \item \code{raw} - like euclidean, except no normalization is done.
-      \item \code{mahalanobis} - distance is computed in its namesakes space.
-      \item \code{ica} - like mahalanobis, but based on \emph{Independent Component Analysis} using
-           package \code{\link[fastICA]{fastICA}}.
-      \item \code{msn} - distance is computed in a projected canonical space.
-      \item \code{msn2} - like msn, but with variance weighting (canonical regression
-             rather than correlation).
-      \item \code{gnn} -  distance is computed using a projected ordination of
+    \itemize{
+      \item{\code{euclidean}}{distance is computed in a normalized X space.}
+      \item{\code{raw}}{like euclidean, except no normalization is done.}
+      \item{\code{mahalanobis}}{distance is computed in its namesakes space.}
+      \item{\code{ica}}{like mahalanobis, but based on \emph{Independent Component Analysis} using
+          package \code{\link[fastICA]{fastICA}}.}
+      \item{\code{msn}}{distance is computed in a projected canonical space.}
+      \item{\code{msn2}}{like msn, but with variance weighting (canonical regression
+            rather than correlation).}
+      \item{\code{gnn}}{ distance is computed using a projected ordination of
          Xs found using canonical correspondence analysis
-         (\code{\link[vegan]{cca}} from package \pkg{vegan}).
-      \item \code{randomForest} - distance is one minus the
+         (\code{\link[vegan]{cca}} from package \pkg{vegan}).}
+      \item{\code{randomForest}}{distance is one minus the
          proportion of randomForest trees where a target observation is in
-         the same terminal node as a reference observation (see \code{\link[randomForest]{randomForest}}).
+         the same terminal node as a reference observation (see \code{\link[randomForest]{randomForest}}).}
     }
   }
   \item{ann}{TRUE if \code{\link{ann}} is used to find neighbors, FALSE if a slow search is used.}

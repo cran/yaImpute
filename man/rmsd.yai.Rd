@@ -18,7 +18,8 @@ rmsd.yai (object,vars=NULL,scale=FALSE,\dots)
   \item{vars}{a list of variable names you want to include, if NULL all available
     variables are included}
   \item{scale}{when \code{TRUE}, the values are scaled (see details)}
-  \item{\dots}{passed to called methods (not currently used)}
+  \item{\dots}{passed to called methods, very useful for passing arugment 
+     \code{ancillaryData} to function \code{\link{impute.yai}}}
 }
 
 \value{

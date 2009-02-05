@@ -33,18 +33,21 @@ AsciiGridPredict(object,xfiles,outfiles,xtypes=NULL,lon=NULL,lat=NULL,
        as the X-variables they correspond with and there must be one file for
        each X-variable used when \code{object} was built.}
   \item{outfiles}{One of these two forms:
-      \describe{
-       \item (1) A file name that is understood to correspond to the single prediction
-       returned by \code{myPredFunc} (generally applies to \code{AsciiGridPredict}), or
-       \item (2) A \code{\link[base]{list}} of output file names where there is one
-       grid file for each \emph{desired} output variable. While there may be many Y-variables
-       in predicted for \code{object}, only those for which an output grid is desire need to be specified.
-       In addition to variables names, the following two special names can be coded when the
-       object class is \code{yai}: For \code{distance="}\emph{filename}\code{"} a map of the
-       distances is output and if \code{useid="}\emph{filename}\code{"} a map of useid's
-       is output. When \code{myPredFunc} is not \code{NULL} and when it returns a vector,
-       an additional special name of \code{predict="}\emph{filename}\code{"} is used.} }
-  \item{xtypes}{A list of data types names that corresponds exactly to data type of the
+      \itemize{
+       \item{(1)}{A file name that is understood to correspond to the single prediction
+       returned by \code{myPredFunc} (generally applies to \code{AsciiGridPredict}), or}       
+       \item{(2)}{A \code{\link[base]{list}} of output file names where there is 
+       one grid file for each \emph{desired} output variable. While there may be 
+       many Y-variables in predicted for \code{object}, only those for which an 
+       output grid is desire need to be specified. In addition to names of the 
+       predicted variables, the following two special names can be coded when 
+       the object class is \code{yai}: For \code{distance="}\emph{filename}\code{"}        
+       a map of the distances is output and if 
+       \code{useid="}\emph{filename}\code{"} a map of useid's is output. 
+       When \code{myPredFunc} is not \code{NULL} and when it returns a vector, 
+       an additional special name of \code{predict="}\emph{filename}\code{"} can be
+       used.} }}       
+  \item{xtypes}{A list of data type names that corresponds exactly to data type of the
        maps listed in \code{xfiles}. Each value can be one of:
        \code{"logical", "integer", "numeric", "character"}. If NULL,
        or if a type is missing for a member of \code{xfiles}, type \code{"numeric"} is used.}

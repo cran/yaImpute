@@ -18,13 +18,24 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       r=(N-s-1)-((abs(p-q)+1)/2)
       Ndf=(p-k+1)*(q-k+1)
       u=(Ndf-2)/4
-      t=array(data=1,dim=s)
       xx=((p-k+1)^2+(q-k+1)^2)-5
+      t=vector(mode="numeric",length=s)
       for (i in k) if (xx[i]>0) t[i]=sqrt(((p-k[i]+1)^2*(q-k[i]+1)^2-4)/xx[i])
       lamda.invt=lamda^(1/t)
       Ddf=(r*t)-(2*u)
-      F=((1-lamda.invt)/lamda.invt)*(Ddf/Ndf)
-      pgF=pf(F,Ndf,Ddf,lower.tail=FALSE)
+      if (any(Ddf < 1) || any(Ndf < 1)) 
+      {
+        F = vector(mode="numeric",length=s)
+        pgF = vector(mode="numeric",length=s)
+        F[]=NA
+        pgF[]=NA 
+        warning ("F-test failed, too few degrees of freedom")
+      }
+      else
+      {
+        F=((1-lamda.invt)/lamda.invt)*(Ddf/Ndf) 
+        pgF=pf(F,Ndf,Ddf,lower.tail=FALSE)
+      }
       list(F=F,pgF=pgF)
    }
    mymean = function(x)
@@ -215,15 +226,16 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       ycvRefs=scale(yRefs,center=yScale$center,scale=yScale$scale)
       cancor=cancor(xcvRefs,ycvRefs,xcenter = FALSE, ycenter = FALSE)  
                     
+      theCols = rownames(cancor$xcoef)
+
       # scale the coefficients so that the cononical vectors will have unit variance.
-      
-      cscal = 1/sd(xcvRefs %*% cancor$xcoef[,1])
+      cscal = 1/sd(xcvRefs[,theCols] %*% cancor$xcoef[,1])
       cancor$ycoef = cancor$ycoef * cscal
       cancor$xcoef = cancor$xcoef * cscal
      
-      ftest=ftest.can(p=nrow(cancor$ycoef),q=nrow(cancor$xcoef),N=nrow(yRefs),cancor$cor)
-
+      ftest=ftest.can(p=nrow(cancor$ycoef),q=nrow(cancor$xcoef),N=nrow(yRefs),cancor$cor) 
       if (is.null(nVec)) nVec=length(cancor$cor)-sum(ftest$pgF>pVal)
+      if (is.na(nVec)) nVec=1
       nVec=min(nVec,length(cancor$cor))
       nVec=max(nVec,1)
       if (method == "msn" ) projector = cancor$xcoef[,1:nVec,drop=FALSE] %*%
@@ -231,7 +243,6 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       if (method == "msn2") projector = cancor$xcoef[,1:nVec,drop=FALSE] %*%
                                         diag(cancor$cor[1:nVec,drop=FALSE],nVec,nVec) %*%
                                         diag(sqrt(1/(1-cancor$cor[1:nVec,drop=FALSE]^2)),nVec,nVec)
-      theCols = rownames(cancor$xcoef)
       if (length(theCols)<ncol(xRefs))
       {
          if (is.null(xDrop)) xDrop=xScale$center==0 #just get the names and create a logical
@@ -325,7 +336,7 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       if (!noTrgs && length(trgs) > 0)
       {
          xTrgs=xall[trgs,,drop=FALSE]
-         xcvTrgs=xTrgs
+         xcvTrgs=as.matrix(xTrgs)
       }
    }
    else if (method == "gnn") # GNN
@@ -439,7 +450,7 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       if (method != "randomForest")
       {
          if (ann)
-         {
+         { 
              ann.out=ann(xcvRefs, xcvTrgs, k, verbose=FALSE)$knnIndexDist
              neiDstTrgs[TRUE]=sqrt(ann.out[,(k+1):ncol(ann.out)])
              for (i in 1:k)
