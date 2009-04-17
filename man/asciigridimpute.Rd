@@ -6,14 +6,14 @@
 \description{
    \code{AsciiGridImpute} finds nearest neighbor \emph{reference}
    observations for each point in the input grid maps and outputs maps
-   of selected Y-variables in a set of output grid maps. 
+   of selected Y-variables in a set of output grid maps.
 
    \code{AsciiGridPredict} applies a predict function to each point in the
    input grid maps and outputs maps of the prediction(s) in one or more
    output grid maps (see Details).
 
   One row of the each grid maps is read and processed at a time thereby
-  avoiding the need to build huge objects in R that would be necessary all
+  avoiding the need to build huge objects in R that would be necessary if all
   the rows of all the maps were processed together.}
 
 \usage{
@@ -27,7 +27,8 @@ AsciiGridPredict(object,xfiles,outfiles,xtypes=NULL,lon=NULL,lat=NULL,
 
 \arguments{
   \item{object}{An object of class \code{\link{yai}}, any other object for which
-       a \code{\link[stats]{predict}} function is defined. See Details.}
+       a \code{\link[stats]{predict}} function is defined, or an object that is passed
+       to a predict function you define using argument \code{myPredFunc}. See Details.}
   \item{xfiles}{A \code{\link[base]{list}} of input file names where there is one
        grid file for each X-variable. List elements must be given the same names
        as the X-variables they correspond with and there must be one file for
@@ -35,33 +36,36 @@ AsciiGridPredict(object,xfiles,outfiles,xtypes=NULL,lon=NULL,lat=NULL,
   \item{outfiles}{One of these two forms:
       \itemize{
        \item{(1)}{A file name that is understood to correspond to the single prediction
-       returned by \code{myPredFunc} (generally applies to \code{AsciiGridPredict}), or}       
-       \item{(2)}{A \code{\link[base]{list}} of output file names where there is 
-       one grid file for each \emph{desired} output variable. While there may be 
-       many Y-variables in predicted for \code{object}, only those for which an 
-       output grid is desire need to be specified. In addition to names of the 
-       predicted variables, the following two special names can be coded when 
-       the object class is \code{yai}: For \code{distance="}\emph{filename}\code{"}        
-       a map of the distances is output and if 
-       \code{useid="}\emph{filename}\code{"} a map of useid's is output. 
-       When \code{myPredFunc} is not \code{NULL} and when it returns a vector, 
+       returned by \code{myPredFunc} (generally applies to \code{AsciiGridPredict}), or}
+       \item{(2)}{A \code{\link[base]{list}} of output file names where there is
+       one grid file for each \emph{desired} output variable. While there may be
+       many variables predicted for \code{object}, only those for which an
+       output grid is desire need to be specified. Note that some predict functions return
+       data frames, some return a single vector, and often what is returned depends on the
+       value of arguments passed to predict. In addition to names of the
+       predicted variables, the following two special names can be coded when
+       the object class is \code{yai}: For \code{distance="}\emph{filename}\code{"}
+       a map of the distances is output and if
+       \code{useid="}\emph{filename}\code{"} a map of useid's is output.
+       When \code{myPredFunc} is not \code{NULL} and when it returns a vector,
        an additional special name of \code{predict="}\emph{filename}\code{"} can be
-       used.} }}       
+       used.} }}
   \item{xtypes}{A list of data type names that corresponds exactly to data type of the
        maps listed in \code{xfiles}. Each value can be one of:
        \code{"logical", "integer", "numeric", "character"}. If NULL,
-       or if a type is missing for a member of \code{xfiles}, type \code{"numeric"} is used.}
+       or if a type is missing for a member of \code{xfiles}, type \code{"numeric"} is used.
+       See Details if you used factors as predictors.}
   \item{ancillaryData}{A data frame of Y-variables that may not have been used in
        the original call to \code{\link{yai}}. There must be one row for
        each reference observation, no missing data, and row names must match those used
        in the original reference observations.}
   \item{ann}{if NULL, the value is taken from \code{object}. When TRUE, \code{\link{ann}} is
-       used to find neighbors, and when FALSE a slow exact search is used (ignored for when 
+       used to find neighbors, and when FALSE a slow exact search is used (ignored for when
        method randomForest is used when the original \code{\link{yai}} object was created).}
   \item{lon}{if NULL, the value of \code{rows} is used. Otherwise, a 2-element
-       vector given the range of longitudes (vertical distance) desired for the output.} 
+       vector given the range of longitudes (vertical distance) desired for the output.}
   \item{lat}{if NULL, the value of \code{cols} is used. Otherwise, a 2-element
-       vector given the range of latitudes (horizontal distance) desired for the output.} 
+       vector given the range of latitudes (horizontal distance) desired for the output.}
   \item{rows}{if NULL, all rows from the input grids are used. Otherwise, rows is a 2-element
        vector given the rows desired for the output. If the second element is greater than
        the number of rows, the header value \code{YLLCORNER} is adjusted accordingly. Ignored
@@ -73,8 +77,10 @@ AsciiGridPredict(object,xfiles,outfiles,xtypes=NULL,lon=NULL,lat=NULL,
   \item{nodata}{the \code{NODATA_VALUE} for the output. If NULL, the value is taken from the
        input grids.}
   \item{myPredFunc}{called to predict output using the \code{object} and newdata from
-       the \code{xfiles}. Two arguments are required, the first is \code{object} and the
-       second is a data frame of the new predictor variables. If NULL, the generic
+       the \code{xfiles}. Two arguments are passed to this function,
+       the first is the value of \code{object} and the
+       second is a data frame of the new predictor variables created for each row
+       of data from your input maps. If NULL, the generic
        \code{predict} function is called for \code{object}.}
   \item{\dots}{passed to \code{myPredFunc} or \code{predict}.}
 }
@@ -83,48 +89,49 @@ AsciiGridPredict(object,xfiles,outfiles,xtypes=NULL,lon=NULL,lat=NULL,
   The input maps are assumed to be Asciigrid maps with 6-line headers
   containing the following tags: \code{NCOLS, NROWS, XLLCORNER, YLLCORNER,
   CELLSIZE} and \code{NODATA_VALUE} (case insensitive). The headers should be
-  identical, a warning is issued if they are not. It is critical that \code{NODATA_VALUE} 
+  identical, a warning is issued if they are not. It is critical that \code{NODATA_VALUE}
   is the same on all input maps.
 
-  The function builds data frames from the input maps one row at a time and 
-  builds predictions using those data frames as \emph{newdata}. Each row of the 
-  input maps is processed in sequence so that the entire maps are not stored in 
-  memory. The function works by opening all the input and reads one line (row) 
-  at a time from each. The output file(s) are created one line at time as the 
-  input maps are processed. 
-  
-  Use \code{AsciiGridImpute} for objects builts with \code{\link{yai}}, 
-  otherwise use \code{AsciiGridPredict}. When \code{AsciiGridPredict} is 
-  used, the following rules apply. First, when \code{myPredFunc} is not 
-  null it is called with the arguments \code{object, newdata, \dots} where the 
-  new data is the data frame built from the input maps, otherwise the 
-  generic \code{\link{predict}} function is called with these same arguments. 
-  When \code{object} and \code{myPredFunc} are both NULL a copy 
-  \code{newdata} used as the prediction. This is useful when \code{lat, lon, rows,} 
+  The function builds data frames from the input maps one row at a time and
+  builds predictions using those data frames as \emph{newdata}. Each row of the
+  input maps is processed in sequence so that the entire maps are not stored in
+  memory. The function works by opening all the input and reads one line (row)
+  at a time from each. The output file(s) are created one line at time as the
+  input maps are processed.
+
+  Use \code{AsciiGridImpute} for objects builts with \code{\link{yai}},
+  otherwise use \code{AsciiGridPredict}. When \code{AsciiGridPredict} is
+  used, the following rules apply. First, when \code{myPredFunc} is not
+  null it is called with the arguments \code{object, newdata, \dots} where the
+  new data is the data frame built from the input maps, otherwise the
+  generic \code{\link{predict}} function is called with these same arguments.
+  When \code{object} and \code{myPredFunc} are both NULL a copy
+  \code{newdata} used as the prediction. This is useful when \code{lat, lon, rows,}
   or \code{cols} are used in to subset the maps.
 
-  The \code{NODATA_VALUE} is output for every \code{NODATA_VALUE} found on any 
-  grid cell on any one of the input maps (the predict function is not called for 
-  these grid cells). \code{NODATA_VALUE} is also output for any grid cell where 
-  the predict function returns an \code{NA}. If factors are used as X-variables in 
-  \code{object}, the levels found the map data are checked against those used in 
-  building the \code{object}. If new levels are found, the corresponding output 
-  map grid point is set to \code{NODATA_VALUE}; the predict function is not called 
-  for these cells as most predict functions will fail in these circumstances. 
-  Checking on factors depends on \code{object} containing a meaningful member 
-  named \code{xlevels}, as done objects model objects produced by 
-  \code{\link[stats]{lm}}. Note that objects produced by 
-  \code{\link[randomForest]{randomForest}} version 4.5-19 and prior do not contain 
-  \code{xlevels}; use function \code{\link{addXlevels}} to add the necessary 
+  The \code{NODATA_VALUE} is output for every \code{NODATA_VALUE} found on any
+  grid cell on any one of the input maps (the predict function is not called for
+  these grid cells). \code{NODATA_VALUE} is also output for any grid cell where
+  the predict function returns an \code{NA}. If factors are used as X-variables in
+  \code{object}, the levels found the map data are checked against those used in
+  building the \code{object}. If new levels are found, the corresponding output
+  map grid point is set to \code{NODATA_VALUE}; the predict function is not called
+  for these cells as most predict functions will fail in these circumstances.
+  Checking on factors depends on \code{object} containing a meaningful member
+  named \code{xlevels}, as done objects model objects produced by
+  \code{\link[stats]{lm}}. Note that objects produced by
+  \code{\link[randomForest]{randomForest}} version 4.5-19 and prior do not contain
+  \code{xlevels}; use function \code{\link{addXlevels}} to add the necessary
   element if one or more \code{\link[base]{factor}}\code{s} are used.
-  
-  Asciigrid maps do not contain character data, only numbers. The numbers in the 
+
+  Asciigrid maps do not contain character data, only numbers. The numbers in the
   maps are matched the \code{xlevels} by subscript (the first entry in a level corresponds
   to the numeric value 1 in the Asciigrid maps, the second to the number 2 and so
-  on). Care must be taken by the user to insure that the coding scheme used in 
-  building the maps is identical to that used in building the \code{object}. 
-}  
-  
+  on). Care must be taken by the user to insure that the coding scheme used in
+  building the maps is identical to that used in building the \code{object}. See Value for
+  information on how you can check the matching of these codes.
+}
+
 
 \seealso{
 \code{\link{yai}}, \code{\link{impute}}, and \code{\link{newtargets}}
@@ -132,20 +139,20 @@ AsciiGridPredict(object,xfiles,outfiles,xtypes=NULL,lon=NULL,lat=NULL,
 
 \value{
 An \code{\link[base]{invisible}} list containing the following named elements:
- 
+
   \item{unexpectedNAs}{A data frame listing the map row numbers and the number
-     of \code{NA} values generated by the predict function for each row. If none 
-     are generated for a row the row is not reported, if none are generated for any rows, 
+     of \code{NA} values generated by the predict function for each row. If none
+     are generated for a row the row is not reported, if none are generated for any rows,
      the data frame is NULL.}
   \item{illegalLevels}{A data frame listing levels found in the maps that
      were not found in the \code{xlevels} for the \code{object}. The row names
      are the illegal levels, the column names are the variable names, and the
      values are the number of grid cells where the illegal levels were found.}
-  \item{outputLegend}{A data frame showing the relationship between levels in 
+  \item{outputLegend}{A data frame showing the relationship between levels in
      the output maps and those found in \code{object}. The row names are
      level index values, the column names are variable names, and the values
      are the levels. NULL if no factors are output.}
-  \item{inputLegend}{A data frame showing the relationship between levels found in 
+  \item{inputLegend}{A data frame showing the relationship between levels found in
      the input maps and those found in \code{object}. The row names are
      level index values (this function assumes they correspond to numeric values
      on the maps), the column names are variable names, and the values
@@ -159,11 +166,11 @@ An \code{\link[base]{invisible}} list containing the following named elements:
 
 # Use the iris data
 data(iris)
-                                 
-# Section 1: Imagine that the iris are planted in a planting bed. 
-# The following set of commands create Asciigrid map 
+
+# Section 1: Imagine that the iris are planted in a planting bed.
+# The following set of commands create Asciigrid map
 # files for four attributes to illustrate the planting layout.
-                                 
+
 # Change species from a character factor to numeric (the sp classes
 # can not handle character data).
 
@@ -199,17 +206,13 @@ write.table(spcd,file="spcd.txt",append=TRUE,col.names=FALSE,
 
 # set the random number seed so that example results are consistant
 # normally, leave out this command
-set.seed(12345) 
+set.seed(12345)
 
 # sample the data
 refs <- sample(rownames(iris),50)
 y <- data.frame(Species=iris[refs,5],row.names=rownames(iris[refs,]))
 
-# build a yai imputation for the reference data. 
-# set the random number seed so that example results are consistant
-# normally, one would leave out this next command
-set.seed(1) 
-
+# build a yai imputation for the reference data.
 rfNN <- yai(x=iris[refs,1:4],y=y,method="randomForest")
 
 # make lists of input and output map files.

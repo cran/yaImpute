@@ -179,13 +179,17 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
 
    if (!is.null(lon))
    {
+     cols=c(0,0)
      lon=sort(lon)
-     cols=c(max(floor((lon[1]-xllc)/csz),1),min(ceiling((lon[2]-xllc)/csz),nc))
+     cols[1]=round((lon[1]-xllc)/csz)+1
+     cols[2]=round((lon[2]-xllc)/csz)
    }
    if (!is.null(lat))
    {
+     rows=c(0,0)
      lat=sort(lat)
-     rows=c(max(floor(((yllc+nr*csz)-lat[2])/csz),1),min(nr-ceiling((lat[1]-yllc)/csz),nr))
+     rows[2]=nr-round((lat[1]-yllc)/csz)
+     rows[1]=nr-round((lat[2]-yllc)/csz)+1
    }
 
    if (is.null(rows) && is.null(cols) && is.null(nodata)) #header does not change
@@ -203,17 +207,23 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
    else #header changes
    {
       if (is.null(nodata)) nodata=nodv
+
       if (is.null(rows)) rows=c(1,nr)
+      if (rows[1]<1) rows[1]=1
+      if (rows[2]>nr) rows[2]=nr
+      if (rows[1]>rows[2]) rows[1]=rows[2]
+
       if (is.null(cols)) cols=c(1,nc)
-      if (rows[1]>nr) rows[1]=max(1,nr-1)
-      if (rows[2]>nr) rows[2]=max(1,nr)
-      if (cols[1]>nc) cols[1]=max(1,nc-1)
-      if (cols[2]>nc) cols[2]=max(1,nc)
+      if (cols[1]<1)  cols[1]=1
+      if (cols[2]>nc) cols[2]=nc
+      if (cols[1]>cols[2]) cols[1]=cols[2]
+      
       newnr = rows[2]-rows[1]+1
       newnc = cols[2]-cols[1]+1
 
-      if (rows[1] != 1) yllc = yllc+(csz*(nr-rows[2]))
-      if (cols[1] != 1) xllc = xllc+(csz*cols[1])
+      if (rows[2] != nr) yllc = yllc+(csz*(nr-rows[2]))
+      if (cols[1] != 1)  xllc = xllc+(csz*(cols[1]-1))
+
       for (i in 1:length(outfh))
       {
          cat("NCOLS         ",as.character(newnc), "\n",file=outfh[[i]],sep="")
@@ -245,8 +255,7 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
       	names(inLegend)=names(xlevels)
       }
    }
-   nskip=0
-   if (rows[1]>1) nskip=rows[1]-1
+   nskip=rows[1]-1
 
    dpr = max(newnr %/% 100,1)
 
@@ -314,6 +323,7 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
             outdata=myPredFunc(object,newdata,...)
             if (class(outdata) != "data.frame")
                outdata=data.frame(predict=outdata,row.names=rownames(newdata))
+            else rownames(outdata)=rownames(newdata)               
          }
          else if (is.null(object))
          {

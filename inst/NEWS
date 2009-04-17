@@ -1,0 +1,10 @@
+Change in 1.0-9:
+
+* This NEWS file was started, prior changes were not logged.
+
+* Fixed error in AsciiGridImpute/AsciiGridPredict when lon/lat argument
+was used. 
+
+* Improved the help file for AsciiGridImpute/AsciiGridPredict.
+
+

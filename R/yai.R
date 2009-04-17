@@ -469,7 +469,7 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       }
       else
       {
-        prox=lapply(apply(nodes[rownames(xTrgs),],1,as.list),function (x) 
+        prox=lapply(apply(nodes[rownames(xTrgs),,drop=FALSE],1,as.list),function (x) 
           {
              prx=.Call("rfoneprox", INTrefNodes, INTsort, INTnrow, INTncol,
                        as.integer(x), vector("integer",INTnrow),dup=FALSE) 
