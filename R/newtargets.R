@@ -44,8 +44,8 @@ newtargets=function(object,newdata,ann=NULL)
    obsDropped=NULL
 
    # don't redo the factor matching for objects that come already done.
-   if (!is.null(attr(newdata,"illegalLevelCounts")) &&
-        length(intersect(xvars(object),names(object$xlevels))) > 0)
+   if (is.null(attr(newdata,"illegalLevelCounts")) &&
+       length(intersect(xvars(object),names(object$xlevels))) > 0)
    {
       newdata = factorMatch(newdata,object$xlevels)
       if (is.list(attr(newdata,"illegalLevelCounts")))

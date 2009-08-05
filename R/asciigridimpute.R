@@ -70,7 +70,7 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
    if (!is.null(ancillaryData) && class(object)[1]=="yai")
    {
       if (length(intersect(class(ancillaryData),c("matrix","data.frame"))) > 0 &&
-          nrow(ancillaryData[rownames(object$yRefs),]) == nrow(object$yRefs) &&
+          nrow(ancillaryData[rownames(object$yRefs),,FALSE]) == nrow(object$yRefs) &&
           length(intersect(rownames(ancillaryData),rownames(object$yRefs))) == nrow(object$yRefs) )
       {
          toKeep = intersect(union(colnames(ancillaryData),colnames(object$yRefs)),names(outfiles) )
@@ -88,7 +88,7 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
       }
       if (is.null(names(allY))) stop ("ancillaryData can not be used because no variables in it match the names in outfiles")
    }
-   if (is.null(names(allY)) && class(object)[1]=="yai")
+   if (is.null(colnames(allY)) && class(object)[1]=="yai")
    {
       toKeep = intersect(colnames(object$yRefs),names(outfiles))
       if (length(toKeep) == 0) allY = NULL
@@ -290,7 +290,7 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
       if (!is.null(xlevels) && length(omitted)<length(origRowNames))
       {
          moreOrigRowNames=rownames(newdata)
-         factorMatch = get("factorMatch",asNamespace("yaImpute"))
+########         factorMatch = get("factorMatch",asNamespace("yaImpute"))
          newdata=factorMatch(newdata,xlevels)
          ills = attr(newdata,"illegalLevelCounts")
          if (class(ills)=="list")
@@ -310,6 +310,7 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
       }
       else  attr(newdata,"illegalLevelCounts")=0   # tag the vector so newtargets() will not duplicate
                                                    # the creation of this attribute data
+
       if (length(omitted)==length(origRowNames)) # all missing.
       {
          outdata=data.frame(matrix(nodout,length(omitted),length(outfh)),
@@ -437,7 +438,6 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
      cat ("Legend of levels in input grids (assumed):\n")
      print (inLegend)
    }
-
    if (!is.null(sumIlls))
    {
       cat ("Factors with levels found in input maps but not present in data used to fit the model\n")
@@ -445,6 +445,11 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
       if (class(sumIlls[[1]]) == "table") print (sumIlls)
       else
       {
+         for (a in names(sumIlls)) 
+         {
+           sumIlls[[a]]=as.data.frame(sumIlls[[a]])
+           colnames(sumIlls[[a]])=a
+         }
          sumIlls = unionDataJoin(sumIlls)
          print (sumIlls)
          cat ("\n")

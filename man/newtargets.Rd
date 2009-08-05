@@ -5,7 +5,7 @@
 \description{
    Finds nearest neighbor \emph{reference} observations for a given set of \emph{target}
    observations using an established (see \code{\link{yai}}) object. Intended use is to
-   facilitate breaking up large imputation problems (see \code{\link{AsciiGridImpute}}.
+   facilitate breaking up large imputation problems (see \code{\link{AsciiGridImpute}}).
 }
 
 \usage{

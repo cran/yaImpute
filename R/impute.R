@@ -52,15 +52,7 @@ impute.yai <- function (object,ancillaryData=NULL,method="closest",
       else vars <- intersect(vars,colnames(refs))
       if (is.null(vars) | length(vars)==0) return (NULL)
 
-      if (method=="closest" | k==1)
-      {
-         if (length(vars)==1)
-         {
-            ans <- as.matrix(refs[ids[,1],vars])
-            colnames(ans) <- vars
-         }
-         else ans <- refs[ids[,1],vars]
-      }
+      if (method=="closest" | k==1) ans <- refs[ids[,1],vars,FALSE]
 
       if (method=="mean")
       {
@@ -104,15 +96,9 @@ impute.yai <- function (object,ancillaryData=NULL,method="closest",
       if (is.null(vars)) vars <- colnames(refs)
       else vars <- intersect(vars,colnames(refs))
       if (is.null(vars) | length(vars)==0) return (NULL)
-      if (method=="closest" | k==1)
-      {
-         if (length(vars)==1)
-         {
-            ans <- data.frame(refs[ids[,1],vars])
-            colnames(ans) <- vars
-         }
-         else ans <- data.frame(refs[ids[,1],vars])
-      }        
+
+      if (method=="closest" | k==1) ans <- data.frame(refs[ids[,1],vars,FALSE])
+       
       if (method == "mean") 
       {
          ans <- lapply(vars, function (v,idset)

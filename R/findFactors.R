@@ -27,11 +27,15 @@ factorMatch = function (x,xlevels)
    miss=NULL
    for (varName in facts)
    {
-      fx = factor(x[,varName],xlevels[[varName]])
+      fx=as.integer(x[,varName])
+      fx[fx>length(xlevels[[varName]])] = NA
+      fx[fx<1]=NA
+      attr(fx,"levels")=xlevels[[varName]]
+      attr(fx,"class")="factor"
       if (any(is.na(fx)))
       {
-        lx = table(factor(x[,varName]))
-        mtb = lx[setdiff(names(lx),xlevels[[varName]])]
+        lx = table(x[,varName])
+        mtb = lx[setdiff(names(lx),as.character(1:length(xlevels[[varName]])) ) ]
         if(is.null(miss))
         {
           miss=list(mtb)

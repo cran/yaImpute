@@ -36,7 +36,9 @@ AsciiGridPredict(object,xfiles,outfiles,xtypes=NULL,lon=NULL,lat=NULL,
   \item{outfiles}{One of these two forms:
       \itemize{
        \item{(1)}{A file name that is understood to correspond to the single prediction
-       returned by \code{myPredFunc} (generally applies to \code{AsciiGridPredict}), or}
+       returned by the generic \code{\link[stats]{predict}} function 
+       related to \code{object} or returned by \code{myPredFunc}. This form only 
+       applies to \code{AsciiGridPredict}, when the object is not class \code{yai}.}
        \item{(2)}{A \code{\link[base]{list}} of output file names where there is
        one grid file for each \emph{desired} output variable. While there may be
        many variables predicted for \code{object}, only those for which an
@@ -46,8 +48,8 @@ AsciiGridPredict(object,xfiles,outfiles,xtypes=NULL,lon=NULL,lat=NULL,
        predicted variables, the following two special names can be coded when
        the object class is \code{yai}: For \code{distance="}\emph{filename}\code{"}
        a map of the distances is output and if
-       \code{useid="}\emph{filename}\code{"} a map of useid's is output.
-       When \code{myPredFunc} is not \code{NULL} and when it returns a vector,
+       \code{useid="}\emph{filename}\code{"} a map of useid's is output. 
+       When the predict function returns a vector,
        an additional special name of \code{predict="}\emph{filename}\code{"} can be
        used.} }}
   \item{xtypes}{A list of data type names that corresponds exactly to data type of the
@@ -62,10 +64,10 @@ AsciiGridPredict(object,xfiles,outfiles,xtypes=NULL,lon=NULL,lat=NULL,
   \item{ann}{if NULL, the value is taken from \code{object}. When TRUE, \code{\link{ann}} is
        used to find neighbors, and when FALSE a slow exact search is used (ignored for when
        method randomForest is used when the original \code{\link{yai}} object was created).}
-  \item{lon}{if NULL, the value of \code{rows} is used. Otherwise, a 2-element
-       vector given the range of longitudes (vertical distance) desired for the output.}
-  \item{lat}{if NULL, the value of \code{cols} is used. Otherwise, a 2-element
-       vector given the range of latitudes (horizontal distance) desired for the output.}
+  \item{lon}{if NULL, the value of \code{cols} is used. Otherwise, a 2-element
+       vector given the range of longitudes (horizontal distance) desired for the output.}
+  \item{lat}{if NULL, the value of \code{rows} is used. Otherwise, a 2-element
+       vector given the range of latitudes (vertical distance) desired for the output.}
   \item{rows}{if NULL, all rows from the input grids are used. Otherwise, rows is a 2-element
        vector given the rows desired for the output. If the second element is greater than
        the number of rows, the header value \code{YLLCORNER} is adjusted accordingly. Ignored
