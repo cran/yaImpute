@@ -275,9 +275,19 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
       for (i in 1:length(infh))
       {
          indata[[i]]=scan(infh[[i]],nlines=1,what=vector(mode=xtypes[[i]],length=0),
-                     skip=nskip,na.strings=nodv,quiet=TRUE)
+                     skip=nskip,quiet=TRUE)
+         nod = indata[[i]] == nodv
+         if (any(nod)) indata[[i]][nod] = NA
       }
       nskip=0
+      rowLens = unlist(lapply(indata,length))
+      if (any(rowLens[1] != rowLens)) 
+      {
+         cat ("Row lengths for row ",ir,"\n")
+         print(rowLens)
+         flush.console()
+         stop ("Unequal row lengths.")
+      }
       if (newnc == nc) newdata=data.frame(indata)
       else             newdata=data.frame(indata)[cols[1]:cols[2],,FALSE]
       width=floor(log(nrow(newdata),10))+1
@@ -290,7 +300,7 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
       if (!is.null(xlevels) && length(omitted)<length(origRowNames))
       {
          moreOrigRowNames=rownames(newdata)
-########         factorMatch = get("factorMatch",asNamespace("yaImpute"))
+         factorMatch = get("factorMatch",asNamespace("yaImpute"))
          newdata=factorMatch(newdata,xlevels)
          ills = attr(newdata,"illegalLevelCounts")
          if (class(ills)=="list")
