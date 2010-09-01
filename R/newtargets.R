@@ -139,6 +139,11 @@ newtargets=function(object,newdata,ann=NULL)
         INTsort     = attr(object$ranForest,"rfRefNodeSort")[["INTsort"]]
       }
    }  
+   else if (object$method == "random")
+   { 
+      xcvRefs=data.frame(random=runif(nrow(object$xRefs)),row.names=rownames(object$xRefs))
+      xcvTrgs=data.frame(random=runif(length(trgs)),row.names=trgs)
+   }
    else if (object$method %in% c("msn","msn2","mahalanobis","ica"))
    {  
       xcvRefs=as.matrix(xcvRefs[,theCols,drop=FALSE]) %*% object$projector
@@ -158,13 +163,13 @@ newtargets=function(object,newdata,ann=NULL)
       xcvTrgs=as.matrix(xTrgs[,theCols,drop=FALSE])   
    }
 
-   neiDstTrgs=matrix(data=NA,nrow=nrow(xTrgs),ncol=object$k)
-   rownames(neiDstTrgs)=rownames(xTrgs)
+   neiDstTrgs=matrix(data=NA,nrow=length(trgs),ncol=object$k)
+   rownames(neiDstTrgs)=trgs
    colnames(neiDstTrgs)=paste("Dst.k",1:object$k,sep="")
    neiIdsTrgs=neiDstTrgs
    colnames(neiIdsTrgs)=paste("Id.k",1:object$k,sep="")
 
-   if (object$method != "randomForest")
+   if (object$method %in%  c("msn","msn2","mahalanobis","ica","euclidean","gnn","raw"))
    {
       if (ann & nrow(xcvTrgs)>0)
       {
@@ -185,9 +190,9 @@ newtargets=function(object,newdata,ann=NULL)
          }
       }
    }
-   else
+   else if (object$method == "randomForest")
    {
-      prox=lapply(apply(nodes,1,as.list),function (x) {
+     prox=lapply(apply(nodes,1,as.list),function (x) {
            prx=.Call("rfoneprox", INTrefNodes, INTsort, INTnrow, INTncol,
                      as.integer(x), vector("integer",INTnrow),dup=FALSE) 
            if (object$k > 1) px=sort(prx,index.return = TRUE, decreasing = TRUE)$ix[1:object$k]
@@ -201,8 +206,27 @@ newtargets=function(object,newdata,ann=NULL)
               Rnames[x[k+i]],i,object$k,rownames(object$xRefs)))
      } 
    }
+   else if (object$method == "random")
+   {
+      l=k+1
+      d = matrix(unlist(lapply(xcvTrgs[[1]],function (x, xcv, l) 
+            {
+              sort((xcv-x)^2,index.return=TRUE)$ix[2:l]
+            },xcvRefs[[1]],l)),nrow=nrow(xcvTrgs),ncol=k,byrow=TRUE)
+      for (ic in 1:ncol(d))
+      {
+        neiDstTrgs[,ic]=abs(xcvTrgs[,1]-xcvRefs[d[,ic],1])
+        neiIdsTrgs[,ic]=rownames(xcvRefs)[d[,ic]]
+      }
+   }
+   else  # default
+   {
+      stop("no code for specified method")   
+   }
    object$obsDropped=obsDropped
    object$trgRows=trgs
+   addX = setdiff (rownames(object$xRefs),rownames(xall))
+   if (length(addX) > 0) xall = rbind(xall,object$xRefs[addX,])
    object$xall=xall
    object$neiDstTrgs=neiDstTrgs
    object$neiIdsTrgs=neiIdsTrgs

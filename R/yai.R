@@ -7,7 +7,7 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
 
    findFactors =  get("findFactors",asNamespace("yaImpute"))
 
-   ftest.can = function (p,q,N,cor)
+   ftest.cor = function (p,q,N,cor)
    {
       s=min(p,q)
       if (s==0) stop ("p and q must be > 0")
@@ -23,19 +23,12 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       for (i in k) if (xx[i]>0) t[i]=sqrt(((p-k[i]+1)^2*(q-k[i]+1)^2-4)/xx[i])
       lamda.invt=lamda^(1/t)
       Ddf=(r*t)-(2*u)
-      if (any(Ddf < 1) || any(Ndf < 1)) 
-      {
-        F = vector(mode="numeric",length=s)
-        pgF = vector(mode="numeric",length=s)
-        F[]=NA
-        pgF[]=NA 
-        warning ("F-test failed, too few degrees of freedom")
-      }
-      else
-      {
-        F=((1-lamda.invt)/lamda.invt)*(Ddf/Ndf) 
-        pgF=pf(F,Ndf,Ddf,lower.tail=FALSE)
-      }
+      setNA = Ddf < 1 | Ndf < 1
+      F=((1-lamda.invt)/lamda.invt)*(Ddf/Ndf) 
+      F[setNA] = NA
+      pgF=pf(F,Ndf,Ddf,lower.tail=FALSE)
+      pgF[setNA] = NA
+      if (any(setNA)) warning ("degrees of freedom too low, NA's generated")
       list(F=F,pgF=pgF)
    }
    mymean = function(x)
@@ -71,7 +64,9 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
 
    # ARGUMENT and DATA screening
 
-   methodSet=c("msn","msn2","mahalanobis","ica","euclidean","gnn","randomForest","raw")
+   methodSet=c("msn","msn2","mahalanobis","ica","euclidean","gnn","randomForest","raw",
+               "random")
+               
    if (!(method %in% methodSet))
       stop (paste("method not one of:",paste(methodSet,collapse =", ")))
 
@@ -138,11 +133,11 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
    else ydum=FALSE
    if (is.null(yall)) stop("y missing")
    if (nrow(xall) == 0) stop ("no observations in x")
-   if (method != "randomForest")
+   if (! (method %in% c("random","randomForest")))
    {
       fy=0
       if (!(method %in% c("mahalanobis","ica","euclidean","raw"))) fy=sum(findFactors(yall))
-      if (fy+sum(findFactors(xall)>0)>0) stop("factors allowed only for method randomForest")
+      if (fy+sum(findFactors(xall)>0)>0) stop("factors allowed only for methods randomForest or random")
    }
    refs=intersect(rownames(yall),rownames(xall))
    if (length(refs) == 0) stop ("no reference observations.")
@@ -176,8 +171,8 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
    xScale=list(center=mymean(xRefs),scale=mysd(xRefs))
    yScale=list(center=mymean(yRefs),scale=mysd(yRefs))
 
-   # for all methods except randomForest and raw, variables with zero variance are dropped.
-   if (!(method %in% c("randomForest","raw")))
+   # for all methods except randomForest, random, and raw, variables with zero variance are dropped.
+   if (!(method %in% c("randomForest","random","raw")))
    {
       xDrop=xScale$scale < 1e-10
       if (sum(xDrop) > 0) warning ("x variables with zero variance: ",
@@ -233,7 +228,7 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       cancor$ycoef = cancor$ycoef * cscal
       cancor$xcoef = cancor$xcoef * cscal
      
-      ftest=ftest.can(p=nrow(cancor$ycoef),q=nrow(cancor$xcoef),N=nrow(yRefs),cancor$cor) 
+      ftest=ftest.cor(p=nrow(cancor$ycoef),q=nrow(cancor$xcoef),N=nrow(yRefs),cancor$cor) 
       if (is.null(nVec)) nVec=length(cancor$cor)-sum(ftest$pgF>pVal)
       if (is.na(nVec)) nVec=1
       nVec=min(nVec,length(cancor$cor))
@@ -343,6 +338,7 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
    {
       xcvRefs=scale(xRefs,center=xScale$center,scale=xScale$scale)
       ccaVegan = cca(X=yRefs, Y=xcvRefs)
+      if (is.null(ccaVegan$CCA)) stop ("cca() in package vegan failed, likely cause is too few X or Y variables.")
 
       # create a projected space for the reference observations
       predCCA = get("modified.predict.cca",asNamespace("yaImpute"))
@@ -427,6 +423,13 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       INTsort = as.integer(INTsort)
       attr(ranForest,"rfRefNodeSort") = list(INTrefNodes=INTrefNodes, INTnrow=INTnrow, INTncol=INTncol, INTsort=INTsort)
    }
+   else if (method == "random")
+   { 
+      nVec = 1
+      ann=FALSE
+      xcvRefs=data.frame(random=runif(nrow(xRefs)),row.names=rownames(xRefs))
+      if (!noTrgs && length(trgs) > 0) xcvTrgs=data.frame(random=runif(length(trgs)),row.names=trgs)
+   }
    else # default
    {
       stop("no code for specified method")
@@ -442,12 +445,12 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
    }
    else
    {
-      neiDstTrgs=matrix(data=NA,nrow=nrow(xTrgs),ncol=k)
-      rownames(neiDstTrgs)=rownames(xTrgs)
+      neiDstTrgs=matrix(data=NA,nrow=length(trgs),ncol=k)
+      rownames(neiDstTrgs)=trgs
       colnames(neiDstTrgs)=paste("Dst.k",1:k,sep="")
       neiIdsTrgs=neiDstTrgs
       colnames(neiIdsTrgs)=paste("Id.k",1:k,sep="")
-      if (method != "randomForest")
+      if (method %in%  c("msn","msn2","mahalanobis","ica","euclidean","gnn","raw"))
       {
          if (ann)
          { 
@@ -467,7 +470,20 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
             }
          }
       }
-      else
+      else if (method == "random")
+      {
+         l=k+1
+         d = matrix(unlist(lapply(xcvTrgs[[1]],function (x, xcv, l) 
+               {
+                 sort((xcv-x)^2,index.return=TRUE)$ix[2:l]
+               },xcvRefs[[1]],l)),nrow=nrow(xcvTrgs),ncol=k,byrow=TRUE)
+         for (ic in 1:ncol(d))
+         {
+           neiDstTrgs[,ic]=abs(xcvTrgs[,1]-xcvRefs[d[,ic],1])
+           neiIdsTrgs[,ic]=rownames(xcvRefs)[d[,ic]]
+         }
+      }
+      else if (method == "randomForest")
       {
         prox=lapply(apply(nodes[rownames(xTrgs),,drop=FALSE],1,as.list),function (x) 
           {
@@ -483,6 +499,10 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
           neiIdsTrgs[,i]=unlist(lapply(prox,function (x,i,k,Rnames) 
                  Rnames[x[k+i]],i,k,rownames(xRefs)))
         } 
+      }
+      else # default
+      {
+         stop("no code for specified method")
       }
    }
 
@@ -500,7 +520,7 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       neiIdsRefs=neiDstRefs
       colnames(neiIdsRefs)=paste("Id.k",1:k,sep="")
       l=k+1
-      if (method != "randomForest")
+      if (method %in%  c("msn","msn2","mahalanobis","ica","euclidean","gnn","raw"))
       {
          if (ann & nrow(xcvRefs)> 0)
          {
@@ -520,7 +540,7 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
             }
          }
       }
-      else
+      else if (method == "randomForest")
       {
         prox=lapply(apply(refNodes,1,as.list),function (x) 
           {
@@ -541,6 +561,24 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
            neiIdsRefs[,i]=unlist(lapply(prox,function (x,i,k,Rnames) 
                   Rnames[x[k+i]],i,k,rownames(xRefs)))
         } 
+      }
+      else if (method == "random")
+      {
+         l=k+1
+         d = matrix(unlist(lapply(xcvRefs[[1]],function (x, xcv, l) 
+               {
+                 sort((xcv-x)^2,index.return=TRUE)$ix[2:l]
+               },xcvRefs[[1]],l)),nrow=nrow(xcvRefs),ncol=k,byrow=TRUE)
+               
+         for (ic in 1:ncol(d))
+         {
+           neiDstRefs[,ic]=abs(xcvRefs[,1]-xcvRefs[d[,ic],1])
+           neiIdsRefs[,ic]=rownames(xcvRefs)[d[,ic]]
+         }
+      }
+      else # default
+      {
+         stop("no code for specified method")
       }
    }
 

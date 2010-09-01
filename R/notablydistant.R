@@ -1,6 +1,6 @@
 # Provides a list of notably distant targets.
 #
-# The threshold that makes an target "notably" distant is either set as an
+# Tinstalled.packageshe threshold that makes an target "notably" distant is either set as an
 # argument or computed herein. If compute, the distribution of distances
 # depends on the method. Generally, distances are lognormally distributed,
 # but for method randomForest, they are on the interval zero to 1 and
@@ -34,7 +34,7 @@ notablyDistant  <-  function (object,kth=1,threshold=NULL,p=0.01)
    {
       threshold <- NaN
       if (is.null(object$neiDstRefs)) stop ("distances among references are required when threshold is NULL")
-      if (object$method == "randomForest") # use the beta disrtibution, distances are 0<=d<=1
+      if (object$method %in% c("randomForest","random")) # use the beta disrtibution, distances are 0<=d<=1
       {
          m <- mean(object$neiDstRefs[,kth])
          ss <- var(object$neiDstRefs[,kth])

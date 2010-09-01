@@ -5,8 +5,8 @@
 
 \description{Computes the root mean square difference (RMSD) between
   observed and imputed values for each observation that has both. RMSD
-  is computationally like RMSE, but they differ in interpretation. By default
-  the RMSD values are scaled by the standard deviation of the respective variable.
+  is computationally like RMSE, but they differ in interpretation. The RMSD 
+  values can be scaled to afford comparisons among variables.
 }
 
 \usage{
@@ -30,9 +30,8 @@ rmsd.yai (object,vars=NULL,scale=FALSE,\dots)
 \details{
   By default, RMSD is computed using standard formula for its related statistic,
   RMSE. When \code{scale=TRUE}, RMSD is divided by the standard deviation of the
-  observed data. The standard deviation is computed over the original list of
-  \emph{reference} observations and is therefore not influenced
-  by the number of times a given reference is used for imputation.
+  \emph{reference} observations only under the assumption that they are representative
+  of the population.
 }
 
 \seealso{

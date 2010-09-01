@@ -60,6 +60,9 @@ yai(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       \item{\code{randomForest}}{distance is one minus the
          proportion of randomForest trees where a target observation is in
          the same terminal node as a reference observation (see \code{\link[randomForest]{randomForest}}).}
+      \item{\code{random}}{like raw except that the X space is a single vector of uniform random [0,1]
+         numbers generated using \code{\link[stats]{runif}}, results in random assignement of neighbors,
+         and forces \code{ann} to be FALSE.}
     }
   }
   \item{ann}{TRUE if \code{\link{ann}} is used to find neighbors, FALSE if a slow search is used.}
@@ -80,7 +83,7 @@ See the paper at \url{http://www.jstatsoft.org/v23/i10} (it includes examples).
 The following information is in addition to the content in the papers. 
 
 You need not have any Y-variables to run yai for the following methods: 
-\code{euclidean}, \code{raw}, \code{mahalanobis}, \code{ica}, and 
+\code{euclidean}, \code{raw}, \code{mahalanobis}, \code{ica}, \code{random}, and 
 \code{randomForest} (in which case unsupervised classification is 
 performed). However, normally \code{yai} classifies \emph{reference} 
 observations as those with no missing values for X- and Y- variables and 
