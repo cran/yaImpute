@@ -154,12 +154,12 @@ errorStats <- function(mahal,...,scale=FALSE,pzero=0.1,plg=0.5,seeMethod="lm")
       ans[[1]] = out[,1:3]
       ans[[2]] = out[,4:7]
       i = 2
-      for (object in list(...))
+      for (object in args)
       {
          i = i+1
          label = names(ans)[i]
-         rmsd  = frmsd2(object,label)
-         rmsdlg= frmsdlg(object,label,plg=plg)
+         rmsd  = frmsd2(object,label)[rownames(rmmsd0),,drop=FALSE]
+         rmsdlg= frmsdlg(object,label,plg=plg)[rownames(rmmsd0),,drop=FALSE]
          sei   = fsei(rmsd,rmmsd0)
          dstc  = fdstc(rmsd,rmmsd0)
          out   = cbind(rmsd,rmsdlg,sei,dstc)

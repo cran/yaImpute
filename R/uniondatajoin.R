@@ -47,12 +47,12 @@ unionDataJoin=function(...,warn=TRUE)
             if (is.factor(d[,var]))
             {
                factors[var,1] = TRUE
-               all[rownames(all) %in% rownames(d),var]=levels(d[,var])[d[,var]]
+               all[rownames(d),var]=levels(d[,var])[d[,var]]
             }
-            else all[rownames(all) %in% rownames(d),var]=d[,var]
+            else all[rownames(d),var]=d[,var,drop=FALSE]
          }
       }
-      else all[rownames(all) %in% rownames(d),theCols]=d
+      else all[rownames(d),theCols]=d
    }
    for (var in colnames(all)) if (factors[var,1]) all[,var]=as.factor(all[,var])
    all

@@ -22,7 +22,7 @@ yaiRFsummary = function(object, nTop=0)
      type[i] = Rf$type    
      if(Rf$type == "regression") 
      {
-        error [i] = round(100*Rf$rsq[length(Rf$rsq)], dig=2) 
+        error [i] = round(100*Rf$rsq[length(Rf$rsq)], digits=2) 
         errtag[i] = "%var explained"
         levels[i] = NA
      }

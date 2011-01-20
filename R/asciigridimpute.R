@@ -379,14 +379,13 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
             flush.console()
             stop ("Unexpected results for row = ",ir)
          }
-         outrs = nrow(outdata) # the predict might send NA's, strip them
-         outdata=na.omit(outdata)  
-         if (outrs > nrow(outdata))
+         outrs = nrow(outdata) # the predict might send NA's, change them to no data
+         outtmp = na.omit(outdata)
+         if (outrs > nrow(outtmp))
          {
-            nasum = if (is.null(nasum)) c(ir,outrs-nrow(outdata)) else
-                            rbind(nasum,c(ir,outrs-nrow(outdata)))
-            if (!is.null(moreOrigRowNames)) 
-               omitted=c(omitted,moreOrigRowNames[as.vector(attr(outdata,"na.action"))])
+            nasum = if (is.null(nasum)) c(ir,outrs-nrow(outtmp)) else
+                            rbind(nasum,c(ir,outrs-nrow(outtmp)))
+            for (icol in 1:ncol(outdata)) outdata[is.na(outdata[,icol]),icol]=nodout
          }
          if (length(omitted)>0)
          {

@@ -55,14 +55,14 @@ newtargets=function(object,newdata,ann=NULL)
          print(attr(newdata,"illegalLevelCounts"))
       }
    }
-
    if (is.null(object$theFormula))
    {
-      vold =colnames(object$xall)
-      have=match(intersect(vold,colnames(newdata)),vold)
-      if (length(have) != length(vold))      
-          stop(paste("required column(s) missing:",
-               paste(if (length(have)==0) vold else vold[-have],collapse=", ")))
+      have=intersect(colnames(object$xRefs),colnames(newdata))
+      if (length(have) != length(colnames(object$xRefs)))
+      {
+          missing = setdiff(colnames(object$xRefs),colnames(newdata))     
+          stop(paste("required column(s) missing:", paste (missing, collapse=", ")))
+      }
       xall=na.omit(newdata[,have])
       obsDropped=names(attributes(na.omit(xall))$na.action)
       if (length(obsDropped)>0) warning (nrow(newdata)-nrow(xall)," observation(s) removed")
@@ -75,6 +75,7 @@ newtargets=function(object,newdata,ann=NULL)
       if (length(obsDropped)) warning (length(obsDropped)," observation(s) removed")
    }
    if (nrow(xall) == 0) stop ("no observations")
+
    trgs=setdiff(rownames(xall),rownames(object$xRefs))
    if (nrow(xall) != length(trgs))
    {

@@ -17,7 +17,7 @@ rmsd.yai = function (object,vars=NULL,scale=FALSE,...)
    if (is.null(object)) stop ("no imputations found using this object")
    nuke = unlist(lapply(object,function (x) all(is.na(x))))
    nuke=nuke[nuke]
-   if (length(nuke) > 0) object = object[,-match(names(nuke),names(object))]
+   if (length(nuke) > 0) object = object[,-match(names(nuke),names(object)),drop=FALSE]
    object = na.omit(object)
    if (is.null(vars)) vars=names(object)
    vi=paste(unique(strsplit(vars,".o",fixed=TRUE)))

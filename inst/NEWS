@@ -3,8 +3,23 @@ Change in 1.0-9:
 * This NEWS file was started, prior changes were not logged.
 
 * Fixed error in AsciiGridImpute/AsciiGridPredict when lon/lat argument
-was used. 
+is used. 
 
 * Improved the help file for AsciiGridImpute/AsciiGridPredict.
 
+Version 1.0-10 through 1.0-12: The news files was somehow dropped. 
 
+Version 1.0-13:
+
+* Bug fix in unionDataJoin that effects non-yaImpute uses of this function
+* Fixed AsciiGridImpute to better deal with NA's generated when ancillary
+  data are being mapped.
+* Fixed errorStats to deal with case where rmsd can not be computed due
+  to missing data.
+* Added drop=FALSE to deal with case where only one variable is left in
+  the computations of rmsd after variables with no observed values are removed.
+* Fixed some problems in the customized version of randomForest.default to 
+  comply with current R coding standards.
+* Same as above for yaiRFSummary.
+
+ 
