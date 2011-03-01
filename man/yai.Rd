@@ -146,7 +146,7 @@ require (yaImpute)
 
 data(iris)
 
-# set the random number seed so that example results are consistant
+# set the random number seed so that example results are consistent
 # normally, leave out this command
 set.seed(12345) 
 
@@ -198,7 +198,7 @@ plot(compare.yai(mal,gnn,msn,rforig))
 
 # build another randomForest case forcing regression
 # to be used for continuous variables. The answers differ
-# but one is set not clearly better than the other.
+# but one is not clearly better than the other.
 
 rf2 <- yai(x=x, y=ybaB, method="randomForest", rfMode="regression")
 rforig2 <- impute(rf2,ancillaryData=y)

@@ -8,13 +8,25 @@
 }
 
 \usage{
-foruse(object,kth=NULL)
+foruse(object,kth=NULL,method="kth",targetsOnly=FALSE)
 }
 
 \arguments{
   \item{object}{an object created by \code{\link{yai}}}
-  \item{kth}{when NULL, the best pick is reported, otherwise the kth neighbor is picked.}
+  \item{kth}{when \code{NULL} (and \code{method="kth"}), 
+      the best pick is reported (a reference observation represents itself), 
+      otherwise the kth neighbor is picked.}
+  \item{method}{the method used to select references to represent observations,
+     as follows: \cr
+   \code{kth}: the \emph{kth} nearest neighbor is picked; \cr
+   \code{random}: for each observation, the value of \emph{kth} is selected at 
+     random from the 1 to \code{k} neighbors (1 to \code{kth} if is \code{kth} 
+     specified); \cr
+   \code{randomWeighted}: \code{1/(1+d)} is used as a probability weight factor 
+     in selecting the value of \emph{kth}, where d is the distance..}
+  \item{targetsOnly}{when is TRUE, reporting of references is not done.}
 }
+
 
 \examples{
 require(yaImpute)

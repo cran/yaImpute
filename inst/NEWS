@@ -22,4 +22,12 @@ Version 1.0-13:
   comply with current R coding standards.
 * Same as above for yaiRFSummary.
 
+Version 1.0-14:
+
+* Fixed typos in yai.Rd
+* Added to the ability to pick neighbors at random among 1:k nearest in
+  function foruse().
+* Updated ANN headers for newer gcc
+
+
  
