@@ -29,5 +29,6 @@ Version 1.0-14:
   function foruse().
 * Updated ANN headers for newer gcc
 
-
+Version 1.0-15:
+* The update to ANN headers were reapplied.
  
