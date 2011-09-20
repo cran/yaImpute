@@ -35,22 +35,23 @@ AsciiGridPredict(object,xfiles,outfiles,xtypes=NULL,lon=NULL,lat=NULL,
        each X-variable used when \code{object} was built.}
   \item{outfiles}{One of these two forms:
       \itemize{
-       \item{(1)}{A file name that is understood to correspond to the single prediction
+       \item{(1) }{A file name that is understood to correspond to the single prediction
        returned by the generic \code{\link[stats]{predict}} function 
        related to \code{object} or returned by \code{myPredFunc}. This form only 
        applies to \code{AsciiGridPredict}, when the object is not class \code{yai}.}
-       \item{(2)}{A \code{\link[base]{list}} of output file names where there is
+       \item{(2) }{A \code{\link[base]{list}} of output file names where there is
        one grid file for each \emph{desired} output variable. While there may be
        many variables predicted for \code{object}, only those for which an
        output grid is desire need to be specified. Note that some predict functions return
        data frames, some return a single vector, and often what is returned depends on the
        value of arguments passed to predict. In addition to names of the
        predicted variables, the following two special names can be coded when
-       the object class is \code{yai}: For \code{distance="}\emph{filename}\code{"}
+       the object class is \code{yai}: For \code{distance=}\emph{\dQuote{filename}}
        a map of the distances is output and if
-       \code{useid="}\emph{filename}\code{"} a map of useid's is output. 
+       \code{useid=}\emph{\dQuote{filename}} a map of integer indices to row numbers of the
+       reference observations is output. 
        When the predict function returns a vector,
-       an additional special name of \code{predict="}\emph{filename}\code{"} can be
+       an additional special name of \code{predict=}\emph{\dQuote{filename}} can be
        used.} }}
   \item{xtypes}{A list of data type names that corresponds exactly to data type of the
        maps listed in \code{xfiles}. Each value can be one of:
@@ -121,10 +122,7 @@ AsciiGridPredict(object,xfiles,outfiles,xtypes=NULL,lon=NULL,lat=NULL,
   for these cells as most predict functions will fail in these circumstances.
   Checking on factors depends on \code{object} containing a meaningful member
   named \code{xlevels}, as done objects model objects produced by
-  \code{\link[stats]{lm}}. Note that objects produced by
-  \code{\link[randomForest]{randomForest}} version 4.5-19 and prior do not contain
-  \code{xlevels}; use function \code{\link{addXlevels}} to add the necessary
-  element if one or more \code{\link[base]{factor}}\code{s} are used.
+  \code{\link[stats]{lm}}. 
 
   Asciigrid maps do not contain character data, only numbers. The numbers in the
   maps are matched the \code{xlevels} by subscript (the first entry in a level corresponds
@@ -158,8 +156,8 @@ An \code{\link[base]{invisible}} list containing the following named elements:
      the input maps and those found in \code{object}. The row names are
      level index values (this function assumes they correspond to numeric values
      on the maps), the column names are variable names, and the values
-     are the levels. NULL if no factors are input. This information is basically
-     the same as that in \code{xlevels}.}
+     are the levels. NULL if no factors are input. This information is consistent with 
+     that in \code{xlevels}.}
 }
 
 \examples{
@@ -221,10 +219,22 @@ rfNN <- yai(x=iris[refs,1:4],y=y,method="randomForest")
 
 xfiles <- list(Sepal.Length="slen.txt",Sepal.Width="swid.txt",
                Petal.Length="plen.txt",Petal.Width="pwid.txt")
-outfiles1 <- list(distance="dist.txt",Species="spOutrfNN.txt")
+outfiles1 <- list(distance="dist.txt",Species="spOutrfNN.txt",
+                  useid="useindx.txt")
 
 # map the imputation-based predictions for the input maps
 AsciiGridImpute(rfNN,xfiles,outfiles1,ancillaryData=iris)
+   
+# demonstrate the use of useid:
+spViaUse <- read.table("useindx.txt",skip=6)
+for (col in colnames(spViaUse)) spViaUse[,col]=as.character(y$Species[spViaUse[,col]])
+
+# demonstrate how to use factors:
+spViaLevels  <- read.table("spOutrfNN.txt",skip=6)
+for (col in colnames(spViaLevels)) spViaLevels[,col]=levels(y$Species)[spViaLevels[,col]]
+
+identical(spViaLevels,spViaUse)
+
 
 # build a randomForest predictor
 rf <- randomForest(x=iris[refs,1:4],y=iris[refs,5])
@@ -233,23 +243,18 @@ rf <- randomForest(x=iris[refs,1:4],y=iris[refs,5])
 outfiles2 <- list(predict="spOutrf.txt")
 AsciiGridPredict(rf,xfiles,outfiles2,xtypes=NULL,rows=NULL)
 
-# read the species maps and plot them using the sp package classes
-if (require(sp)) {
-   spOrig <- read.asciigrid("spcd.txt")
-   sprfNN <- read.asciigrid("spOutrfNN.txt")
-   sprf <- read.asciigrid("spOutrf.txt")
-   dist <- read.asciigrid("dist.txt")
+# read the asciigrids and get them ready to plot 
+spOrig <- t(as.matrix(read.table("spcd.txt",skip=6)))
+sprfNN <- t(as.matrix(read.table("spOutrfNN.txt",skip=6)))
+sprf <- t(as.matrix(read.table("spOutrf.txt",skip=6)))
+dist <- t(as.matrix(read.table("dist.txt",skip=6)))
 
-   par(mfcol=c(2,2))
-   image(spOrig)
-   title("Original")
-   image(sprfNN)
-   title("Using Predict")
-   image(sprf)
-   title("Using Impute")
-   image(dist)
-   title("Neighbor Distances")
-}
+par(mfcol=c(2,2))
+image(spOrig,main="Original",axes=FALSE,useRaster=TRUE)
+image(sprfNN,main="Using Predict",axes=FALSE,useRaster=TRUE)
+image(sprf,main="Using Impute",axes=FALSE,useRaster=TRUE)
+image(dist,main="Neighbor Distances",axes=FALSE,useRaster=TRUE)    
+
 }
 
 

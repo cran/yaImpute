@@ -97,13 +97,12 @@ newtargets=function(object,newdata,ann=NULL)
    if (object$method == "gnn") # gnn
    {
       # create a projected space for the reference observations
-      predCCA = get("modified.predict.cca",asNamespace("yaImpute"))
-      xcvRefs=predCCA(object$ccaVegan,type="lc",rank="full")
+      xcvRefs=predict(object$ccaVegan,type="lc",rank="full")
       xcvRefs=xcvRefs %*% diag(sqrt(object$ccaVegan$CCA$eig/sum(object$ccaVegan$CCA$eig)))
 
       # create a projected space for the unknowns (target observations)
       xcvTrgs=scale(xTrgs,center=object$xScale$center,scale=object$xScale$scale)
-      xcvTrgs=predCCA(object$ccaVegan,newdata=as.data.frame(xcvTrgs),type="lc",rank="full")
+      xcvTrgs=predict(object$ccaVegan,newdata=as.data.frame(xcvTrgs),type="lc",rank="full")
       xcvTrgs=xcvTrgs %*% diag(sqrt(object$ccaVegan$CCA$eig/sum(object$ccaVegan$CCA$eig)))
       nVec = ncol(xcvRefs)
    }
@@ -113,8 +112,7 @@ newtargets=function(object,newdata,ann=NULL)
       predObs = if (is.null(attr(object$ranForest,"rfRefNodeSort"))) rbind(object$xRefs,xTrgs) else xTrgs
       for (i in 1:length(object$ranForest))
       {
-         predRF = getS3method("predict","randomForest")
-         nodeset=attr(predRF(object$ranForest[[i]],predObs,
+         nodeset=attr(predict(object$ranForest[[i]],predObs,
                       proximity=FALSE,nodes=TRUE),"nodes")
          if (is.null(nodeset)) stop("randomForest did not return nodes")
          colnames(nodeset)=paste(colnames(nodeset),i,sep=".")

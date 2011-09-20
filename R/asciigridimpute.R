@@ -350,7 +350,7 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
             rownames(outdata)=saveNames
             if (distYes)  dists = data.frame(distance=new$neiDstTrgs[,1],row.names=rownames(newdata))
             else          dists = NULL
-            if (useidYes) useIds= data.frame(distance=new$neiDstTrgs[,1],row.names=rownames(newdata))
+            if (useidYes) useIds= data.frame(useid=match(new$neiIdsTrgs[,1],rownames(object$xRefs)),row.names=rownames(newdata))
             else          useIds= NULL
             if (!is.null(outdata) && !is.null(dists) ) outdata=cbind(outdata,dists)
             else if (is.null(outdata)) outdata=dists
@@ -369,7 +369,7 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
            outLegend=vector("list",ncol(outdata))
            names(outLegend)=names(outdata)
            for (n in names(outLegend)) outLegend[[n]]=if (is.factor(outdata[,n])) levels(outdata[,n]) else NULL
-         }
+         }                    
          if (nrow(outdata) != nrow(newdata))
          {
             cat ("First six lines non-missing predictions for row ",ir,"\n")
@@ -433,7 +433,6 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
       print (nasum)
       warning("Unexpected NA values generated")
    }
-
    if (length(outLegend)>0)
    {
      outLegend=unionDataJoin(outLegend)

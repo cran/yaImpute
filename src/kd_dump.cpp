@@ -446,6 +446,11 @@ static ANNkd_ptr annReadTree(
 	}
 	else {
 		annError("Illegal node type in dump file", ANNabort);
-		std::exit(0);								// to keep the compiler happy
+		//std::exit(0);		 // R objects... this approch to keep the compiler happy
+		return NULL;       // to keep the compiler happy
 	}
 }
+
+
+
+

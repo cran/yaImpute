@@ -6,9 +6,6 @@ contained in each file.
 
 Files contained in directory R: 
 
-R/modified.predict.cca.R carries the copyright and license provisions of 
-package vegan
-
 R/modified.randomForest.default.R carries the copyright and license 
 provisions of package randomForest
 

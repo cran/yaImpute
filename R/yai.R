@@ -262,7 +262,7 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       xcvRefs=scale(xRefs,center=xScale$center,scale=xScale$scale)
       qr = qr(xcvRefs)  # maybe we are not at full rank
       xcvRefs=xcvRefs[,qr$pivot[1:qr$rank],drop=FALSE]
-      projector = solve(t(chol(cov(xcvRefs))))
+      projector = solve(chol(cov(xcvRefs))) # old, wrong, extra transpose removed thanks to Petteri Packalen
       theCols = colnames(projector)
       if (length(theCols)<ncol(xRefs))
       {
@@ -341,8 +341,7 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       if (is.null(ccaVegan$CCA)) stop ("cca() in package vegan failed, likely cause is too few X or Y variables.")
 
       # create a projected space for the reference observations
-      predCCA = get("modified.predict.cca",asNamespace("yaImpute"))
-      xcvRefs=predCCA(ccaVegan,type="lc",rank="full")
+      xcvRefs=predict(ccaVegan,type="lc",rank="full")
       xcvRefs=xcvRefs %*% diag(sqrt(ccaVegan$CCA$eig/sum(ccaVegan$CCA$eig)))
 
       # create a projected space for the unknowns (target observations)
@@ -350,7 +349,7 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       {
          xTrgs=xall[trgs,,drop=FALSE]
          xcvTrgs=scale(xTrgs,center=xScale$center,scale=xScale$scale)
-         xcvTrgs=predCCA(ccaVegan,newdata=as.data.frame(xcvTrgs),type="lc",rank="full")
+         xcvTrgs=predict(ccaVegan,newdata=as.data.frame(xcvTrgs),type="lc",rank="full")
          xcvTrgs=xcvTrgs %*% diag(sqrt(ccaVegan$CCA$eig/sum(ccaVegan$CCA$eig)))
       }
       nVec = ncol(xcvRefs)
@@ -360,15 +359,13 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       rfBuildClasses=NULL
       xTrgs=xall[trgs,1,drop=FALSE]
       rfVersion=packageDescription("randomForest")[["Version"]]  
-      if (compareVersion(rfVersion,"4.5-22") < 0)
-           RF = get("modified.randomForest.default",asNamespace("yaImpute"))
-      else RF = get("randomForest.default",asNamespace("randomForest"))    
+      if (compareVersion(rfVersion,"4.5-22") < 0) stop("Update your version of randomForest.")
       if (is.null(mtry)) mtry=max(sqrt(ncol(xRefs)),1)
       if (is.null(ntree)) ntree=500
       if (ydum)
       {
          yone=NULL
-         ranForest=RF(x=xRefs,y=yone,proximity=FALSE,importance=TRUE,keep.forest=TRUE,mtry=mtry,ntree=ntree)
+         ranForest=randomForest(x=xRefs,y=yone,proximity=FALSE,importance=TRUE,keep.forest=TRUE,mtry=mtry,ntree=ntree)
          ranForest$type="yaImputeUnsupervised"
          ranForest=list(unsupervised=ranForest)
       }
@@ -399,15 +396,14 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
                 yone=as.factor(floor(yone/div))
               }
             }
-            ranForest[[i]]=RF(x=xRefs,y=yone,proximity=FALSE,importance=TRUE,keep.forest=TRUE,mtry=mtry,ntree=ntree[i])
+            ranForest[[i]]=randomForest(x=xRefs,y=yone,proximity=FALSE,importance=TRUE,keep.forest=TRUE,mtry=mtry,ntree=ntree[i])
          }
          names(ranForest)=colnames(yRefs)
       }
       nodes=NULL
       for (i in 1:length(ranForest))
       {
-         pred = getS3method("predict","randomForest")
-         nodeset=attr(pred(ranForest[[i]],xall,proximity=FALSE,nodes=TRUE),"nodes")
+         nodeset=attr(predict(ranForest[[i]],xall,proximity=FALSE,nodes=TRUE),"nodes")
          if (is.null(nodeset)) stop("randomForest did not return nodes")
          colnames(nodeset)=paste(colnames(nodeset),i,sep=".")
          nodes=if (is.null(nodes)) nodeset else cbind(nodes,nodeset)

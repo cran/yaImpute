@@ -3,7 +3,7 @@ useDynLib(yaImpute)
 export(ann, compare.yai, cor.yai, foruse, impute, mostused, impute.yai,
        newtargets, notablyDistant, rmsd.yai, unionDataJoin, vars, whatsMax,
        xvars, yai, yaiRFsummary, yaiVarImp, yvars, errorStats, AsciiGridImpute,
-       AsciiGridPredict, addXlevels)
+       AsciiGridPredict)
 
 S3method(print, yai)
 S3method(summary, yai)
