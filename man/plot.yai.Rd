@@ -42,7 +42,7 @@ plot(malImp)
 }
 
 \author{
-  Nicholas L. Crookston \email{ncrookston@fs.fed.us} \cr
+  Nicholas L. Crookston \email{ncrookston.fs@gmail.com} \cr
   Andrew O. Finley \email{finleya@msu.edu}
 }
 

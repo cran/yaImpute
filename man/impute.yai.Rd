@@ -32,7 +32,7 @@
   \item{method.factor}{the method used to compute the imputed values for factors, as follows: \cr
    \code{closest}: use the single neighbor that is closest (this is the default and is
        always used when \emph{k}=1); \cr
-   \code{mean}: actually is the \emph{mode}\-\-it is the factor level that occurs 
+   \code{mean}: actually is the \emph{mode}\-\-it is the factor level that occurs
        the most often among the \emph{k} neighbors;\cr
    \code{dstWeighted}: a \emph{mode} where the count is the sum of the weights (1/(1+d)) rather than
        each having a weight of 1.}
@@ -82,7 +82,7 @@ plot(malImp)
 }
 
 \author{
-  Nicholas L. Crookston \email{ncrookston@fs.fed.us} \cr
+  Nicholas L. Crookston \email{ncrookston.fs@gmail.com} \cr
   Andrew O. Finley \email{finleya@msu.edu} \cr
   Emilie Grossmann \email{Emilie.Grossmann@oregonstate.edu}
 }

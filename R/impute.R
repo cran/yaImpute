@@ -291,8 +291,8 @@ impute.yai <- function (object,ancillaryData=NULL,method="closest",
          scale <- matrix(data=NA,nrow=ncol(ancillaryData),ncol=2)
          rownames(scale) <- colnames(ancillaryData)
          colnames(scale) <- c("center","scale")
-         scale[notFactors,"center"] <- mean(ancillaryData[,rownames(scale)[notFactors]],na.rm=TRUE)
-         scale[notFactors,"scale" ] <- sd  (ancillaryData[,rownames(scale)[notFactors]],na.rm=TRUE)
+         scale[notFactors,"center"] <- apply(ancillaryData[,rownames(scale)[notFactors]],2,mean,na.rm=TRUE)
+         scale[notFactors,"scale" ] <- apply(ancillaryData[,rownames(scale)[notFactors]],2,sd,  na.rm=TRUE)
       }
       else scale=NULL
    }

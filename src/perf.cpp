@@ -104,19 +104,19 @@ DLL_API void annUpdateStats()				// update stats with current counts
 										// print a single statistic
 void print_one_stat(const char *title, ANNsampStat s, double div)
 {
-	cout << title << "= [ ";
-	cout.width(9); cout << s.mean()/div			<< " : ";
-	cout.width(9); cout << s.stdDev()/div		<< " ]<";
-	cout.width(9); cout << s.min()/div			<< " , ";
-	cout.width(9); cout << s.max()/div			<< " >\n";
+//R does not allow:	cout << title << "= [ ";
+//R does not allow:	cout.width(9); cout << s.mean()/div			<< " : ";
+//R does not allow:	cout.width(9); cout << s.stdDev()/div		<< " ]<";
+//R does not allow:	cout.width(9); cout << s.min()/div			<< " , ";
+//R does not allow: cout.width(9); cout << s.max()/div			<< " >\n";
 }
 
 DLL_API void annPrintStats(				// print statistics for a run
 	ANNbool validate)					// true if average errors desired
 {
-	cout.precision(4);					// set floating precision
-	cout << "  (Performance stats: "
-		 << " [      mean :    stddev ]<      min ,       max >\n";
+//R does not allow:	cout.precision(4);					// set floating precision
+//R does not allow:	cout << "  (Performance stats: "
+//R does not allow:			 << " [      mean :    stddev ]<      min ,       max >\n";
 	print_one_stat("    leaf_nodes       ", ann_visit_lfs, 1);
 	print_one_stat("    splitting_nodes  ", ann_visit_spl, 1);
 	print_one_stat("    shrinking_nodes  ", ann_visit_shr, 1);
@@ -128,7 +128,7 @@ DLL_API void annPrintStats(				// print statistics for a run
 		print_one_stat("    average_error    ", ann_average_err, 1);
 		print_one_stat("    rank_error       ", ann_rank_err, 1);
 	}
-	cout.precision(0);					// restore the default
-	cout << "  )\n";
-	cout.flush();
+//R does not allow:	cout.precision(0);					// restore the default
+//R does not allow:	cout << "  )\n";
+//R does not allow:	cout.flush();
 }

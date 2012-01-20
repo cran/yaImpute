@@ -5,7 +5,7 @@
 
 \description{Computes the root mean square difference (RMSD) between
   observed and imputed values for each observation that has both. RMSD
-  is computationally like RMSE, but they differ in interpretation. The RMSD 
+  is computationally like RMSE, but they differ in interpretation. The RMSD
   values can be scaled to afford comparisons among variables.
 }
 
@@ -18,7 +18,7 @@ rmsd.yai (object,vars=NULL,scale=FALSE,\dots)
   \item{vars}{a list of variable names you want to include, if NULL all available
     variables are included}
   \item{scale}{when \code{TRUE}, the values are scaled (see details)}
-  \item{\dots}{passed to called methods, very useful for passing arugment 
+  \item{\dots}{passed to called methods, very useful for passing arugment
      \code{ancillaryData} to function \code{\link{impute.yai}}}
 }
 
@@ -39,7 +39,7 @@ rmsd.yai (object,vars=NULL,scale=FALSE,\dots)
 }
 
 \author{
-  Nicholas L. Crookston \email{ncrookston@fs.fed.us} \cr
+  Nicholas L. Crookston \email{ncrookston.fs@gmail.com} \cr
   Andrew O. Finley \email{finleya@msu.edu}
 }
 

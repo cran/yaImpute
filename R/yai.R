@@ -224,7 +224,7 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       theCols = rownames(cancor$xcoef)
 
       # scale the coefficients so that the cononical vectors will have unit variance.
-      cscal = 1/sd(xcvRefs[,theCols] %*% cancor$xcoef[,1])
+      cscal = 1/apply(xcvRefs[,theCols] %*% cancor$xcoef[,1],2,sd)
       cancor$ycoef = cancor$ycoef * cscal
       cancor$xcoef = cancor$xcoef * cscal
      

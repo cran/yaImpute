@@ -12,7 +12,7 @@
   and target observations. An alternative method using randomForest
   classification and regression trees is provided for steps 2 and 3.
   \emph{Target} observations are those with values for X-variables and
-  not for Y-variables, while \emph{reference} observations are those 
+  not for Y-variables, while \emph{reference} observations are those
   with no missing values for X-and Y-variables (see Details for the
   exception).
 }
@@ -33,8 +33,8 @@ yai(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
     reference observations, or 2) a one-sided formula defining the
     Y-variables as a linear formula.}
   \item{data}{when \code{x} and \code{y} are formulas, then data is a data frame or
-    matrix that contains all the variables with row names are the identification for the observations. 
-    The observations are split by \code{yai} into two sets.} 
+    matrix that contains all the variables with row names are the identification for the observations.
+    The observations are split by \code{yai} into two sets.}
   \item{k}{the number of nearest neighbors; default is 1.}
   \item{noTrgs}{when TRUE, skip finding neighbors for target observations.}
   \item{noRefs}{when TRUE, skip finding neighbors for reference observations.}
@@ -66,31 +66,31 @@ yai(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
     }
   }
   \item{ann}{TRUE if \code{\link{ann}} is used to find neighbors, FALSE if a slow search is used.}
-  \item{mtry}{the number of X-variables picked at random when method is \code{randomForest}, 
+  \item{mtry}{the number of X-variables picked at random when method is \code{randomForest},
       see \code{\link[randomForest]{randomForest}}, default is sqrt(number of X-variables).}
-  \item{ntree}{the number of classification and regression trees when method is \code{randomForest}. 
-      When more than one Y-variable is used, the trees are divided among the variables. 
-      Alternatively, ntree can be a vector of values corresponding to each Y-variable.} 
+  \item{ntree}{the number of classification and regression trees when method is \code{randomForest}.
+      When more than one Y-variable is used, the trees are divided among the variables.
+      Alternatively, ntree can be a vector of values corresponding to each Y-variable.}
   \item{rfMode}{when \code{buildClasses} and method is \code{randomForest}, continuous variables
       are internally converted to classes forcing randomForest to build classification trees for
-      the variable. Otherwise, regression trees are built if your version of 
-      \code{\link[randomForest]{randomForest}} is newer than \code{4.5-18}.} 
+      the variable. Otherwise, regression trees are built if your version of
+      \code{\link[randomForest]{randomForest}} is newer than \code{4.5-18}.}
 }
 
 \details{
-See the paper at \url{http://www.jstatsoft.org/v23/i10} (it includes examples).  
+See the paper at \url{http://www.jstatsoft.org/v23/i10} (it includes examples).
 
-The following information is in addition to the content in the papers. 
+The following information is in addition to the content in the papers.
 
-You need not have any Y-variables to run yai for the following methods: 
-\code{euclidean}, \code{raw}, \code{mahalanobis}, \code{ica}, \code{random}, and 
-\code{randomForest} (in which case unsupervised classification is 
-performed). However, normally \code{yai} classifies \emph{reference} 
-observations as those with no missing values for X- and Y- variables and 
-\emph{target} observations are those with values for X- variables and 
-missing data for Y-variables. When Y is NULL (there are no Y-variables), 
-all the observations are considered \emph{references}. See 
-\code{\link{newtargets}} for an example of how to use yai in this 
+You need not have any Y-variables to run yai for the following methods:
+\code{euclidean}, \code{raw}, \code{mahalanobis}, \code{ica}, \code{random}, and
+\code{randomForest} (in which case unsupervised classification is
+performed). However, normally \code{yai} classifies \emph{reference}
+observations as those with no missing values for X- and Y- variables and
+\emph{target} observations are those with values for X- variables and
+missing data for Y-variables. When Y is NULL (there are no Y-variables),
+all the observations are considered \emph{references}. See
+\code{\link{newtargets}} for an example of how to use yai in this
 situation.
 }
 
@@ -148,9 +148,9 @@ data(iris)
 
 # set the random number seed so that example results are consistent
 # normally, leave out this command
-set.seed(12345) 
+set.seed(12345)
 
-# form some test data, y's are defined only for reference 
+# form some test data, y's are defined only for reference
 # observations.
 refs=sample(rownames(iris),50)
 x <- iris[,1:2]      # Sepal.Length Sepal.Width
@@ -160,7 +160,7 @@ y <- iris[refs,3:4]  # Petal.Length Petal.Width
 msn <- yai(x=x,y=y)
 mal <- yai(x=x,y=y,method="mahalanobis")
 
-# running the following examples will load packages vegan 
+# running the following examples will load packages vegan
 # and randomForest, and is more complicated.
 
 data(MoscowMtStJoe)
@@ -208,7 +208,7 @@ compare.yai(rforig2,rforig)
 
 
 \author{
-  Nicholas L. Crookston \email{ncrookston@fs.fed.us} \cr
+  Nicholas L. Crookston \email{ncrookston.fs@gmail.com} \cr
   Andrew O. Finley \email{finleya@msu.edu}
 }
 

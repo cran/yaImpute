@@ -6,7 +6,7 @@
   When method \code{randomforest} is used to build a \code{\link{yai}}
   object, the \code{\link[randomForest]{randomForest}} package computes
   variable importance scores. This function computes a composite of the
-  scores and scales them. By default the scores are plotted and scores 
+  scores and scales them. By default the scores are plotted and scores
   themselves are invisibly returned.
 }
 
@@ -57,7 +57,7 @@ compare.yai(rf,rf2)
 }
 
 \author{
-  Nicholas L. Crookston \email{ncrookston@fs.fed.us} \cr
+  Nicholas L. Crookston \email{ncrookston.fs@gmail.com} \cr
   Andrew O. Finley \email{finleya@msu.edu}
 }
 

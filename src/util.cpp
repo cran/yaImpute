@@ -12,13 +12,13 @@ using namespace std;
 
 
 void showMatrix(double *x, int xnrow, int xncol){
-  int i,j;
-  for(i = 0; i < xnrow; i++){
-    for(j = 0; j < xncol; j++){
-      cout << x[j*xnrow+i] << "\t";
-    }
-    cout << endl;
-  }      
+//R does not allow:  int i,j;
+//R does not allow:  for(i = 0; i < xnrow; i++){
+//R does not allow:    for(j = 0; j < xncol; j++){
+//R does not allow:      cout << x[j*xnrow+i] << "\t";
+//R does not allow:    }
+//R does not allow:    cout << endl;
+//R does not allow:  }      
 }
 
 SEXP getListElement (SEXP list, const char *str)

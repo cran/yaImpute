@@ -72,8 +72,8 @@ msn=yai(x=TallyLake[,9:29],y=TallyLake[,1:8],ann=FALSE,
 
 
 # variable "see" for "mal" matches col B (when squared and scaled)
-# other columns don't match exactly as Stage and Crookston used different 
-# software to compute values 
+# other columns don't match exactly as Stage and Crookston used different
+# software to compute values
 
 errorStats(mal,msn)
 
@@ -88,7 +88,7 @@ errorStats(mal,msn)
 
 
 \author{
-  Nicholas L. Crookston \email{ncrookston@fs.fed.us} \cr
+  Nicholas L. Crookston \email{ncrookston.fs@gmail.com} \cr
   Albert R. Stage \email{astage@moscow.com}
 }
 
