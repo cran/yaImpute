@@ -3,11 +3,14 @@ useDynLib(yaImpute)
 export(ann, compare.yai, cor.yai, correctBias, foruse, impute, mostused, 
        impute.yai, newtargets, notablyDistant, rmsd.yai, unionDataJoin, 
        vars, whatsMax, xvars, yai, yaiRFsummary, yaiVarImp, yvars, 
-       errorStats, AsciiGridImpute, AsciiGridPredict)
+       errorStats, AsciiGridImpute, AsciiGridPredict, notablyDifferent,
+       plot.notablyDifferent)
 
 S3method(print, yai)
 S3method(summary, yai)
 S3method(plot, yai)
 S3method(plot, impute.yai)
 S3method(plot, compare.yai)
+S3method(plot, notablyDifferent)
 S3method(impute, yai)
+

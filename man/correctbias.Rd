@@ -133,6 +133,8 @@ correctBias(object,trgVal,trgValCI=NULL,nStdev=1.5,excludeRefIds=NULL,trace=FALS
 \examples{
 data(iris)
 
+set.seed(12345)
+
 # form some test data
 refs=sample(rownames(iris),50)
 x <- iris[,1:3]      # Sepal.Length Sepal.Width Petal.Length

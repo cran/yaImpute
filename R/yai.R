@@ -24,11 +24,10 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       lamda.invt=lamda^(1/t)
       Ddf=(r*t)-(2*u)
       setNA = Ddf < 1 | Ndf < 1
-      F=((1-lamda.invt)/lamda.invt)*(Ddf/Ndf) 
+      F=((1-lamda.invt)/lamda.invt)*(Ddf/Ndf)
       F[setNA] = NA
       pgF=pf(F,Ndf,Ddf,lower.tail=FALSE)
       pgF[setNA] = NA
-      if (any(setNA)) warning ("degrees of freedom too low, NA's generated")
       list(F=F,pgF=pgF)
    }
    mymean = function(x)
@@ -228,9 +227,13 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       cancor$ycoef = cancor$ycoef * cscal
       cancor$xcoef = cancor$xcoef * cscal
      
-      ftest=ftest.cor(p=nrow(cancor$ycoef),q=nrow(cancor$xcoef),N=nrow(yRefs),cancor$cor) 
-      if (is.null(nVec)) nVec=length(cancor$cor)-sum(ftest$pgF>pVal)
-      if (is.na(nVec)) nVec=1
+      ftest=ftest.cor(p=nrow(cancor$ycoef),q=nrow(cancor$xcoef),N=nrow(yRefs),cancor$cor)
+      if (is.null(nVec))
+      {
+        fcheck = ftest$pgF[!is.na(ftest$pgF)]
+        if (length(fcheck)> 0) nVec=max(1,length(fcheck)-sum(fcheck>pVal))
+      }
+      if (is.null(nVec)) nVec=1
       nVec=min(nVec,length(cancor$cor))
       nVec=max(nVec,1)
       if (method == "msn" ) projector = cancor$xcoef[,1:nVec,drop=FALSE] %*%

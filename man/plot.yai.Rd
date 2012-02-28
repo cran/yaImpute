@@ -14,8 +14,9 @@
 }
 
 \arguments{
-  \item{x}{(1) a data frame created by \code{\link{impute.yai}}, or (2) an object
-    created by \code{\link{yai}}.}
+  \item{x}{\enumerate{
+    \item a data frame created by \code{\link{impute.yai}}, or 
+    \item an object created by \code{\link{yai}}.}}
   \item{vars}{a list of variable names you want to include, if NULL all available
     Y-variables are included.}
   \item{pointColor}{a color vector for the xy plots (continuous variables).}

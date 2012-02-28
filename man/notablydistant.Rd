@@ -4,8 +4,8 @@
 
 \description{
    Notably distant \emph{targets} are those with relatively large distances from the
-   closest \emph{reference} observation. A suitable \emph{threshold} is used to detect
-   large distances.
+   closest \emph{reference} observation. A suitable \emph{threshold} is used to
+   detect large distances.
 }
 
 \usage{
@@ -43,10 +43,12 @@ notablyDistant(object,kth=1,threshold=NULL,p=0.01,method="distribution")
 }
 
 \seealso{
-\code{\link{yai}}}
+\code{\link{notablyDifferent}} \code{\link{yai}}}
 
 \examples{
 data(iris)
+
+set.seed(12345)
 
 # form some test data
 refs=sample(rownames(iris),50)

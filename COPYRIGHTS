@@ -6,9 +6,6 @@ contained in each file.
 
 Files contained in directory R: 
 
-R/modified.randomForest.default.R carries the copyright and license 
-provisions of package randomForest
-
 R/ann.R Copyright 2005-2007 (c) Andrew O. Finley
 
 All other code in directory R was written and prepared by a U.S. Government 

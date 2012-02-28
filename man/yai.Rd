@@ -4,12 +4,14 @@
 \title{Find K nearest neighbors}
 
 \description{
-  Given a set of observations, \code{yai} 1) separates the observations
-  into \emph{reference} and \emph{target} observations, 2) applies the
-  specified method to project X-variables into a Euclidean space   (not
-  always, see argument \code{method}), and 3) finds the \emph{k}-nearest
-  neighbors within the referenece observations and between the reference
-  and target observations. An alternative method using randomForest
+  Given a set of observations, \code{yai} \enumerate{
+  \item aeparates the observations into \emph{reference} and \emph{target} observations,
+  \item applies the specified method to project X-variables into a Euclidean space (not
+  always, see argument \code{method}), and 
+  \item finds the \emph{k}-nearest neighbors within the referenece observations 
+  and between the reference and target observations.
+  } 
+  An alternative method using randomForest
   classification and regression trees is provided for steps 2 and 3.
   \emph{Target} observations are those with values for X-variables and
   not for Y-variables, while \emph{reference} observations are those
