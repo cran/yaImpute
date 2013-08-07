@@ -74,7 +74,7 @@ identical(foruse(mal),foruse(mal2))
 # here, method randomForest's unsupervised classification is used (no Y).
 rf <- yai(x=x,method="randomForest")
 # now get imputations for the targets in the iris data (those that are
-# not references.
+# not references).
 rfNew <- newtargets(rf,iris[!(rownames(iris) \%in\% rownames(x)),])
 
 }

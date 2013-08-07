@@ -1,3 +1,18 @@
+Changes in version 1.0-19:
+
+* Moved COPYRIGHTS to inst/COPYRIGHTS and greatly added detailed information 
+to the file.
+* Modified DESCRIPTION to note contribution of the authors of ANN (as per 
+CRAN policy).
+* Added a Copyright statement to DESCRIPTION.  
+* Added detail to the Description statement in file DESCRIPTION.
+* Fixed print.yai.R error when there is only one target and K>1.
+* Modified the file handeling in AsciiGridPredict (and AsciiGridImpute).
+* Fixed a case where a reference picks itself as the second most similar neighbor. This only
+happens when there are two or more identical reference observations (thanks to Petteri Packalen).
+* Further revision to the ftest to deal with degenerate cases and put in a trap on the use
+of method="msn2" when there are too few observations.
+
 Changes in version 1.0-18:
 
 * Added a function (notablyDifferent) to use a consistent method to identify 

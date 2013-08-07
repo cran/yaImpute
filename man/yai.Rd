@@ -5,13 +5,13 @@
 
 \description{
   Given a set of observations, \code{yai} \enumerate{
-  \item aeparates the observations into \emph{reference} and \emph{target} observations,
+  \item separates the observations into \emph{reference} and \emph{target} observations,
   \item applies the specified method to project X-variables into a Euclidean space (not
   always, see argument \code{method}), and 
   \item finds the \emph{k}-nearest neighbors within the referenece observations 
   and between the reference and target observations.
   } 
-  An alternative method using randomForest
+  An alternative method using \code{\link[randomForest]{randomForest}}
   classification and regression trees is provided for steps 2 and 3.
   \emph{Target} observations are those with values for X-variables and
   not for Y-variables, while \emph{reference} observations are those
@@ -58,7 +58,9 @@ yai(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
             rather than correlation).}
       \item{\code{gnn}}{ distance is computed using a projected ordination of
          Xs found using canonical correspondence analysis
-         (\code{\link[vegan]{cca}} from package \pkg{vegan}).}
+         (\code{\link[vegan]{cca}} from package \pkg{vegan}). 
+         If \code{\link[vegan]{cca}} fails, \code{\link[vegan]{rda}} is used
+         and a warning is issued.}
       \item{\code{randomForest}}{distance is one minus the
          proportion of randomForest trees where a target observation is in
          the same terminal node as a reference observation (see \code{\link[randomForest]{randomForest}}).}

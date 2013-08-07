@@ -115,26 +115,8 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
 
    infh = vector("list",length=length(xfiles))
    names(infh)=names(xfiles)
-   for (i in 1:length(xfiles))
-   {
-      infh[[i]]=file(xfiles[[i]])
-      open(infh[[i]],open="rt")
-   }
+   for (i in 1:length(xfiles)) infh[[i]]=file(xfiles[[i]],open="rt")
    on.exit(lapply(infh,close))
-
-#  make a list of out file handles and open the files.
-
-   if (length(outfiles)> 0)
-   {
-      outfh = vector("list",length=length(outfiles))
-      names(outfh)=names(outfiles)
-      for (i in 1:length(outfiles))
-      {
-         outfh[[i]]=file(outfiles[[i]])
-         open(outfh[[i]],open="wt")
-      }
-      on.exit(lapply(outfh,close),add=TRUE)
-   }
 
 #  get and check headers from each input file
 
@@ -194,9 +176,10 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
 
    if (is.null(rows) && is.null(cols) && is.null(nodata)) #header does not change
    {
-      for (i in 1:length(outfh))
+      for (i in 1:length(outfiles))
       {
-         cat (header,file=outfh[[i]],sep="\n")
+         cat (header,file=outfiles[[i]],sep="\n")
+#         flush(outfh[[i]])
       }
       newnr = nr
       newnc = nc
@@ -224,15 +207,15 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
       if (rows[2] != nr) yllc = yllc+(csz*(nr-rows[2]))
       if (cols[1] != 1)  xllc = xllc+(csz*(cols[1]-1))
 
-      for (i in 1:length(outfh))
+      for (i in 1:length(outfiles))
       {
-         cat("NCOLS         ",as.character(newnc), "\n",file=outfh[[i]],sep="")
-         cat("NROWS         ",as.character(newnr), "\n",file=outfh[[i]],sep="")
-         cat("XLLCORNER     ",as.character(xllc),  "\n",file=outfh[[i]],sep="")
-         cat("YLLCORNER     ",as.character(yllc),  "\n",file=outfh[[i]],sep="")
-         cat("CELLSIZE      ",as.character(csz ),  "\n",file=outfh[[i]],sep="")
-         cat("NODATA_VALUE  ",as.character(nodata),"\n",file=outfh[[i]],sep="")
-      }
+         cat("NCOLS         ",as.character(newnc), "\n",file=outfiles[[i]],sep="")
+         cat("NROWS         ",as.character(newnr), "\n",file=outfiles[[i]],sep="")
+         cat("XLLCORNER     ",as.character(xllc),  "\n",file=outfiles[[i]],sep="")
+         cat("YLLCORNER     ",as.character(yllc),  "\n",file=outfiles[[i]],sep="")
+         cat("CELLSIZE      ",as.character(csz ),  "\n",file=outfiles[[i]],sep="")
+         cat("NODATA_VALUE  ",as.character(nodata),"\n",file=outfiles[[i]],sep="")
+      } 
    }
 
    # set up the xlevels. In randomForest version >= 4.5-20, the xlevels
@@ -323,9 +306,9 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
 
       if (length(omitted)==length(origRowNames)) # all missing.
       {
-         outdata=data.frame(matrix(nodout,length(omitted),length(outfh)),
+         outdata=data.frame(matrix(nodout,length(omitted),length(outfiles)),
                             row.names=omitted)
-         names(outdata)=names(outfh)
+         names(outdata)=names(outfiles)
       }
       else
       {
@@ -399,9 +382,9 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
             outdata = outdata[sort(rownames(outdata),index.return = TRUE)$ix,,FALSE]
          }
       }
-      for (i in 1:length(outfh))
+      for (i in 1:length(outfiles))
       {
-         vname=names(outfh)[i]
+         vname=names(outfiles)[i]
          if (length(intersect(names(outdata),vname))==0)
          {
          	  cat ("\nFirst six lines of predicted data for map row: ",ir,"\n")
@@ -409,7 +392,7 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
          	  flush.console()
          	  stop (vname," is not present in the predicted data")
          }
-         write (outdata[,vname],outfh[[i]],ncolumns=newnc)
+         cat (outdata[,vname],"\n",file=outfiles[[i]],append=TRUE)
       }
 
       ircur=ircur+1

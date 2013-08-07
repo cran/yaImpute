@@ -47,8 +47,8 @@ correctBias(object,trgVal,trgValCI=NULL,nStdev=1.5,excludeRefIds=NULL,trace=FALS
   in the population. There is no guarantee that this average will be within a 
   pre-specified confidence interval.
   \cr\cr
-  Experience shows that despite any lack of guarantee, the results are accurate.
-  This tends to hold true when the reference data contains
+  Experience shows that despite any lack of guarantee, the results are accurate 
+  (not biased). This tends to hold true when the reference data contains
   samples that cover the variation of the targets, even when they are not a
   random sample, and even if some of the reference observations are from sample
   units that are outside the target population. 
@@ -65,7 +65,7 @@ correctBias(object,trgVal,trgValCI=NULL,nStdev=1.5,excludeRefIds=NULL,trace=FALS
   one reference is closest to a target, its attribute(s) of interest might 
   be greater (or less) than the mean. An alternative neighbor, one that may be
   almost as close, might reduce the overall bias if it were used instead. If this is
-  the case, \code{correctBias()} switches the nighbor selections. 
+  the case, \code{correctBias()} switches the neighbor selections. 
   It makes as many switches as it can until the mean among the population 
   targets falls within the specified confidence interval. 
   There is no guarantee that the goal will be met.
@@ -88,20 +88,20 @@ correctBias(object,trgVal,trgValCI=NULL,nStdev=1.5,excludeRefIds=NULL,trace=FALS
   the targets, under the assumption that the next neighbor is used 
   in place of the currently used neighbor. This computation results in a 
   vector with one element for each target observation that 
-  measures contribution toward reducing the bias that would be made if 
+  measures the contribution toward reducing the bias that would be made if 
   a switch were made. The target observations are then ordered 
   into increasing order of how much the distance from the currently selected 
-  reference would increase if the switch would were to take place. Enough switches are 
+  reference would increase if the switch were to take place. Enough switches are 
   made in this order to correct the bias. 
   If the bias is not corrected by the first pass, another pass is done 
-  using the next neighbors.
+  using the next neighbor(s).
   The number of possible passes is equal to \emph{k-1} where \emph{k} is
   set in the original call to \code{\link{yai}}. Note that switches are made
   among targets only, and never among reference observations that may make up the
   population. That is, reference observations are always left 
   to represent themselves with \code{k=1}.   
   \cr\cr
-  3. Here are details of the argument \code{excludeRefIds}. When computing then mean
+  3. Here are details of the argument \code{excludeRefIds}. When computing the mean
   of the attribute of interest (using the \code{expression}), 
   \code{correctBias()} must know which observations represent the
   population. Normally, all the target observations would be in this set, but perhaps
@@ -118,7 +118,7 @@ correctBias(object,trgVal,trgValCI=NULL,nStdev=1.5,excludeRefIds=NULL,trace=FALS
  An object of class \code{\link{yai}} where \code{k = 1} and the neighbor selections
  have been changed as described above. In addition, the \code{call} element is changed
  to show both the original call to \code{\link{yai}} and the call to this function. 
- A new list, called \code{biasParameters} is added to the \code{\link{yai}} object  
+ A new list called \code{biasParameters} is added to the \code{\link{yai}} object  
  with these tags:
  
  \item{trgValCI}{the target CI.}

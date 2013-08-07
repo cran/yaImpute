@@ -6,13 +6,13 @@
 \description{
    \code{AsciiGridImpute} finds nearest neighbor \emph{reference}
    observations for each point in the input grid maps and outputs maps
-   of selected Y-variables in a set of output grid maps.
+   of selected Y-variables in a corresponding set of output grid maps.
 
    \code{AsciiGridPredict} applies a predict function to each point in the
-   input grid maps and outputs maps of the prediction(s) in one or more
+   input grid maps and outputs maps of the prediction(s) in corresponding 
    output grid maps (see Details).
 
-  One row of the each grid maps is read and processed at a time thereby
+  One row of each grid map is read and processed at a time thereby
   avoiding the need to build huge objects in R that would be necessary if all
   the rows of all the maps were processed together.}
 
@@ -26,7 +26,7 @@ AsciiGridPredict(object,xfiles,outfiles,xtypes=NULL,lon=NULL,lat=NULL,
 }
 
 \arguments{
-  \item{object}{An object of class \code{\link{yai}}, any other object for which
+  \item{object}{An object of class \code{\link{yai}}, any object for which
        a \code{\link[stats]{predict}} function is defined, or an object that is passed
        to a predict function you define using argument \code{myPredFunc}. See Details.}
   \item{xfiles}{A \code{\link[base]{list}} of input file names where there is one
@@ -71,17 +71,17 @@ AsciiGridPredict(object,xfiles,outfiles,xtypes=NULL,lon=NULL,lat=NULL,
        vector given the range of latitudes (vertical distance) desired for the output.}
   \item{rows}{if NULL, all rows from the input grids are used. Otherwise, rows is a 2-element
        vector given the rows desired for the output. If the second element is greater than
-       the number of rows, the header value \code{YLLCORNER} is adjusted accordingly. Ignored
-       if \code{lon} is specified.}
+       the number of rows, the header value \code{YLLCORNER} in the output is adjusted accordingly. 
+       Ignored if \code{lon} is specified.}
   \item{cols}{if NULL, all columns from the input grids are used. Otherwise, cols is a 2-element
        vector given the columns desired for the output. If the first element is greater than
-       one, the header value \code{XLLCORNER} is adjusted accordingly. Ignored
+       one, the header value \code{XLLCORNER} in the output is adjusted accordingly. Ignored
        if \code{lat} is specified.}
   \item{nodata}{the \code{NODATA_VALUE} for the output. If NULL, the value is taken from the
        input grids.}
-  \item{myPredFunc}{called to predict output using the \code{object} and newdata from
-       the \code{xfiles}. Two arguments are passed to this function,
-       the first is the value of \code{object} and the
+  \item{myPredFunc}{called by \code{AsciiGridPredict} to predict output using the \code{object} 
+       and newdata from the \code{xfiles}. Two arguments are passed by \code{AsciiGridPredict} to this 
+       function, the first is the value of \code{object} and the
        second is a data frame of the new predictor variables created for each row
        of data from your input maps. If NULL, the generic
        \code{predict} function is called for \code{object}.}
@@ -92,8 +92,8 @@ AsciiGridPredict(object,xfiles,outfiles,xtypes=NULL,lon=NULL,lat=NULL,
   The input maps are assumed to be Asciigrid maps with 6-line headers
   containing the following tags: \code{NCOLS, NROWS, XLLCORNER, YLLCORNER,
   CELLSIZE} and \code{NODATA_VALUE} (case insensitive). The headers should be
-  identical, a warning is issued if they are not. It is critical that \code{NODATA_VALUE}
-  is the same on all input maps.
+  identical for all input maps, a warning is issued if they are not. 
+  It is critical that \code{NODATA_VALUE} is the same on all input maps.
 
   The function builds data frames from the input maps one row at a time and
   builds predictions using those data frames as \emph{newdata}. Each row of the
@@ -115,14 +115,15 @@ AsciiGridPredict(object,xfiles,outfiles,xtypes=NULL,lon=NULL,lat=NULL,
   The \code{NODATA_VALUE} is output for every \code{NODATA_VALUE} found on any
   grid cell on any one of the input maps (the predict function is not called for
   these grid cells). \code{NODATA_VALUE} is also output for any grid cell where
-  the predict function returns an \code{NA}. If factors are used as X-variables in
+  the predict function returns an \code{NA}. 
+  
+  If factors are used as X-variables in
   \code{object}, the levels found the map data are checked against those used in
   building the \code{object}. If new levels are found, the corresponding output
   map grid point is set to \code{NODATA_VALUE}; the predict function is not called
   for these cells as most predict functions will fail in these circumstances.
   Checking on factors depends on \code{object} containing a meaningful member
-  named \code{xlevels}, as done objects model objects produced by
-  \code{\link[stats]{lm}}.
+  named \code{xlevels}, as done for objects produced by \code{\link[stats]{lm}}.
 
   Asciigrid maps do not contain character data, only numbers. The numbers in the
   maps are matched the \code{xlevels} by subscript (the first entry in a level corresponds
