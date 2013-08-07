@@ -12,8 +12,8 @@
 
 \usage{
 \method{impute}{yai}(object,ancillaryData=NULL,method="closest",
-           method.factor=method,k=NULL,vars=NULL,
-           observed=TRUE,\dots)
+       method.factor=method,k=NULL,vars=NULL,
+       observed=TRUE,\dots)
 }
 
 \arguments{
@@ -26,20 +26,21 @@
      as follows: \cr
    \code{closest}: use the single neighbor that is closest (this is the default and is
        always used when \emph{k}=1); \cr
-   \code{mean}: an average over the \emph{k} neighbors is taken;\cr
-   \code{dstWeighted}: a weighted average is taken over the \emph{k} neighbors where the
+   \code{mean}: the mean of the \emph{k} neighbors is taken;\cr
+   \code{median}: the median of the \emph{k} neighbors is taken;\cr
+   \code{dstWeighted}: a weighted mean is taken over the \emph{k} neighbors where the
        weights are 1/(1+d).}
   \item{method.factor}{the method used to compute the imputed values for factors, as follows: \cr
    \code{closest}: use the single neighbor that is closest (this is the default and is
        always used when \emph{k}=1); \cr
-   \code{mean}: actually is the \emph{mode}\-\-it is the factor level that occurs
+   \code{mean or median}: actually is the \emph{mode}\-\-it is the factor level that occurs
        the most often among the \emph{k} neighbors;\cr
    \code{dstWeighted}: a \emph{mode} where the count is the sum of the weights (1/(1+d)) rather than
        each having a weight of 1.}
   \item{k}{the number neighbors to use in averages, when NULL all present are used.}
   \item{vars}{a character vector of variables to impute, when NULL, the behaviour depends
-     on the value of \code{ancillaryData}: when it is NULL, the Y-variables are imputed
-     others all present in \code{ancillaryData} are imputed.}
+     on the value of \code{ancillaryData}: when it is NULL, the Y-variables are imputed and 
+     otherwise all present in \code{ancillaryData} are imputed.}
   \item{observed}{when TRUE, columns are created for \emph{observed} values (those from the
     \emph{target} observations) as well as imputed values (those from the
     \emph{reference} observations.}
@@ -47,7 +48,7 @@
 }
 
 \value{
-  An object of class \code{impute.yai}, which is a data frame with rownames
+  An object of class \code{c("impute.yai","data.frame")}, with rownames
   identifying observations and column names identifying variables. When
   \emph{observed=TRUE} additional columns are created with a suffix of
   \emph{.o}. \cr\cr NA's fill columns of observed values when no
@@ -84,7 +85,7 @@ plot(malImp)
 \author{
   Nicholas L. Crookston \email{ncrookston.fs@gmail.com} \cr
   Andrew O. Finley \email{finleya@msu.edu} \cr
-  Emilie Grossmann \email{Emilie.Grossmann@oregonstate.edu}
+  Emilie Henderson \email{emilie.henderson@oregonstate.edu}
 }
 
 \keyword{misc}

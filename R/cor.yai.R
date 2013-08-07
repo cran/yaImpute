@@ -28,6 +28,5 @@ cor.yai = function (object,vars=NULL,...)
    names(cors)="r"
    for (i in 1:length(both)) if (!is.factor(object[,both[i]]))
       cors[i,1]=cor(object[,both[i]],object[,vo[i]])
-   warning ("correlations are a questionable method to compare imputation results")
    cors
 }

@@ -4,7 +4,7 @@ unionDataJoin=function(...,warn=TRUE)
 #  arguments and columns defined by a union of all colnames in the arguments.
 #  a single argument can be a list of data frames or matrices
 #
-#  when warn is TRUE, columns that occur in more than one source are listed in a warning.
+#  when warn is TRUE, columns that occur in more than one source are listed as a warning.
 
    args=list(...)
    if (length(args)==1 && class(args[[1]]) == "list") args=args[[1]]
@@ -34,9 +34,8 @@ unionDataJoin=function(...,warn=TRUE)
    all=data.frame(all)
    rownames(all)=rows
    colnames(all)=cols
-   factors=matrix(data=FALSE,nrow=length(cols),ncol=1)
-   rownames(factors)=cols
-   colnames(factors)="factor"
+   factors=rep(FALSE,length(cols))
+   names(factors)=cols
    for (d in args)
    {
       theCols=colnames(d)
@@ -46,7 +45,7 @@ unionDataJoin=function(...,warn=TRUE)
          {
             if (is.factor(d[,var]))
             {
-               factors[var,1] = TRUE
+               factors[var] = TRUE
                all[rownames(d),var]=levels(d[,var])[d[,var]]
             }
             else all[rownames(d),var]=d[,var,drop=FALSE]
@@ -54,6 +53,6 @@ unionDataJoin=function(...,warn=TRUE)
       }
       else all[rownames(d),theCols]=d
    }
-   for (var in colnames(all)) if (factors[var,1]) all[,var]=as.factor(all[,var])
+   for (var in colnames(all)) if (factors[var]) all[,var]=as.factor(all[,var])
    all
 }

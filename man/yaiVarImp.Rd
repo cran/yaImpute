@@ -1,18 +1,20 @@
 \name{yaiVarImp}
 \alias{yaiVarImp}
-\title{Reports or plots importance scores for method randomForest}
+\title{Reports or plots importance scores for yai method randomForest}
 
 \description{
   When method \code{randomforest} is used to build a \code{\link{yai}}
   object, the \code{\link[randomForest]{randomForest}} package computes
   variable importance scores. This function computes a composite of the
   scores and scales them using \code{\link[base]{scale}}. By default the 
-  scores are plotted and scores themselves are invisibly returned.
+  scores are plotted and scores themselves are invisibly returned. This
+  function is based on the "MeanDecreaseAccuracy" importance score.
 }
 
 \arguments{
   \item{object}{an object of class \code{\link{yai}}}
-  \item{nTop}{the \code{nTop} most important variables are plotted (returned); if NA or zero, all are returned}
+  \item{nTop}{the \code{nTop} most important variables are plotted (returned); 
+     if NA or zero, all are returned}
   \item{plot}{if FALSE, no plotting is done, but the scores are returned.}
   \item{\dots}{passed to the \code{\link[graphics]{boxplot}} function.}
 }
@@ -58,7 +60,6 @@ compare.yai(rf,rf2)
 
 \author{
   Nicholas L. Crookston \email{ncrookston.fs@gmail.com} \cr
-  Andrew O. Finley \email{finleya@msu.edu}
 }
 
 \keyword{misc}

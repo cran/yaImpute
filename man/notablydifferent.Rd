@@ -39,7 +39,7 @@ notablyDifferent(object,vars=NULL,threshold=NULL,p=.05,...)
   These values are Euclidean distances between the target 
   observations and their nearest references as measured using specified variables. All
   the variables that are used must have observed and imputed values. Generally, this
-  will be the X-variables and not the Y-variables. 
+  will be the \emph{X}-variables and not the \emph{Y}-variables. 
   
   When \code{threshold} is NULL, the function computes one using the 
   \code{\link{quantile}} function with its default arguments and \code{probs=1-p}.
@@ -61,7 +61,9 @@ notablyDifferent(object,vars=NULL,threshold=NULL,p=.05,...)
 
 
 \seealso{
-\code{\link{notablyDistant}}, \code{\link{plot.notablyDifferent}} and \code{\link{yai}}}
+\code{\link{notablyDistant}}, \code{\link{plot.notablyDifferent}}, 
+\code{\link{yai}}, \code{link{grmsd}}
+}
 
 \examples{
 data(iris)
@@ -92,7 +94,7 @@ notablyDifferent(msn)
   Nicholas L. Crookston \email{ncrookston.fs@gmail.com} \cr
 }
 
-\keyword{misc}
+
 \keyword{multivariate}
 
 

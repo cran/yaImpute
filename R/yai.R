@@ -1,6 +1,7 @@
 yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
                 nVec=NULL,pVal=.05,method="msn",ann=TRUE,mtry=NULL,ntree=500,
-                rfMode="buildClasses")
+                rfMode="buildClasses",bootstrap=FALSE,ppControl=NULL,
+                sampleVars=NULL)
 {
    # define functions used internally.
    sumSqDiff=function(x,y) { d=x-y; sum(d*d) }
@@ -71,8 +72,8 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
 
    # ARGUMENT and DATA screening
 
-   methodSet=c("msn","msn2","mahalanobis","ica","euclidean","gnn","randomForest","raw",
-               "random")
+   methodSet=c("msn","msn2","msnPP","mahalanobis","ica","euclidean","gnn",
+               "randomForest","raw","random")
                
    if (!(method %in% methodSet))
       stop (paste("method not one of:",paste(methodSet,collapse =", ")))
@@ -88,7 +89,11 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
    if (method == "randomForest") # make sure we have package randomForest loaded
    {
       if (!require (randomForest)) stop("install randomForest and try again")
-   }
+   }     
+   if (method == "msnPP") # make sure we have package ccaPP loaded
+   {
+      if (!require (ccaPP)) stop("install ccaPP and try again")
+   }     
 
    cl=match.call()
    obsDropped=NULL
@@ -137,8 +142,9 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       ydum=TRUE
       yall=data.frame(ydummy=rep(1,nrow(xall)),row.names=rownames(xall))
    }
-   else ydum=FALSE
-   if (is.null(yall)) stop("y missing")
+   else ydum=FALSE   
+  
+   if (is.null(yall)) stop("y is missing")
    if (nrow(xall) == 0) stop ("no observations in x")
    if (! (method %in% c("random","randomForest")))
    {
@@ -148,25 +154,68 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
    }
    refs=intersect(rownames(yall),rownames(xall))
    if (length(refs) == 0) stop ("no reference observations.")
-   yRefs=yall[refs,,drop=FALSE]
-   xRefs=xall[refs,,drop=FALSE]
-   trgs=setdiff(rownames(xall),refs)
 
-   if (method == "gnn") # remove rows with zero sums or vegan will error off.
+   # if sampling variables, set up xRefs and yRefs accordingly
+
+   if (!is.null(sampleVars))
+   {
+     if (length(sampleVars) == 1 && is.null(names(sampleVars))) sampleVars=rep(sampleVars,2)
+     names(sampleVars) = if (is.null(names(sampleVars))) c("X","Y") else 
+                             toupper(names(sampleVars))
+     nx = match("X",names(sampleVars))
+     ny = match("Y",names(sampleVars))
+     nx = if (!is.na(nx)) sampleVars[nx] else 0
+     ny = if (!is.na(ny)) sampleVars[ny] else 0
+     if (nx > 0)
+     {
+       nx = if (nx < 1.) max(1, ncol(xall)*nx) else min(nx, ncol(xall))
+       nxn = sample(1:ncol(xall),nx)
+       xall = xall[,nxn,drop=FALSE]
+     }
+     if (ny > 0)
+     {
+       ny = if (ny < 1.) max(1, ncol(yall)*ny) else min(ny, ncol(yall))
+       nyn = sample(1:ncol(yall),ny)
+       yall = yall[,nyn,drop=FALSE]
+     }
+   }
+   
+   # if this is a bootstrap run, draw the sample.
+   if (bootstrap)
+   { 
+     if (length (grep ("\\.[0-9]$",rownames(xall))) > 0) 
+         stop ("rownames must not end with .[0-9] when bootstrap is true.")
+
+     bootsamp <- sort(sample(x=refs, size=length(refs), replace=TRUE))
+     yRefs=yall[bootsamp,,drop=FALSE]
+     xRefs=xall[bootsamp,,drop=FALSE]
+     refs = bootsamp
+   } else {
+     yRefs=yall[refs,,drop=FALSE]
+     xRefs=xall[refs,,drop=FALSE]
+   }
+   
+   trgs=setdiff(rownames(xall),refs)
+   
+  
+   if (method == "gnn") # remove rows with zero sums or vegan will error off...
    {
       zero = apply(yRefs,1,sum) <= 0
       ndrop=sum(zero)
       if (ndrop>0)
       {
          warning (ndrop," rows have y-variable row sums <= 0 were converted to target observations for method gnn")
-         if (ndrop==length(refs)) stop ("all references were deleted")
+         if (ndrop==nrow(yRefs)) stop ("all references were deleted")
          obsDropped=union(obsDropped,refs[zero])
          refs=refs[!zero]
          yRefs=yall[refs,,drop=FALSE]
          xRefs=xall[refs,,drop=FALSE]
          trgs=setdiff(rownames(xall),refs)
       }
+   }
 
+   if (method == "gnn") # remove columns with zero sums.
+   {
       yDrop=apply(yRefs,2,sum) <= 0
       if (sum(yDrop) > 0) warning ("y variables with zero sums: ",
                                     paste(colnames(yRefs)[yDrop],collapse=","))
@@ -175,9 +224,29 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
    }
 
    # initial scale values (maybe reduced by some methods).
-   xScale=list(center=mymean(xRefs),scale=mysd(xRefs))
-   yScale=list(center=mymean(yRefs),scale=mysd(yRefs))
-
+   if (method != "msnPP")
+   {
+     xScale=list(center=mymean(xRefs),scale=mysd(xRefs))
+     yScale=list(center=mymean(yRefs),scale=mysd(yRefs))
+   } else {
+     msn3cntr = function (x) 
+     {
+       if (is.factor(x)) return (list(NULL,NULL))
+       cM = fastMAD(x)  # uses fastMAD for scaling.
+       if (cM$MAD == 0)
+       {
+         cM$MAD = sd(x)
+         cM$center = mean(x)
+       }
+       cM
+     }
+     ce=matrix(unlist(apply(xRefs,2,msn3cntr)),ncol=2,byrow=TRUE)
+     rownames(ce) = colnames(xRefs)
+     xScale=list(center=ce[,1],scale=ce[,2])
+     ce=matrix(unlist(apply(yRefs,2,msn3cntr)),ncol=2,byrow=TRUE)
+     rownames(ce) = colnames(yRefs)
+     yScale=list(center=ce[,1],scale=ce[,2])
+   }
    # for all methods except randomForest, random, and raw, variables with zero variance are dropped.
    if (!(method %in% c("randomForest","random","raw")))
    {
@@ -212,7 +281,7 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
    #======= Define projector (if used), scale the variables, and project the
    # reference space. Also project the target space if it is being used.
 
-   if (method %in% c("msn","msn2")) # msn (both kinds)
+   if (method %in% c("msn","msn2","msnPP")) # msn (all kinds)
    {
       yDrop=yScale$scale < 1e-10
       if (sum(yDrop) > 0) warning ("y variables with zero variance: ",
@@ -226,15 +295,44 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       }
       xcvRefs=scale(xRefs,center=xScale$center,scale=xScale$scale)
       ycvRefs=scale(yRefs,center=yScale$center,scale=yScale$scale)
-      cancor=cancor(xcvRefs,ycvRefs,xcenter = FALSE, ycenter = FALSE)  
-                    
-      theCols = rownames(cancor$xcoef)
 
-      # scale the coefficients so that the cononical vectors will have unit variance.
-      cscal = 1/apply(xcvRefs[,theCols] %*% cancor$xcoef[,1],2,sd)
-      cancor$ycoef = cancor$ycoef * cscal
-      cancor$xcoef = cancor$xcoef * cscal
-     
+      if (method %in% c("msn","msn2")) # msn and msn2 
+      {
+        cancor=cancor(xcvRefs,ycvRefs,xcenter = FALSE, ycenter = FALSE)                    
+        theCols = rownames(cancor$xcoef)
+
+        # scale the coefficients so that the cononical vectors will have unit variance.
+        cscal = 1/apply(xcvRefs[,theCols,drop=FALSE] %*% cancor$xcoef[,1,drop=FALSE],2,sd)
+        cancor$ycoef = cancor$ycoef * cscal
+        cancor$xcoef = cancor$xcoef * cscal
+      } else {                         # msnPP
+        meth="spearman"
+        ppfunc=ccaGrid
+        if (!is.null(ppControl))
+        {
+          if (is.null(names(ppControl))) stop ("ppControl must have named strings.")
+          for (ppn in names(ppControl))
+          {
+            if (ppn == "method") meth = ppControl[[ppn]]
+            else if (ppn == "search") ppfunc = 
+              if (ppControl[[ppn]] == "data" || 
+                  ppControl[[ppn]] == "proj") ccaProj else ccaGrid
+            else stop ("ppControl named element ",ppn," is invalid")
+          }
+        }
+        # solve the canoncial correlation analysis via projection pursuit 
+        cancor=ppfunc(xcvRefs,ycvRefs,method=meth,fallback=TRUE,
+                       k=min(ncol(xcvRefs),ncol(ycvRefs)),nVec)
+        # save the results using names and attributes that correspond to the cancor results
+        cancor$ycoef = cancor$B
+        rownames(cancor$ycoef) = colnames(ycvRefs)
+        cancor$xcoef = cancor$A
+        rownames(cancor$xcoef) = colnames(xcvRefs)
+        theCols = rownames(cancor$xcoef)
+        cancor$A = NULL
+        cancor$B = NULL
+        class(cancor) = "list"
+      }        
       ftest=ftest.cor(p=nrow(cancor$ycoef),q=nrow(cancor$xcoef),N=nrow(yRefs),cancor$cor)
       if (is.null(nVec))
       {
@@ -244,7 +342,7 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       if (is.null(nVec)) nVec=1
       nVec=min(nVec,length(cancor$cor))
       nVec=max(nVec,1)
-      if (method == "msn" ) projector = cancor$xcoef[,1:nVec,drop=FALSE] %*%
+      if (method %in% c("msn","msnPP")) projector = cancor$xcoef[,1:nVec,drop=FALSE] %*%
                                         diag(cancor$cor[1:nVec,drop=FALSE],nVec,nVec)
                                         
       if (method == "msn2") 
@@ -435,7 +533,14 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
          colnames(nodeset)=paste(colnames(nodeset),i,sep=".")
          nodes=if (is.null(nodes)) nodeset else cbind(nodes,nodeset)
       }
-      refNodes=nodes[rownames(xRefs),]
+  
+      if (bootstrap) 
+      {
+        rn = sub("\\.[0-9]$","",rownames(xRefs))
+        refNodes = nodes[rn,]
+        rownames(refNodes) = rownames(xRefs)
+      } else refNodes = nodes[rownames(xRefs),]
+
       INTrefNodes=as.integer(refNodes)
       INTnrow=as.integer(nrow(xRefs))
       INTncol=as.integer(ncol(nodes))
@@ -471,9 +576,10 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       neiDstTrgs=matrix(data=NA,nrow=length(trgs),ncol=k)
       rownames(neiDstTrgs)=trgs
       colnames(neiDstTrgs)=paste("Dst.k",1:k,sep="")
-      neiIdsTrgs=neiDstTrgs
+      neiIdsTrgs=matrix(data="",nrow=length(trgs),ncol=k)
+      rownames(neiIdsTrgs)=trgs
       colnames(neiIdsTrgs)=paste("Id.k",1:k,sep="")
-      if (method %in%  c("msn","msn2","mahalanobis","ica","euclidean","gnn","raw"))
+      if (method %in%  c("msn","msn2","msnPP","mahalanobis","ica","euclidean","gnn","raw"))
       {
          if (ann)
          { 
@@ -523,6 +629,7 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
                  Rnames[x[k+i]],i,k,rownames(xRefs)))
         } 
       }
+      
       else # default
       {
          stop("no code for specified method")
@@ -540,10 +647,11 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       neiDstRefs=matrix(data=NA,nrow=nrow(xRefs),ncol=k)
       rownames(neiDstRefs)=rownames(xRefs)
       colnames(neiDstRefs)=paste("Dst.k",1:k,sep="")
-      neiIdsRefs=neiDstRefs
+      neiIdsRefs=matrix(data="",nrow=nrow(xRefs),ncol=k)
+      rownames(neiIdsRefs)=rownames(xRefs)
       colnames(neiIdsRefs)=paste("Id.k",1:k,sep="")
       l=k+1
-      if (method %in%  c("msn","msn2","mahalanobis","ica","euclidean","gnn","raw"))
+      if (method %in%  c("msn","msn2","msnPP","mahalanobis","ica","euclidean","gnn","raw"))
       {
          if (ann & nrow(xcvRefs)> 0)
          {
@@ -627,8 +735,22 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
          }
       }
    }
+   
+   # if bootstrap, then modify the reference ID's in the result ID tables. 
+   if (bootstrap) 
+   {
+     if (!is.null(neiIdsTrgs)) neiIdsTrgs[] = sub("\\.[0-9]$","",neiIdsTrgs[])
+     if (!is.null(neiIdsRefs)) 
+     {
+       ub = unique(bootsamp)
+       neiDstRefs = neiDstRefs[ub,,drop=FALSE]
+       neiIdsRefs = neiIdsRefs[ub,,drop=FALSE]
+       neiIdsRefs[] = sub("\\.[0-9]$","",neiIdsRefs[])
+     }
+   }
 
    out=list(call=cl,yRefs=yRefs,xRefs=xRefs,obsDropped=obsDropped,yDrop=yDrop,
+            bootstrap= if (bootstrap) bootsamp else bootstrap,
             xDrop=xDrop,trgRows=trgs,xall=xall,cancor=cancor,theFormula=theFormula,
             ftest=ftest,yScale=yScale,xScale=xScale,ccaVegan=ccaVegan,ranForest=ranForest,
             ICA=ICA,k=k,projector=projector,nVec=nVec,pVal=pVal,method=method,ann=ann,

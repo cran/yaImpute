@@ -22,12 +22,15 @@
 #   neiIdsTrgs: A data frame of reference identifications that correspond to
 #       neiDstTrgs.
 #
+#   k: new value of k, if null, the value is taken from object.
+#
 #   ann: use ann or not...if null, the value is taken from object.
 #
 
-newtargets=function(object,newdata,ann=NULL)
+newtargets=function(object,newdata,k=NULL,ann=NULL)
 {
    if (class(object) != "yai") stop ("object must be class yai")
+   if (object$method == "ensemble") stop ("newtargets can not be found for objects with method 'ensemble'.")
    if (is.null(newdata) | nrow(newdata)==0) stop ("newdata is required")
    if (object$method == "gnn") # (GNN), make sure we have package vegan loaded
       if (!require (vegan)) stop("install vegan and try again")
@@ -38,6 +41,7 @@ newtargets=function(object,newdata,ann=NULL)
    factorMatch = get("factorMatch",asNamespace("yaImpute"))
 
    if (is.null(ann)) ann=object$ann
+   if (!is.null(k)) object$k=k
 
    object$call=match.call()
 
@@ -85,7 +89,7 @@ newtargets=function(object,newdata,ann=NULL)
 
    theCols = colnames(object$xRefs)  # may be changed for reduced rank, depending on method.
 
-   if (object$method %in% c("msn","msn2","mahalanobis","ica"))
+   if (object$method %in% c("msn","msn2","msnPP","mahalanobis","ica"))
    {
       theCols = rownames(object$projector)
       xcvRefs=scale(object$xRefs,center=object$xScale$center,scale=object$xScale$scale)
@@ -143,7 +147,7 @@ newtargets=function(object,newdata,ann=NULL)
       xcvRefs=data.frame(random=runif(nrow(object$xRefs)),row.names=rownames(object$xRefs))
       xcvTrgs=data.frame(random=runif(length(trgs)),row.names=trgs)
    }
-   else if (object$method %in% c("msn","msn2","mahalanobis","ica"))
+   else if (object$method %in% c("msn","msn2","msnPP","mahalanobis","ica"))
    {  
       xcvRefs=as.matrix(xcvRefs[,theCols,drop=FALSE]) %*% object$projector
       xcvTrgs=scale(xTrgs,center=object$xScale$center,scale=object$xScale$scale)
@@ -168,7 +172,7 @@ newtargets=function(object,newdata,ann=NULL)
    neiIdsTrgs=neiDstTrgs
    colnames(neiIdsTrgs)=paste("Id.k",1:object$k,sep="")
 
-   if (object$method %in%  c("msn","msn2","mahalanobis","ica","euclidean","gnn","raw"))
+   if (object$method %in%  c("msn","msn2","msnPP","mahalanobis","ica","euclidean","gnn","raw"))
    {
       if (ann & nrow(xcvTrgs)>0)
       {
@@ -222,6 +226,11 @@ newtargets=function(object,newdata,ann=NULL)
    {
       stop("no code for specified method")   
    }
+
+   # if bootstrap, then modify the reference ID's in the result ID tables. 
+   if (length(object$bootstrap) > 1) 
+      neiIdsTrgs[] = sub("\\.[0-9]$","",neiIdsTrgs[])
+   
    object$obsDropped=obsDropped
    object$trgRows=trgs
    addX = setdiff (rownames(object$xRefs),rownames(xall))

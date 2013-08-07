@@ -1,6 +1,6 @@
 =====ANN-related files =============
-All files contained in directory /src (with the exception of rfoneprox.cpp)
-carry this copyright statement:
+All files contained in directory /src (with the exception of rfoneprox.cpp
+and annImpute.cpp) carry this copyright statement:
 ====================================
 // Copyright (c) 1997-2005 University of Maryland and Sunil Arya and
 // David Mount.  All Rights Reserved.
@@ -17,8 +17,9 @@ carry this copyright statement:
 ====================================
 
 =====Co-author Andrew Finley files ======
-R/ann.R Copyright 2005-2007 (c) Andrew O. Finley
-man/ann.Rd Copyright 2005-2007 (c) Andrew O. Finley
+R/ann.R Copyright 2005-2013 (c) Andrew O. Finley
+man/ann.Rd Copyright 2005-2013 (c) Andrew O. Finley
+src/annImpute.cpp Copyright 2005-2013 (c) Andrew O. Finley
 =========================================
 
 

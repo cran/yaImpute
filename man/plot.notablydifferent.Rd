@@ -1,11 +1,11 @@
 \name{plot.notablyDifferent}
 \alias{plot.notablyDifferent}
-\title{Plots the scaled root mean square differences}
+\title{Plots the scaled root mean square differences between observed and predicted}
 
 \description{
   Provides a descriptive plot of the \emph{Imputation Error Profile} for object(s) 
-  created by \code{\link{notablyDifferent}}.
- }
+  created by \code{\link{notablyDifferent}}. 
+}
 
 \usage{
 \method{plot}{notablyDifferent}(x,add=FALSE,\dots)

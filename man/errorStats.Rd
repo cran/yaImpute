@@ -63,11 +63,11 @@ data(TallyLake)
 
 diag(cov(TallyLake[,1:8])) # see col A in Table 3 in Stage and Crookston
 
-mal=yai(x=TallyLake[,9:29],y=TallyLake[,1:8],ann=FALSE,
+mal=yai(x=TallyLake[,9:29],y=TallyLake[,1:8],
         noTrgs=TRUE,method="mahalanobis")
 
 
-msn=yai(x=TallyLake[,9:29],y=TallyLake[,1:8],ann=FALSE,
+msn=yai(x=TallyLake[,9:29],y=TallyLake[,1:8],
         noTrgs=TRUE,method="msn")
 
 

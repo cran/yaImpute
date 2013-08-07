@@ -54,7 +54,7 @@ correctBias(object,trgVal,trgValCI=NULL,nStdev=1.5,excludeRefIds=NULL,trace=FALS
   units that are outside the target population. 
   \cr\cr
   Because there is no guarantee, and because the reference observations might
-  profitably come from sample units beyond the those in the population 
+  profitably come from sample units beyond those in the population 
   (so as to insure all kinds of targets have a matching reference), it is necessary 
   to test the imputation results for bias. If bias is found, it would be helpful to 
   do something to correct it.

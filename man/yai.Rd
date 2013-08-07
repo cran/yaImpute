@@ -22,7 +22,7 @@
 \usage{
 yai(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
     nVec=NULL,pVal=.05,method="msn",ann=TRUE,mtry=NULL,ntree=500,
-    rfMode="buildClasses")
+    rfMode="buildClasses",bootstrap=FALSE,ppControl=NULL,sampleVars=NULL)
 }
 
 \arguments{
@@ -45,29 +45,31 @@ yai(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
      \code{mahalanobis}. When NULL, the number is set by the function.}
   \item{pVal}{significant level for canonical vectors, used when \code{method} is
     \code{msn} or \code{msn2}.}
-  \item{method}{is the strategy finding neighbors; the
-    options are the quoted key words (see details):
+  \item{method}{is the strategy used for computing distance and therefore for finding neighbors; the
+    options are quoted key words (see details):
     \itemize{
-      \item{\code{euclidean}}{distance is computed in a normalized X space.}
-      \item{\code{raw}}{like euclidean, except no normalization is done.}
-      \item{\code{mahalanobis}}{distance is computed in its namesakes space.}
-      \item{\code{ica}}{like mahalanobis, but based on \emph{Independent Component Analysis} using
+      \item{\code{euclidean }}{distance is computed in a normalized X space.}
+      \item{\code{raw }}{like euclidean, except no normalization is done.}
+      \item{\code{mahalanobis }}{distance is computed in its namesakes space.}
+      \item{\code{ica }}{like mahalanobis, but based on \emph{Independent Component Analysis} using
           package \code{\link[fastICA]{fastICA}}.}
-      \item{\code{msn}}{distance is computed in a projected canonical space.}
-      \item{\code{msn2}}{like msn, but with variance weighting (canonical regression
+      \item{\code{msn }}{distance is computed in a projected canonical space.}
+      \item{\code{msn2 }}{like msn, but with variance weighting (canonical regression
             rather than correlation).}
-      \item{\code{gnn}}{ distance is computed using a projected ordination of
+      \item{\code{msnPP }}{like msn, except that the canonical correlation is computed using
+            projection pursuit from \pkg{ccaPP} (see argument \code{ppControl}).}
+      \item{\code{gnn }}{ distance is computed using a projected ordination of
          Xs found using canonical correspondence analysis
          (\code{\link[vegan]{cca}} from package \pkg{vegan}). 
          If \code{\link[vegan]{cca}} fails, \code{\link[vegan]{rda}} is used
          and a warning is issued.}
-      \item{\code{randomForest}}{distance is one minus the
-         proportion of randomForest trees where a target observation is in
+      \item{\code{randomForest }}{distance is one minus the
+         proportion of \pkg{randomForest} trees where a target observation is in
          the same terminal node as a reference observation (see \code{\link[randomForest]{randomForest}}).}
-      \item{\code{random}}{like raw except that the X space is a single vector of uniform random [0,1]
-         numbers generated using \code{\link[stats]{runif}}, results in random assignement of neighbors,
+      \item{\code{random }}{like raw except that the X space is a single vector of uniform random [0,1]
+         numbers generated using \code{\link[stats]{runif}}, results in random assignment of neighbors,
          and forces \code{ann} to be FALSE.}
-    }
+    }   
   }
   \item{ann}{TRUE if \code{\link{ann}} is used to find neighbors, FALSE if a slow search is used.}
   \item{mtry}{the number of X-variables picked at random when method is \code{randomForest},
@@ -78,7 +80,18 @@ yai(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
   \item{rfMode}{when \code{buildClasses} and method is \code{randomForest}, continuous variables
       are internally converted to classes forcing randomForest to build classification trees for
       the variable. Otherwise, regression trees are built if your version of
-      \code{\link[randomForest]{randomForest}} is newer than \code{4.5-18}.}
+      \pkg{randomForest} is newer than \code{4.5-18}.}
+  \item{bootstrap}{if \code{TRUE}, the reference observations are sampled with replacement.}
+  \item{ppControl}{used to control how canoncial correlation analysis via 
+      projection pursuit is done, see Details.}
+  \item{sampleVars}{the X- and/or Y-variables will be sampled (without replacement) 
+      if this is not NULL and greater than zero. If specified as a single unnamed value, 
+      that value is used to control the sample size of both X and Y variables. If two unnamed values, 
+      then the first is taken for X-variables and the second for Y-variables. 
+      If zero, no sampling is done. Otherwise, values are less than 1.0 they are taken as 
+      the proportion of the number of variables. Values greater or equal to 1 are number of 
+      variables to be included in the sample. Specification of a large number will cause the 
+      sequence of variables to be randomized.}
 }
 
 \details{
@@ -96,6 +109,21 @@ missing data for Y-variables. When Y is NULL (there are no Y-variables),
 all the observations are considered \emph{references}. See
 \code{\link{newtargets}} for an example of how to use yai in this
 situation.
+
+When \code{bootstrap=TRUE} the reference observations are sampled with replacement. The
+sample size is set to the number of reference observations. Normally, about a third of
+the reference observations are left out of the sample; they are often called out-of-bag 
+samples. The out-of-bag observations are then treated as targets.
+
+When \code{method="msnPP"} projection pursuit from \pkg{ccaPP} is used. The method is
+further controlled using argument \code{ppControl} to specify a character vector that has 
+has two named components.
+  \itemize{
+    \item{\code{method }}{One of the following 
+      \code{"spearman", "kendall", "quadrant", "M", "pearson"}, default is "spearman"}
+    \item{\code{search }}{If \code{"data"} or \code{"proj"}, then \code{\link[ccaPP]{ccaProj}} 
+      is used, otherwise the default \code{\link[ccaPP]{ccaGrid}} is used.}
+  }
 }
 
 
@@ -120,9 +148,9 @@ situation.
     when method msn or msn2 is used (NULL otherwise).}
   \item{yScale, xScale}{scale data used on yRefs and xRefs as needed.}
   \item{k}{the value of \emph{k}.}
-  \item{pVal}{as input; only used when method \code{msn} or \code{msn2} is used.}
-  \item{projector}{NULL when not used. For methods \emph{msn}, \emph{msn2}, \emph{gnn}
-     and \emph{mahalanobis}, this is a matrix that projects normalized X-variables
+  \item{pVal}{as input; only used when method \code{msn}, \code{msn2} or \code{msnPP} is used.}
+  \item{projector}{NULL when not used. For methods \code{msn}, \code{msn2}, \code{msnPP}, \code{gnn}
+     and \code{mahalanobis}, this is a matrix that projects normalized X-variables
      into a space suitable for doing Eculidian distances.}
   \item{nVec}{number of canonical vectors used (methods \code{msn} and \code{msn2}),
      or number of independent X-variables in the reference data when method
@@ -136,13 +164,20 @@ situation.
   \item{ann}{the value of ann, TRUE when \code{\link{ann}} is used, FALSE otherwise.}
   \item{xlevels}{NULL if no factors are used as predictors; otherwise a list
         of predictors that have factors and their levels (see \code{\link[stats]{lm}}).}
-  \item{neiDstTrgs}{a data frame of distances between a target
+  \item{neiDstTrgs}{a matrix of distances between a target
      (identified by its row name) and the \emph{k} references. There are \emph{k} columns.}
-  \item{neiIdsTrgs}{a data frame of reference identifications
+  \item{neiIdsTrgs}{a matrix of reference identifications
       that correspond to neiDstTrgs.}
   \item{neiDstRefs, neiIdsRefs}{counterparts for references.}
-
+  \item{bootstrap}{a vector of reference rownames that constitute the bootstrap sample; 
+      or the value \code{FALSE} when bootstrap is not used.}
 }
+
+\seealso{
+\code{\link{applyMask}} \code{\link{correctBias}} \code{\link{buildConsensus}}  
+\code{\link{ensembleImpute}}
+}
+
 
 \examples{
 
@@ -164,8 +199,11 @@ y <- iris[refs,3:4]  # Petal.Length Petal.Width
 msn <- yai(x=x,y=y)
 mal <- yai(x=x,y=y,method="mahalanobis")
 
+# use projection pursuit and specify ppControl (loads package ccaPP)
+msnPP <- yai(x=x,y=y,method="msnPP",ppControl=c(method="kendall",search="proj"))
+
 # running the following examples will load packages vegan
-# and randomForest, and is more complicated.
+# and randomForest, and are more complicated.
 
 data(MoscowMtStJoe)
 
@@ -213,7 +251,8 @@ compare.yai(rforig2,rforig)
 
 \author{
   Nicholas L. Crookston \email{ncrookston.fs@gmail.com} \cr
-  Andrew O. Finley \email{finleya@msu.edu}
+  John Coulston \email{jcoulston@fs.fed.us} \cr
+  Andrew O. Finley \email{finleya@msu.edu} 
 }
 
 \keyword{multivariate}

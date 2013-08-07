@@ -34,6 +34,7 @@ require(yaImpute)
 data(iris)
 
 # form some test data
+set.seed(1234)
 refs=sample(rownames(iris),50)
 x <- iris[,1:3]      # Sepal.Length Sepal.Width Petal.Length
 y <- iris[refs,4:5]  # Petal.Width Species

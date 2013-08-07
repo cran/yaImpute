@@ -1,5 +1,6 @@
 \name{rmsd.yai}
 \alias{rmsd.yai}
+\alias{rmsd}
 
 \title{Root Mean Square Difference between observed and imputed}
 
@@ -17,20 +18,23 @@ rmsd.yai (object,vars=NULL,scale=FALSE,\dots)
   \item{object}{an object created by \code{\link{yai}} or \code{\link{impute.yai}}}
   \item{vars}{a list of variable names you want to include, if NULL all available
     variables are included}
-  \item{scale}{when \code{TRUE}, the values are scaled (see details)}
+  \item{scale}{when \code{TRUE}, the values are scaled (see details), if a named vector,
+    the values are scaled by the corresponding values.}
   \item{\dots}{passed to called methods, very useful for passing arugment
      \code{ancillaryData} to function \code{\link{impute.yai}}}
 }
 
 \value{
   A data frame with the row names as vars and the column as \code{rmsd}. When
-  \code{scale=TRUE}, the column name is \code{rmsdS}.
+  \code{scale=TRUE}, the column name is \code{rmsdS}. The scaling factors used, if any,
+  are returned as an attribute.
 }
 
 \details{
   By default, RMSD is computed using standard formula for its related statistic,
-  RMSE. When \code{scale=TRUE}, RMSD is divided by the standard deviation of the
-  \emph{reference} observations only under the assumption that they are representative
+  RMSE. When \code{scale=TRUE}, or set of values is supplied, RMSD is divided by the 
+  scaling factor. The scaling factor is the standard deviation of the
+  \emph{reference} observations under the assumption that they are representative
   of the population.
 }
 

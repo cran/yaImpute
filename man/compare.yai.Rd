@@ -10,7 +10,7 @@
 }
 
 \usage{
-compare.yai(\dots,ancillaryData=NULL,vars=NULL,method="rmsd")
+compare.yai(\dots,ancillaryData=NULL,vars=NULL,method="rmsd",scale=TRUE)
 }
 
 \arguments{
@@ -23,12 +23,14 @@ compare.yai(\dots,ancillaryData=NULL,vars=NULL,method="rmsd")
     square differences between observed an imputed, and \cr
     when \emph{cor} is specified, the comparison is based on correlations between
     observed and imputed.}
+  \item{scale}{passed to \code{\link{rmsd.yai}}}
 }
 
 \value{
   A data.frame of class \code{c("compare.yai","data.frame")}, where the columns
   are the names of the \dots-arguments and the rows are a union of
-  variable names. NA's are returned when the variables are factors.
+  variable names. NA's are returned when the variables are factors. The scale values (if used)
+  are returned as an attribute (all if some are different than others, a warning is issued).
 }
 
 \seealso{

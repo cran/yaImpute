@@ -23,8 +23,7 @@ cor.yai (object,vars=NULL,\dots)
 
 \details{
   The correlations are computed using \code{\link{cor.yai}}. For data imputation, such
-  correlations are likely not appropriate; a warning message is issued when
-  this function is used (Stage and Crookston 2007).
+  correlations are likely not appropriate (Stage and Crookston 2007).
 }
 
 \seealso{

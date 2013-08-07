@@ -15,7 +15,9 @@ yaiVarImp = function(object, nTop=20, plot=TRUE, ...)
    {
      i = i+1
      one = importance(Rf)
-     scaledImportance[i,] = scale(one[,ncol(one)])
+     scale = FALSE
+     if (nrow(one)>1) scale = sd(one[,"MeanDecreaseAccuracy"])>0 
+     scaledImportance[i,] = scale(one[,"MeanDecreaseAccuracy"],center=TRUE,scale=scale)
    }
 
    if (is.na(nTop) | nTop == 0) nTop=ncol(scaledImportance)
@@ -27,7 +29,7 @@ yaiVarImp = function(object, nTop=20, plot=TRUE, ...)
       plt = par()$plt
       oldplt = plt
       plt[1] = .2
-      boxplot(as.data.frame(scaledImportance[,best]), horizontal=TRUE, par(plt=plt), las=1,
+      boxplot(as.data.frame(scaledImportance[,best,drop=FALSE]), horizontal=TRUE, par(plt=plt), las=1,
               main=deparse(substitute(object)), xlab="Scaled Importance",...)
       par(plt=oldplt)
       invisible(scaledImportance[,best,FALSE])

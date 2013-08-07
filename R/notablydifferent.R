@@ -6,6 +6,7 @@ notablyDifferent <- function (object,vars=NULL,threshold=NULL,p=.05,...)
    if (length(refIds) == 0) stop ("references are required")
    cl <- match.call()
    trgIds <- rownames(object$neiDstTrgs)
+   
    if (is.null(vars)) vars=xvars(object)
    impObj <- impute.yai(object,vars=vars,observed=TRUE,...)
    if (is.null(impObj)) stop ("no imputations found using this object")
@@ -33,10 +34,12 @@ notablyDifferent <- function (object,vars=NULL,threshold=NULL,p=.05,...)
    both <- intersect(paste(unique(strsplit(vo,".o",fixed=TRUE))),vi)  
    if (length(both) == 0) stop("no variables with observed and imputed values")
    vo <- paste(both,"o",sep=".")
+
    var <- unlist(lapply(impObj[,vo,drop=FALSE],var)) 
    names(var) = sub(".o","",names(var),fixed = TRUE)  
    diff <- impObj[,both,drop=FALSE]-impObj[,vo,drop=FALSE]
    for (nam in both) diff[,nam] = (diff[,nam]*diff[,nam])/var[nam]
+
    rmsd <- sqrt(apply(diff,1,mean))
    if (is.null(threshold)) threshold <- quantile(rmsd[refIds],1-p)
    ans <- list(call=cl,vars=both,threshold=threshold,

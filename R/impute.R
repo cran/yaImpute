@@ -13,13 +13,14 @@
 #                     target observations. For reference observations,
 #                     the value form the observation itself is excluded.
 #                     When k==1, closest is always used. 
-#       mean        = An average over the k neighbors is taken
+#       mean        = the mean of the k neighbors is taken
+#       median      = the median of the k neighbors is taken
 #       dstWeighted = a weighted average is taken over the k
 #                     neighbors where the weights are (1/(1+d))/sum(1/(1+d))
 #  method.factor defines how factors are imputed, default is to use the 
 #             "method", where: 
 #       closest     = same a continous (always used with k==1).
-#       mean        = actually, the mode. The factor level that is the most 
+#       mean|median = actually, the mode. The factor level that is the most 
 #                     frequent
 #       dstWeighted = the factor level with the largest weight, 
 #                     where weights are (1/(1+d))/sum(1/(1+d))
@@ -52,13 +53,14 @@ impute.yai <- function (object,ancillaryData=NULL,method="closest",
       else vars <- intersect(vars,colnames(refs))
       if (is.null(vars) | length(vars)==0) return (NULL)
 
-      if (method=="closest" | k==1) ans <- refs[ids[,1],vars,FALSE]
+      if (method=="closest" || k==1) ans <- refs[ids[,1],vars,FALSE]
 
-      if (method=="mean")
+      if (method=="mean" || method== "median")
       {
-
-         ans <- lapply(vars, function (v,idset)
+         ans <- if (method == "mean") lapply(vars, function (v,idset)
                  apply(idset, 1, function (x,refs,v) mean(refs[x,v]), refs, v), ids[,1:k])
+                else                  lapply(vars, function (v,idset)
+                 apply(idset, 1, function (x,refs,v) median(refs[x,v]), refs, v), ids[,1:k])
          names(ans) <- vars 
          ans <- as.data.frame(ans)              
       }
@@ -97,9 +99,9 @@ impute.yai <- function (object,ancillaryData=NULL,method="closest",
       else vars <- intersect(vars,colnames(refs))
       if (is.null(vars) | length(vars)==0) return (NULL)
 
-      if (method=="closest" | k==1) ans <- data.frame(refs[ids[,1],vars,FALSE])
+      if (method=="closest" || k==1) ans <- data.frame(refs[ids[,1],vars,FALSE])
        
-      if (method == "mean") 
+      if (method == "mean" || method == "median") 
       {
          ans <- lapply(vars, function (v,idset)
                  apply(idset, 1, 
@@ -203,15 +205,19 @@ impute.yai <- function (object,ancillaryData=NULL,method="closest",
          if (object$method != "randomForest") vars <- yvars(object)
          else if (names(object$ranForest)[[1]] == "unsupervised") vars <- xvars(object)
       }            
-      else vars <- colnames(ancillaryData)
+      else 
+      {
+        if (! is.data.frame(ancillaryData)) ancillaryData <- as.data.frame(ancillaryData)
+        vars <- colnames(ancillaryData)
+      }
    }
-   posMethods <- c("closest","mean","dstWeighted")
+   posMethods <- c("closest","mean","median","dstWeighted")
    if (length(intersect(method,posMethods))==0)
       stop (paste("method=",method," must be one of: {",
             paste(posMethods,collapse=", "),"}",sep=""))
 
    if (is.null(k)) k <- object$k
-   if (k>object$k | k==0)
+   if (k>object$k || k==0)
    {
       warning ("k out of range, set to ",object$k)
       k <- object$k

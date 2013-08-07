@@ -1,3 +1,38 @@
+Changes in version 1.0-20:
+
+* Added varSelection() to aid in variable selection. A plot function is 
+include to aid in understanding the results; bestVars() returns what seem to be
+a set of "best" variables for objects created by varSelection().
+* Added grmsd() to compute a generalized root mean square error which is a Mahalanobis
+distance between observed and imputed. Provides a single score useful for ranking
+imputation models and methods (or returns vectors of distances).
+* Added rmsd(); it is an alias to rmsd.yai().
+* Added method="median" to function impute.
+* Added method="msnPP" to function yai to enable using canonical correlation via 
+projection pursuit from package ccaPP
+* Added ensembleImpute() to get an mean or median imputation for several
+separate imputations. Computes the mode for factors.
+* Added John Coulston as an author on some of the new functions.
+* Added bootstrap= option to yai() so that reference observations can 
+be sampled with replacement forming a bootstrap rep.
+* Added sampleVars= option to yai() so that X-, Y- or both kinds of variables
+can be sampled.
+* Added buildConsensus() to find a consensus imputation over several 
+reps and forming one yai object. 
+* Added (at long last) a predict function.
+* Added the ability to specify the scaling values for rmsd.yai and compare.yai
+* Modified some help files to improve acknowledgments and cross references.
+* Fixed a small typographical error in the help for correctBias(), accomplished 
+minor edits to other help files. 
+* Added the ability to specify k in function newtargets (how did I miss that?).
+* Changed the variable importance score calculation for yaiVarImp()
+from "MeanDecreaseGini" to "MeanDecreaseAccuracy" and made it clear in the help file.
+* Added function applyMask() that removes (or keeps) reference neighbors that share 
+group membership with a target. Thanks to Clara Antón Fernández for suggestions that
+lead to this function being added.
+* Small update to the COPYRIGHTS file to make clear that Andrew O. Finley wrote
+annImpute.cpp
+
 Changes in version 1.0-19:
 
 * Moved COPYRIGHTS to inst/COPYRIGHTS and greatly added detailed information 
@@ -7,7 +42,7 @@ CRAN policy).
 * Added a Copyright statement to DESCRIPTION.  
 * Added detail to the Description statement in file DESCRIPTION.
 * Fixed print.yai.R error when there is only one target and K>1.
-* Modified the file handeling in AsciiGridPredict (and AsciiGridImpute).
+* Modified the file handling in AsciiGridPredict (and AsciiGridImpute).
 * Fixed a case where a reference picks itself as the second most similar neighbor. This only
 happens when there are two or more identical reference observations (thanks to Petteri Packalen).
 * Further revision to the ftest to deal with degenerate cases and put in a trap on the use

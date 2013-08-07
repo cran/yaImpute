@@ -9,32 +9,36 @@
 }
 
 \usage{
-newtargets(object,newdata,ann=NULL)
+newtargets(object,newdata,k=NULL,ann=NULL)
 }
 
 \arguments{
   \item{object}{an object of class \code{\link{yai}}.}
   \item{newdata}{a data frame or matrix of new \emph{targets} for which neighbors are
-       are found.}
+       are found. Must include at least the \emph{X}-variables used in the original call to
+       \code{\link{yai}}.}
+  \item{k}{if NULL, the value is taken from \code{object}, otherwise the number of nearest 
+       neighbors to find.}
   \item{ann}{if NULL, the value is taken from \code{object}. When TRUE \code{\link{ann}} is
        used to find neighbors, and when FALSE a slow exact search is used.}
 }
 
 \value{
-  An object of class \code{yai}, which is a copy of the first argument with the
+  An object of class \code{yai}, that is a copy of the first argument with the
   following elements replaced:
- \item{call}{the call.}
+  \item{call}{the call.}
   \item{obsDropped}{a list of the row names for observations
      dropped for various reasons (missing data).}
   \item{trgRows}{a list of the row names for target observations
      as a subset of all observations.}
   \item{xall}{the \emph{X}-variables for all observations.}
-  \item{neiDstTrgs}{a data frame of distances between a target
+  \item{neiDstTrgs}{a matrix of distances between a target
      (identified by its row name) and the k references. There are k columns.}
-  \item{neiIdsTrgs}{A data frame of reference identifications
+  \item{neiIdsTrgs}{a matrix of reference identifications
       that correspond to neiDstTrgs.}
   \item{neiDstRefs}{set NULL as if \code{noRefs=TRUE} in the original call to \code{\link{yai}}.}
   \item{neiIdsRefs}{set NULL as if \code{noRefs=TRUE} in the original call to \code{\link{yai}}.}
+  \item{k}{the value of k, replaced if changed.}
   \item{ann}{the value of the ann argument.}
 }
 
