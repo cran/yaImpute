@@ -1,7 +1,7 @@
 yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
                 nVec=NULL,pVal=.05,method="msn",ann=TRUE,mtry=NULL,ntree=500,
                 rfMode="buildClasses",bootstrap=FALSE,ppControl=NULL,
-                sampleVars=NULL)
+                sampleVars=NULL,rfXsubsets=NULL)
 {
    # define functions used internally.
    sumSqDiff=function(x,y) { d=x-y; sum(d*d) }
@@ -34,7 +34,8 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       pgF = F
       firstNA = if (firstNA > 1) firstNA else length(F)
       {
-        pgF[1:firstNA]=pf(F[1:firstNA],Ndf[1:firstNA],Ddf[1:firstNA],lower.tail=FALSE)
+        pgF[1:firstNA]=pf(F[1:firstNA],Ndf[1:firstNA],Ddf[1:firstNA],
+                          lower.tail=FALSE)
         pgF[setNA] = NA
       } 
       list(F=F,pgF=pgF)
@@ -77,7 +78,7 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
                
    if (!(method %in% methodSet))
       stop (paste("method not one of:",paste(methodSet,collapse =", ")))
-
+      
    if (method == "gnn") # (GNN), make sure we have package vegan loaded
    {
       if (!require (vegan)) stop("install vegan and try again")
@@ -112,8 +113,11 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       {
          if (is.null(dim(y)))
          {
-           if (length(y) == nrow (x)) y=data.frame(y,row.names=rownames(x), stringsAsFactors = TRUE)
-           else stop("when formulas are not used, y must be a matrix or dataframe, or a vector the same length of rows in x")
+           if (length(y) == nrow (x)) y=data.frame(y,row.names=rownames(x), 
+                                                   stringsAsFactors = TRUE)
+           else stop(paste0("when formulas are not used,",
+                     " y must be a matrix or dataframe,",
+                     " or a vector the same length of rows in x"))
          } 
          if (is.matrix(y) | is.data.frame(y))
          {
@@ -137,7 +141,8 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       theFormula=list(x=x,y=y)
    }
    else stop ("x is missing or not a matrix nor dataframe")
-   if (is.null(yall) & (method %in% c("mahalanobis","ica","euclidean","randomForest","raw")))
+   if (is.null(yall) & (method %in% c("mahalanobis","ica",
+                        "euclidean","randomForest","raw")))
    {
       ydum=TRUE
       yall=data.frame(ydummy=rep(1,nrow(xall)),row.names=rownames(xall))
@@ -154,6 +159,19 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
    }
    refs=intersect(rownames(yall),rownames(xall))
    if (length(refs) == 0) stop ("no reference observations.")
+
+   # if X variable subsets are used, make sure we are using method="randomForest" 
+   if (!is.null(rfXsubsets) && method != "randomForest") 
+   {
+     warning ("specification of rfXsubsets is ignored when method is not randomForest.")
+     rfXsubsets = NULL
+   }
+   if (!is.null(rfXsubsets))
+   {
+     vtok = match(unique(unlist(rfXsubsets)),names(xall))
+     if (any(is.na(vtok))) stop("one or more variables in rfXsubsets are not present in x.")
+     xall = xall[,vtok]
+   }
 
    # if sampling variables, set up xRefs and yRefs accordingly
 
@@ -179,6 +197,7 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
        yall = yall[,nyn,drop=FALSE]
      }
    }
+   
    
    # if this is a bootstrap run, draw the sample.
    if (bootstrap)
@@ -380,7 +399,7 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       xcvRefs=scale(xRefs,center=xScale$center,scale=xScale$scale)
       qr = qr(xcvRefs)  # maybe we are not at full rank
       xcvRefs=xcvRefs[,qr$pivot[1:qr$rank],drop=FALSE]
-      projector = solve(chol(cov(xcvRefs))) # old, wrong, extra transpose removed thanks to Petteri Packalen
+      projector = solve(chol(cov(xcvRefs)))
       theCols = colnames(projector)
       if (length(theCols)<ncol(xRefs))
       {
@@ -485,21 +504,31 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       xTrgs=xall[trgs,1,drop=FALSE]
       rfVersion=packageDescription("randomForest")[["Version"]]  
       if (compareVersion(rfVersion,"4.5-22") < 0) stop("Update your version of randomForest.")
-      if (is.null(mtry)) mtry=max(sqrt(ncol(xRefs)),1)
       if (is.null(ntree)) ntree=500
       if (ydum)
       {
+         if (!is.null(rfXsubsets)) warning("Specification of rfXsubsets ignored when unsupervised randomForest is run.")
          yone=NULL
-         ranForest=randomForest(x=xRefs,y=yone,proximity=FALSE,importance=TRUE,keep.forest=TRUE,mtry=mtry,ntree=ntree)
+         mt = if (is.null(mtry)) max(floor(sqrt(ncol(xRefs))),1) else max(mtry, ncol(xRefs))
+         ranForest=randomForest(x=xRefs,y=yone,proximity=FALSE,importance=TRUE,
+                                keep.forest=TRUE,mtry=mt,ntree=ntree)
          ranForest$type="yaImputeUnsupervised"
          ranForest=list(unsupervised=ranForest)
       }
       else
       { 
          ranForest=vector("list",ncol(yRefs))
-         if (length(ntree) < ncol(yRefs)) ntree=rep(trunc(ntree/ncol(yRefs)),ncol(yRefs))
+         if (length(ntree) < ncol(yRefs)) ntree=rep(max(50,
+                                          floor(ntree/ncol(yRefs))),ncol(yRefs))
          for (i in 1:ncol(yRefs))
          {
+            xN = names(xRefs)
+            if (!is.null(rfXsubsets))
+            {
+              yV = names(yRefs)[i]
+              if (!is.null(rfXsubsets[[yV]])) xN = intersect (rfXsubsets[[yV]],xN)
+              if (length(xN)==0) stop ("rfXsubsets is empty for Y-variable ",yV)
+            }
             yone=yRefs[,i]
             if (!is.factor(yone))
             { 
@@ -521,7 +550,9 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
                 yone=as.factor(floor(yone/div))
               }
             }
-            ranForest[[i]]=randomForest(x=xRefs,y=yone,proximity=FALSE,importance=TRUE,keep.forest=TRUE,mtry=mtry,ntree=ntree[i])
+            mt = if (is.null(mtry)) max(floor(sqrt(length(xN))), 1) else max(mtry, length(xN))
+            ranForest[[i]]=randomForest(x=xRefs[,xN,FALSE],y=yone,proximity=FALSE,
+                                        importance=TRUE,keep.forest=TRUE,mtry=mt,ntree=ntree[i])
          }
          names(ranForest)=colnames(yRefs)
       }
@@ -549,7 +580,8 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       INTsort=apply(INTsort,2,function (x) sort(x,index.return = TRUE, decreasing = FALSE)$ix-1)
       attributes(INTsort)=NULL
       INTsort = as.integer(INTsort)
-      attr(ranForest,"rfRefNodeSort") = list(INTrefNodes=INTrefNodes, INTnrow=INTnrow, INTncol=INTncol, INTsort=INTsort)
+      attr(ranForest,"rfRefNodeSort") = list(INTrefNodes=INTrefNodes, INTnrow=INTnrow, 
+                                             INTncol=INTncol, INTsort=INTsort)
    }
    else if (method == "random")
    { 
@@ -755,7 +787,7 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
             ftest=ftest,yScale=yScale,xScale=xScale,ccaVegan=ccaVegan,ranForest=ranForest,
             ICA=ICA,k=k,projector=projector,nVec=nVec,pVal=pVal,method=method,ann=ann,
             xlevels=xlevels,neiDstTrgs=neiDstTrgs,neiIdsTrgs=neiIdsTrgs,
-            neiDstRefs=neiDstRefs,neiIdsRefs=neiIdsRefs)
+            neiDstRefs=neiDstRefs,neiIdsRefs=neiIdsRefs,rfXsubsets=rfXsubsets)
 
    class(out)="yai"
    out

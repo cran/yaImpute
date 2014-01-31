@@ -16,14 +16,16 @@ yaiVarImp = function(object, nTop=20, plot=TRUE, ...)
      i = i+1
      one = importance(Rf)
      scale = FALSE
-     if (nrow(one)>1) scale = sd(one[,"MeanDecreaseAccuracy"])>0 
-     scaledImportance[i,] = scale(one[,"MeanDecreaseAccuracy"],center=TRUE,scale=scale)
+     attr = if (Rf$type == "regression") "%IncMSE" else "MeanDecreaseAccuracy"
+     if (nrow(one)>1) scale = sd(one[,attr])>0
+     imports = scale(one[,attr],center=TRUE,scale=scale)
+     scaledImportance[i,rownames(imports)] = imports
    }
 
    if (is.na(nTop) | nTop == 0) nTop=ncol(scaledImportance)
    scaledImportance = data.frame(scaledImportance)
    nTop = min(ncol(scaledImportance), nTop)
-   best = sort(apply(scaledImportance, 2, median), decreasing = TRUE, index.return = TRUE)$ix[1:nTop]
+   best = sort(apply(scaledImportance, 2, median, na.rm=TRUE), decreasing = TRUE, index.return = TRUE)$ix[1:nTop]
    if (plot)
    {
       plt = par()$plt

@@ -29,12 +29,21 @@ function (...,ancillaryData=NULL,vars=NULL,wts=NULL,rtnVectors=FALSE)
     }
     if (inherits(object,"yai")) object <- 
            impute.yai(object,ancillaryData=ancillaryData,vars=vars,observed=TRUE)               
+    # try to allow "lm" objects. This code may fail as there are many
+    # methods in R that inherit from "lm". 
     if (inherits(object,"lm")) 
     {
       pr <- predict(object)
       ob <- pr + resid(object)
-      colnames(ob) = paste0(colnames(ob),".o")
-      object <- cbind(pr,ob)
+      # only one column?
+      if (is.null(dim(pr))) 
+      {
+        object <- cbind(pr,ob)
+        colnames(object) = c(objName,paste0(objName,".o"))
+      } else {
+        colnames(ob) = paste0(colnames(ob),".o")
+        object <- cbind(pr,ob)
+      }
     }
     object <- na.omit(object)
     if (nrow(object) == 0) 
@@ -122,6 +131,6 @@ function (...,ancillaryData=NULL,vars=NULL,wts=NULL,rtnVectors=FALSE)
   if (rtnVectors) 
   { 
     idx <- sort(unlist(lapply(mgd,function (x) sqrt(mean(x)))),index.return=TRUE)$ix
-    mgd <- mgd[idx]
+    mgd[idx]
   } else sort(unlist(mgd))
 }

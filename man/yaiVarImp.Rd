@@ -7,8 +7,10 @@
   object, the \code{\link[randomForest]{randomForest}} package computes
   variable importance scores. This function computes a composite of the
   scores and scales them using \code{\link[base]{scale}}. By default the 
-  scores are plotted and scores themselves are invisibly returned. This
-  function is based on the "MeanDecreaseAccuracy" importance score.
+  scores are plotted and scores themselves are invisibly returned. For 
+  classification, the scores are derived from "MeanDecreaseAccuracy" 
+  and for regression they are based in "%IncMSE"; in both cases computed
+  using \code{\link[randomForest]{importance}}.
 }
 
 \arguments{

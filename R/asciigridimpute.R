@@ -3,7 +3,8 @@ AsciiGridPredict = function(object,xfiles,outfiles,xtypes=NULL,lon=NULL,lat=NULL
 {
    if (missing(xfiles)   || is.null(xfiles))   stop ("xfiles required")
    if (missing(outfiles) || is.null(outfiles)) stop ("outfiles required")
-   if (class(outfiles) != "list") outfiles=list(predict=outfiles)
+   if (!inherits(outfiles,"list")) outfiles=as.list(outfiles)
+   if (is.null(names(outfiles)) && length(outfiles) == 1) names(outfiles) = "predict"
    if (is.null(names(xfiles))) stop ("xfiles elements must be named")
    if (is.null(names(outfiles))) stop ("outfiles elements must be named")
 
@@ -67,7 +68,7 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
 #  deal with ancillaryData and build allY
 
    allY = 0
-   if (!is.null(ancillaryData) && class(object)[1]=="yai")
+   if (!is.null(ancillaryData) && inherits(object,"yai"))
    {
       if (length(intersect(class(ancillaryData),c("matrix","data.frame"))) > 0 &&
           nrow(ancillaryData[rownames(object$yRefs),,FALSE]) == nrow(object$yRefs) &&
@@ -80,15 +81,18 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
             fromAn=intersect(toKeep,colnames(ancillaryData))
             fromRe=setdiff(intersect(toKeep,colnames(object$yRefs)),fromAn)
             if (length(fromAn)>0 && length(fromRe)>0)
-               allY = data.frame(cbind(ancillaryData[rownames(object$yRefs),],object$yRefs)[,toKeep],row.names=rownames(object$yRefs))
-            else if (length(fromAn)>0) allY = data.frame(ancillaryData[rownames(object$yRefs),toKeep],row.names=rownames(object$yRefs))
-            else if (length(fromRe)>0) allY = data.frame(object$yRefs[,toKeep],row.names=rownames(object$yRefs))
+               allY = data.frame(cbind(ancillaryData[rownames(object$yRefs),],object$yRefs)[,toKeep],
+               row.names=rownames(object$yRefs))
+            else if (length(fromAn)>0) allY = data.frame(ancillaryData[rownames(object$yRefs),toKeep],
+               row.names=rownames(object$yRefs))
+            else if (length(fromRe)>0) allY = data.frame(object$yRefs[,toKeep],
+               row.names=rownames(object$yRefs))
             colnames(allY)=toKeep
          }
       }
-      if (is.null(names(allY))) stop ("ancillaryData can not be used because no variables in it match the names in outfiles")
+      if (is.null(names(allY))) stop ("ancillaryData can not be used because no variables match the names in outfiles")
    }
-   if (is.null(colnames(allY)) && class(object)[1]=="yai")
+   if (is.null(colnames(allY)) && inherits(object,"yai"))
    {
       toKeep = intersect(colnames(object$yRefs),names(outfiles))
       if (length(toKeep) == 0) allY = NULL
@@ -101,13 +105,13 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
 
 #  if using yai, deal with ann
 
-   if (class(object)[1]=="yai" && is.null(ann)) ann=object$ann
+   if (inherits(object,"yai") && is.null(ann)) ann=object$ann
 
 #  set some flags used below
 
    predYes = length(intersect(names(outfiles),c("predict" ))) == 1
-   distYes = length(intersect(names(outfiles),c("distance"))) == 1  && class(object)[1] == "yai"
-   useidYes= length(intersect(names(outfiles),c("useid"   ))) == 1  && class(object)[1] == "yai"
+   distYes = length(intersect(names(outfiles),c("distance"))) == 1  && inherits(object,"yai")
+   useidYes= length(intersect(names(outfiles),c("useid"   ))) == 1  && inherits(object,"yai")
 
    sumIlls=NULL
 
@@ -146,10 +150,12 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
 
    getVal=function(header,tok)
    {
-      for (i in rev(unlist(strsplit(header[grep(tok,header,ignore.case=TRUE)],split=" "))))
+      for (lin in header)
       {
-         if (i!="") return(as.numeric(i))
+         l = scan (text=lin,what="character",quiet=TRUE)
+         if (toupper(l[1]) == tok) return (as.numeric(l[2]))
       }
+      return (NA)
    }
 
    nc  = getVal(header,"NCOLS")
@@ -158,6 +164,7 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
    yllc= getVal(header,"YLLCORNER")
    csz = getVal(header,"CELLSIZE")
    nodv= getVal(header,"NODATA_VALUE")
+   if (any(unlist(lapply(c(nc,nr,xllc,yllc,csz,nodv),is.na)))) stop ("header error in input maps")
 
    if (!is.null(lon))
    {
@@ -176,11 +183,7 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
 
    if (is.null(rows) && is.null(cols) && is.null(nodata)) #header does not change
    {
-      for (i in 1:length(outfiles))
-      {
-         cat (header,file=outfiles[[i]],sep="\n")
-#         flush(outfh[[i]])
-      }
+      for (i in 1:length(outfiles)) cat (header,file=outfiles[[i]],sep="\n")
       newnr = nr
       newnc = nc
       nodata= nodv
@@ -189,16 +192,17 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
    }
    else #header changes
    {
+ 
       if (is.null(nodata)) nodata=nodv
 
-      if (is.null(rows)) rows=c(1,nr)
-      if (rows[1]<1) rows[1]=1
-      if (rows[2]>nr) rows[2]=nr
+      if (is.null(rows))   rows=c(1,nr)
+      if (rows[1]<1)       rows[1]=1
+      if (rows[2]>nr)      rows[2]=nr
       if (rows[1]>rows[2]) rows[1]=rows[2]
 
-      if (is.null(cols)) cols=c(1,nc)
-      if (cols[1]<1)  cols[1]=1
-      if (cols[2]>nc) cols[2]=nc
+      if (is.null(cols))   cols=c(1,nc)
+      if (cols[1]<1)       cols[1]=1
+      if (cols[2]>nc)      cols[2]=nc
       if (cols[1]>cols[2]) cols[1]=cols[2]
       
       newnr = rows[2]-rows[1]+1
@@ -210,11 +214,11 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
       for (i in 1:length(outfiles))
       {
          cat("NCOLS         ",as.character(newnc), "\n",file=outfiles[[i]],sep="")
-         cat("NROWS         ",as.character(newnr), "\n",file=outfiles[[i]],sep="")
-         cat("XLLCORNER     ",as.character(xllc),  "\n",file=outfiles[[i]],sep="")
-         cat("YLLCORNER     ",as.character(yllc),  "\n",file=outfiles[[i]],sep="")
-         cat("CELLSIZE      ",as.character(csz ),  "\n",file=outfiles[[i]],sep="")
-         cat("NODATA_VALUE  ",as.character(nodata),"\n",file=outfiles[[i]],sep="")
+         cat("NROWS         ",as.character(newnr), "\n",file=outfiles[[i]],sep="",append=TRUE)
+         cat("XLLCORNER     ",as.character(xllc),  "\n",file=outfiles[[i]],sep="",append=TRUE)
+         cat("YLLCORNER     ",as.character(yllc),  "\n",file=outfiles[[i]],sep="",append=TRUE)
+         cat("CELLSIZE      ",as.character(csz ),  "\n",file=outfiles[[i]],sep="",append=TRUE)
+         cat("NODATA_VALUE  ",as.character(nodata),"\n",file=outfiles[[i]],sep="",append=TRUE)
       } 
    }
 
@@ -222,7 +226,7 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
    # are stored in the forest.
 
    xlevels = object$xlevels
-   if (is.null(xlevels) && length(intersect(class(object),"randomForest")) > 0) xlevels=object$forest$xlevels
+   if (is.null(xlevels) && inherits(object,"randomForest")) xlevels=object$forest$xlevels
    if (!is.null(xlevels))
    {
       # we need just the variable names...
@@ -315,15 +319,18 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
          if (!is.null(myPredFunc))
          {
             outdata=myPredFunc(object,newdata,...)
-            if (class(outdata) != "data.frame")
+            if (!inherits(outdata,"data.frame"))
+            {
+               cns = colnames(outdata)
                outdata=data.frame(predict=outdata,row.names=rownames(newdata))
-            else rownames(outdata)=rownames(newdata)               
+               if (!is.null(cns)) colnames(outdata) = cns
+            } else rownames(outdata)=rownames(newdata)               
          }
          else if (is.null(object))
          {
             outdata=newdata
          }
-         else if (class(object)[1] == "yai")
+         else if (inherits(object,"yai"))
          {
             outdata = NULL
             saveNames=rownames(newdata)
@@ -342,10 +349,13 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
          }
          else
          {
-            predict=predict(object,newdata,...)
-            if (class(predict) != "data.frame")
-               outdata=data.frame(predict=predict,row.names=rownames(newdata))
-            else outdata=predict
+            outdata=predict(object,newdata,...)
+            if (!inherits(outdata,"data.frame"))
+            {
+               cns = colnames(outdata)
+               outdata=data.frame(predict=outdata,row.names=rownames(newdata))
+               if (!is.null(cns)) colnames(outdata) = cns
+            } else rownames(outdata)=rownames(newdata)               
          }
          if (is.null(outLegend))
          {

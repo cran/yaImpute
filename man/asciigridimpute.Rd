@@ -181,8 +181,12 @@ pLen <- matrix(iris[,3],10,15)
 pWid <- matrix(iris[,4],10,15)
 spcd <- matrix(as.numeric(iris[,5]),10,15)
 
-# Make maps of each variable.
+# Create and change to a temp directory.
+curdir <- getwd()
+setwd(tempdir())
+cat ("Using working dir",getwd(),"\n")
 
+# Make maps of each variable.
 header = c("NCOLS 15","NROWS 10","XLLCORNER 1","YLLCORNER 1",
            "CELLSIZE 1","NODATA_VALUE -9999")
 cat(file="slen.txt",header,sep="\n")
@@ -236,13 +240,11 @@ for (col in colnames(spViaLevels)) spViaLevels[,col]=levels(y$Species)[spViaLeve
 
 identical(spViaLevels,spViaUse)
 
-
 # build a randomForest predictor
 rf <- randomForest(x=iris[refs,1:4],y=iris[refs,5])
 
 # map the predictions for the input maps
-outfiles2 <- list(predict="spOutrf.txt")
-AsciiGridPredict(rf,xfiles,outfiles2,xtypes=NULL,rows=NULL)
+AsciiGridPredict(rf,xfiles,list(predict="spOutrf.txt"))
 
 # read the asciigrids and get them ready to plot
 spOrig <- t(as.matrix(read.table("spcd.txt",skip=6)))
@@ -250,18 +252,24 @@ sprfNN <- t(as.matrix(read.table("spOutrfNN.txt",skip=6)))
 sprf <- t(as.matrix(read.table("spOutrf.txt",skip=6)))
 dist <- t(as.matrix(read.table("dist.txt",skip=6)))
 
-par(mfcol=c(2,2))
-image(spOrig,main="Original",axes=FALSE,useRaster=TRUE)
-image(sprfNN,main="Using Predict",axes=FALSE,useRaster=TRUE)
-image(sprf,main="Using Impute",axes=FALSE,useRaster=TRUE)
-image(dist,main="Neighbor Distances",axes=FALSE,useRaster=TRUE)
+# reset the directory to that where the example was started.
+setwd(curdir)
+
+par(mfcol=c(2,2),mar=c(1,1,2,1))
+image(spOrig,main="Original",col=c("red","green","blue"),
+      axes=FALSE,useRaster=TRUE)
+image(sprfNN,main="Using Impute",col=c("red","green","blue"),
+      axes=FALSE,useRaster=TRUE)
+image(sprf,main="Using Predict",col=c("red","green","blue"),
+      axes=FALSE,useRaster=TRUE)
+image(dist,main="Neighbor Distances",col=terrain.colors(15),
+      axes=FALSE,useRaster=TRUE)
 
 }
 
 
 \author{
-  Nicholas L. Crookston \email{ncrookston.fs@gmail.com} \cr
-  Andrew O. Finley \email{finleya@msu.edu}
+  Nicholas L. Crookston \email{ncrookston.fs@gmail.com} 
 }
 
 \keyword{spatial}
