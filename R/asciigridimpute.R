@@ -335,7 +335,7 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
             outdata = NULL
             saveNames=rownames(newdata)
             rownames(newdata)=paste("m",as.character(1:nrow(newdata)),sep="!")
-            new = newtargets(object,newdata,ann)
+            new = newtargets(object,newdata,k=NULL,ann=ann)
             if (!is.null(allY)) outdata = impute(new,ancillaryData=allY,observed=FALSE)
             rownames(outdata)=saveNames
             if (distYes)  dists = data.frame(distance=new$neiDstTrgs[,1],row.names=rownames(newdata))

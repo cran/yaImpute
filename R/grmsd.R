@@ -65,14 +65,14 @@ function (...,ancillaryData=NULL,vars=NULL,wts=NULL,rtnVectors=FALSE)
         next
       } else {
         nams <- names(facts)[facts]
-        nams <- nams[-grep(".o$",nams)]
+        nams <- nams[-grep("[.]o$",nams)]
         warning("factor(s) have been removed from ",objName,": ",paste0(nams,collapse=", "))
         object <- object[,!facts,drop=FALSE]
       }
     }
     useVars <- if (is.null(vars)) colnames(object) else 
       {
-        ov <- grep (".o$",vars)
+        ov <- grep ("[.]o$",vars)
         ov <- if (length(ov) == 0) unique(c(vars,paste0(vars,".o"))) else vars
         intersect(ov,colnames(object))
       }
@@ -81,13 +81,13 @@ function (...,ancillaryData=NULL,vars=NULL,wts=NULL,rtnVectors=FALSE)
       warning ("needed variables not found in ",objName)
       next
     }
-    ov = useVars[grep (".o$",useVars)]
+    ov = useVars[grep ("[.]o$",useVars)]
     if (length(ov) == 0) 
     {
       warning ("no observed variables found in ",objName)
       next
     }
-    pv <- unique(sub(".o$","",ov))
+    pv <- unique(sub("[.]o$","",ov))
     pv <- intersect(pv,useVars)
     if (length(pv) == 0) 
     {
@@ -114,7 +114,7 @@ function (...,ancillaryData=NULL,vars=NULL,wts=NULL,rtnVectors=FALSE)
       {
         if (length(names(wt)) > 0) 
         {
-          names(wt)  <- sub(".o$","",names(wt))
+          names(wt)  <- sub("[.]o$","",names(wt))
           wt <- na.omit(wt[names(pr)])
         }
         if (length(wt) != ncol(pr)) 

@@ -19,7 +19,7 @@
 #                     neighbors where the weights are (1/(1+d))/sum(1/(1+d))
 #  method.factor defines how factors are imputed, default is to use the 
 #             "method", where: 
-#       closest     = same a continous (always used with k==1).
+#       closest     = same as continous (always used with k==1).
 #       mean|median = actually, the mode. The factor level that is the most 
 #                     frequent
 #       dstWeighted = the factor level with the largest weight, 
@@ -53,30 +53,38 @@ impute.yai <- function (object,ancillaryData=NULL,method="closest",
       else vars <- intersect(vars,colnames(refs))
       if (is.null(vars) | length(vars)==0) return (NULL)
 
-      if (method=="closest" || k==1) ans <- refs[ids[,1],vars,FALSE]
-
-      if (method=="mean" || method== "median")
+      if (method=="closest" || k==1) 
       {
-         ans <- if (method == "mean") lapply(vars, function (v,idset)
-                 apply(idset, 1, function (x,refs,v) mean(refs[x,v]), refs, v), ids[,1:k])
-                else                  lapply(vars, function (v,idset)
-                 apply(idset, 1, function (x,refs,v) median(refs[x,v]), refs, v), ids[,1:k])
-         names(ans) <- vars 
-         ans <- as.data.frame(ans)              
-      }
-      if (method=="dstWeighted")
+        ans <- refs[ids[,1],vars,FALSE]
+      } else if (method=="mean" || method== "median")
+      {
+         rws <- match(ids[,1:k],rownames(refs))
+         ans <- lapply(vars, function (v,rws,refs,nr,func)
+           {
+             rfs <- refs[rws,v]
+             dim(rfs) <- c(nr,length(rfs)/nr)
+             apply(rfs,1,func)
+           }, rws, refs, nrow(ids), if (method=="mean") mean else median)
+         names(ans) <- vars
+         ans <- as.data.frame(ans)
+
+      } else if (method=="dstWeighted")
       {
          if (is.null(w))
          {
             warning ("w is required when method is dstWeighted")
             return(NULL)
          } 
-         wei <- apply(w[,1:k],1,function (x) {x <- 1/(1+x); x <- x/sum(x)})
-         ans <- lapply(rownames(ids),function(row)
-              apply(refs[ids[row, 1:k], vars, FALSE], 2, function (x) weighted.mean(x,wei[,row])))
-         ans <- matrix(unlist(ans),nrow=length(ans),ncol=length(vars),byrow=TRUE)
-         colnames(ans) <- vars
-         ans <- data.frame(ans)
+         wei <- t(apply(w[,1:k],1,function (x) {x <- 1/(1+x); x/sum(x)}))
+         rws <- match(ids[,1:k],rownames(refs))
+         ans <- lapply(vars, function (v,rws,refs,wei)
+           {
+             rfs <- refs[rws,v]
+             dim(rfs) <- dim(wei)
+             apply(rfs*wei,1,sum)
+           }, rws, refs, wei)
+         names(ans) <- vars
+         ans <- as.data.frame(ans)
       }
       rownames(ans) <- rownames(ids)
 
@@ -99,42 +107,40 @@ impute.yai <- function (object,ancillaryData=NULL,method="closest",
       else vars <- intersect(vars,colnames(refs))
       if (is.null(vars) | length(vars)==0) return (NULL)
 
-      if (method=="closest" || k==1) ans <- data.frame(refs[ids[,1],vars,FALSE])
-       
-      if (method == "mean" || method == "median") 
+      if (method=="closest" || k==1) 
       {
-         ans <- lapply(vars, function (v,idset)
-                 apply(idset, 1, 
-                 function (x,refs,v)
+        ans <- data.frame(refs[ids[,1],vars,FALSE])
+      } else 
+      {
+         wei <- if (method != "dstWeighted" || is.null(w)) NULL else  
+                t(apply(w[,1:k],1,function (x) {x <- 1/(1+x); x/sum(x)}))
+         rws <- match(ids[,1:k],rownames(refs))
+         ans <- lapply(vars, function (v,rws,refs,wei,nr)
+           {
+             rfs <- as.character(refs[rws,v])
+             dim(rfs) <- c(nr,length(rfs)/nr)
+             if (is.null(wei))
+             {
+               apply(rfs,1,function (x)
                  {
-                   t=table(refs[x,v])
-                   t=t+(runif(length(t))*.01)
+                   t <- table(x)
+                   t <- t + (runif(length(t)) * 0.01)
                    names(which.max(t))
-                 }, refs, v), ids[,1:k])
-         names(ans) <- vars 
-         ans <- as.data.frame(ans)              
-      }
-      else if (method == "dstWeighted") 
-      {
-         if (is.null(w)) 
-         {
-            warning("w is required when method is dstWeighted")
-            return(NULL)
-         }        
-         wei <- apply(w[,1:k],1,function (x) {x=1/(1+x); x=x/sum(x)})
-         ans <- lapply(rownames(ids),function(row) 
-            {
-               apply(refs[ids[row, 1:k], vars, FALSE],
-                  2, function (x) 
-                  {
-                     t=tapply (wei[,row], x, sum)
-                     t=t+(runif(length(t))*.01*min(t))
-                     names(which.max(t))
-                  })
-            })
-         ans=matrix(unlist(ans),nrow=length(ans),ncol=length(vars),byrow=TRUE)
-         colnames(ans) <- vars
-         ans <- data.frame(ans)
+                 })
+             } else
+             {
+               a <- vector("character",nrow(wei))
+               for (i in 1:nrow(wei))
+               {
+                 t <- tapply(wei[i,],rfs[i,],sum)
+                 t <- t + (runif(length(t)) * 0.01 * min(t))
+                 a[i] <- names(which.max(t))
+               }
+               a
+             }
+           }, rws, refs, wei, nrow(ids))
+        names(ans) <- vars 
+        ans <- as.data.frame(ans,rownames=rownames(ids))
       }
            
       rownames(ans) <- rownames(ids)

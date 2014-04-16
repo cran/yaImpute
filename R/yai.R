@@ -509,7 +509,7 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       {
          if (!is.null(rfXsubsets)) warning("Specification of rfXsubsets ignored when unsupervised randomForest is run.")
          yone=NULL
-         mt = if (is.null(mtry)) max(floor(sqrt(ncol(xRefs))),1) else max(mtry, ncol(xRefs))
+         mt = if (is.null(mtry)) max(floor(sqrt(ncol(xRefs))),1) else min(mtry, ncol(xRefs))
          ranForest=randomForest(x=xRefs,y=yone,proximity=FALSE,importance=TRUE,
                                 keep.forest=TRUE,mtry=mt,ntree=ntree)
          ranForest$type="yaImputeUnsupervised"
@@ -550,7 +550,7 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
                 yone=as.factor(floor(yone/div))
               }
             }
-            mt = if (is.null(mtry)) max(floor(sqrt(length(xN))), 1) else max(mtry, length(xN))
+            mt = if (is.null(mtry)) max(floor(sqrt(length(xN))), 1) else min(mtry, length(xN))
             ranForest[[i]]=randomForest(x=xRefs[,xN,FALSE],y=yone,proximity=FALSE,
                                         importance=TRUE,keep.forest=TRUE,mtry=mt,ntree=ntree[i])
          }
