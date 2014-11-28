@@ -11,16 +11,20 @@ function (x,y,method="addVars",yaiMethod="msn",wts=NULL,
     stop("method=\"",method,"\" must be one of: \"",
       paste0(okMethods,collapse="\", \""),"\"")
   if (is.null(wts)) wts <- rep(1,ncol(y))
-  pPresent <- if (useParallel && .Platform$OS.type != "Windows") 
-    require(parallel) else FALSE
-  if (useParallel && ! pPresent) 
-    warning("package parallel was not loaded and is not being used")
+  if (useParallel && .Platform$OS.type != "Windows")
+  {
+    require(parallel)
+    myapply <- parallel::mclapply 
+  } else { 
+    if (useParallel) 
+      warning("package parallel was not loaded and is not being used")
+    myapply <- lapply
+  }
+   
   cl <- match.call()
   bootstrap <- nboot > 0
-
-  myapply <- if (pPresent) mclapply else lapply
   
-  # load required packages...this is done here so that forked will
+  # load required packages...this is done here so that forked 
   # processes will have the required packages...different logic is needed
   # to support parallel on windows.
   if (yaiMethod == "gnn") # (GNN), make sure we have package vegan loaded
@@ -29,7 +33,7 @@ function (x,y,method="addVars",yaiMethod="msn",wts=NULL,
   }
   if (yaiMethod == "ica") # (ica), make sure we have package fastICA loaded
   {
-    if (!require (fastICA)) stop("install fastica and try again")
+    if (!require (fastICA)) stop("install fastICA and try again")
   }
   if (yaiMethod == "randomForest") # make sure we have package randomForest loaded
   {
@@ -125,7 +129,7 @@ plot.varSel <- function (x,main=NULL,nbest=NULL,arrows=TRUE,...)
   orgmar <- par()$mar
   par(mar=c(6,3,2,1))
   boxplot(x$allgrmsd,border=bcc,horizontal= FALSE, las=2,main=main,...)
-  lines(x$grmsd[,1]               ,x=1:nrow(x$grmsd),col=2)
+  lines(x$grmsd[,1]            ,x=1:nrow(x$grmsd),col=2)
   lines(x$grmsd[,1]+x$grmsd[,2],x=1:nrow(x$grmsd),col=3,lty=2)
   lines(x$grmsd[,1]-x$grmsd[,2],x=1:nrow(x$grmsd),col=3,lty=2)
 

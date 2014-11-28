@@ -84,7 +84,12 @@ errorStats <- function(mahal,...,scale=FALSE,pzero=0.1,plg=0.5,seeMethod="lm")
       {
          if (method=="gam")
          {
-            if (!require(gam)) stop ("install package gam and try again")
+            if (!require(gam))
+            {
+              stop ("install package gam and try again") 
+              # the purpose of this line of code is to suppress CRAN check notes
+              gam <- function (...) NULL
+            }
             g = try(gam(as.formula(paste(var,"~s(",mfg,")",sep="")),data=data))
          }
          else g = try( lm(as.formula(paste(var,"~",mfl,sep="")),data=data))

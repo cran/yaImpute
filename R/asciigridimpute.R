@@ -1,5 +1,7 @@
-AsciiGridPredict = function(object,xfiles,outfiles,xtypes=NULL,lon=NULL,lat=NULL,rows=NULL,cols=NULL,
-                            nodata=NULL,myPredFunc=NULL,...)
+AsciiGridPredict <- 
+function(object,xfiles,outfiles,xtypes=NULL,lon=NULL,
+         lat=NULL,rows=NULL,cols=NULL,
+         nodata=NULL,myPredFunc=NULL,...)
 {
    if (missing(xfiles)   || is.null(xfiles))   stop ("xfiles required")
    if (missing(outfiles) || is.null(outfiles)) stop ("outfiles required")
@@ -9,14 +11,17 @@ AsciiGridPredict = function(object,xfiles,outfiles,xtypes=NULL,lon=NULL,lat=NULL
    if (is.null(names(outfiles))) stop ("outfiles elements must be named")
 
    return (
-      AsciiGridImpute(object,xfiles,outfiles,xtypes=xtypes,lon=lon,lat=lat,rows=rows,cols=cols,
+      AsciiGridImpute(object,xfiles,outfiles,xtypes=xtypes,lon=lon,
+                      lat=lat,rows=rows,cols=cols,
                       nodata=nodata,myPredFunc=myPredFunc,...)
           )
 }
 
 
-AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL,ann=NULL,
-                           lon=NULL,lat=NULL,rows=NULL,cols=NULL,nodata=NULL,myPredFunc=NULL,...)
+AsciiGridImpute <-
+function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL,
+         ann=NULL,lon=NULL,lat=NULL,rows=NULL,cols=NULL,nodata=NULL,
+         myPredFunc=NULL,...)
 {
    if (missing(xfiles)   || is.null(xfiles))   stop ("xfiles required")
    if (missing(outfiles) || is.null(outfiles)) stop ("outfiles required")
@@ -51,7 +56,7 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
 
 #  there needs to be an input file for every xvar in the imputation.
 
-   if (is.null(object))
+   if (is.null(object) || !inherits(object,"yai"))
    {
       have=names(xfiles)
    }
@@ -60,9 +65,13 @@ AsciiGridImpute = function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL
       have=intersect(xvars(object),names(xfiles))
       if (length(have) != length(xvars(object)))
       {
-         lout = if (length(have)==0) xvars(object) else lout=setdiff(xvars(object),have)
-         stop(paste("required maps are missing for variables:",paste(lout ,collapse=", ")))
+         lout = if (length(have)==0) xvars(object) else 
+                setdiff(xvars(object),have)
+         stop(paste("required maps are missing for variables:",
+              paste(lout ,collapse=", ")))
       }
+      # trim the list of xfiles to those needed.
+      xfiles = xfiles[match(xvars(object),names(xfiles))]
    }
 
 #  deal with ancillaryData and build allY

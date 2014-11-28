@@ -62,7 +62,7 @@ notablyDifferent(object,vars=NULL,threshold=NULL,p=.05,...)
 
 \seealso{
 \code{\link{notablyDistant}}, \code{\link{plot.notablyDifferent}}, 
-\code{\link{yai}}, \code{link{grmsd}}
+\code{\link{yai}}, \code{\link{grmsd}}
 }
 
 \examples{

@@ -70,7 +70,6 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
    }
 
    #===============================================
-
    # ARGUMENT and DATA screening
 
    methodSet=c("msn","msn2","msnPP","mahalanobis","ica","euclidean","gnn",
@@ -81,19 +80,39 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       
    if (method == "gnn") # (GNN), make sure we have package vegan loaded
    {
-      if (!require (vegan)) stop("install vegan and try again")
+      if (!require (vegan)) 
+      {
+        stop("install vegan and try again")
+        # the purpose of this line of code is to suppress CRAN check notes
+        cca <- rda <- function (...) NULL
+      }
    }
    if (method == "ica") # (ica), make sure we have package fastICA loaded
    {
-      if (!require (fastICA)) stop("install fastica and try again")
+      if (!require (fastICA)) 
+      {
+        stop("install fastica and try again")
+        # the purpose of this line of code is to suppress CRAN check notes
+        fastICA <- function (...) NULL        
+      }
    }
    if (method == "randomForest") # make sure we have package randomForest loaded
    {
-      if (!require (randomForest)) stop("install randomForest and try again")
+      if (!require (randomForest)) 
+      {
+        stop("install randomForest and try again")
+        # the purpose of this line of code is to suppress CRAN check notes
+        randomForest <- function (...) NULL
+      }
    }     
    if (method == "msnPP") # make sure we have package ccaPP loaded
    {
-      if (!require (ccaPP)) stop("install ccaPP and try again")
+      if (!require (ccaPP)) 
+      {
+        stop("install ccaPP and try again")
+        # the purpose of this line of code is to suppress CRAN check notes
+        fastMAD <- ccaGrid <- ccaProj <- function (...) NULL
+      }
    }     
 
    cl=match.call()
@@ -154,8 +173,10 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
    if (! (method %in% c("random","randomForest")))
    {
       fy=0
-      if (!(method %in% c("mahalanobis","ica","euclidean","raw"))) fy=sum(findFactors(yall))
-      if (fy+sum(findFactors(xall)>0)>0) stop("factors allowed only for methods randomForest or random")
+      if (!(method %in% c("mahalanobis","ica","euclidean","raw"))) 
+        fy=sum(findFactors(yall))
+      if (fy+sum(findFactors(xall)>0)>0) 
+        stop("factors allowed only for methods randomForest or random")
    }
    refs=intersect(rownames(yall),rownames(xall))
    if (length(refs) == 0) stop ("no reference observations.")
@@ -177,7 +198,8 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
 
    if (!is.null(sampleVars))
    {
-     if (length(sampleVars) == 1 && is.null(names(sampleVars))) sampleVars=rep(sampleVars,2)
+     if (length(sampleVars) == 1 && is.null(names(sampleVars))) 
+       sampleVars=rep(sampleVars,2)
      names(sampleVars) = if (is.null(names(sampleVars))) c("X","Y") else 
                              toupper(names(sampleVars))
      nx = match("X",names(sampleVars))
@@ -223,7 +245,8 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       ndrop=sum(zero)
       if (ndrop>0)
       {
-         warning (ndrop," rows have y-variable row sums <= 0 were converted to target observations for method gnn")
+         warning (ndrop,paste0(" rows have y-variable row sums <= 0 were ",
+           "converted to target observations for method gnn"))
          if (ndrop==nrow(yRefs)) stop ("all references were deleted")
          obsDropped=union(obsDropped,refs[zero])
          refs=refs[!zero]
@@ -266,7 +289,8 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
      rownames(ce) = colnames(yRefs)
      yScale=list(center=ce[,1],scale=ce[,2])
    }
-   # for all methods except randomForest, random, and raw, variables with zero variance are dropped.
+   # for all methods except randomForest, random, and raw, 
+   # variables with zero variance are dropped.
    if (!(method %in% c("randomForest","random","raw")))
    {
       xDrop=xScale$scale < 1e-10
@@ -321,7 +345,8 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
         theCols = rownames(cancor$xcoef)
 
         # scale the coefficients so that the cononical vectors will have unit variance.
-        cscal = 1/apply(xcvRefs[,theCols,drop=FALSE] %*% cancor$xcoef[,1,drop=FALSE],2,sd)
+        cscal = 1/apply(xcvRefs[,theCols,drop=FALSE] %*% 
+                        cancor$xcoef[,1,drop=FALSE],2,sd)
         cancor$ycoef = cancor$ycoef * cscal
         cancor$xcoef = cancor$xcoef * cscal
       } else {                         # msnPP
@@ -342,7 +367,8 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
         # solve the canoncial correlation analysis via projection pursuit 
         cancor=ppfunc(xcvRefs,ycvRefs,method=meth,fallback=TRUE,
                        k=min(ncol(xcvRefs),ncol(ycvRefs)),nVec)
-        # save the results using names and attributes that correspond to the cancor results
+        # save the results using names and attributes that correspond 
+        # to the cancor results
         cancor$ycoef = cancor$B
         rownames(cancor$ycoef) = colnames(ycvRefs)
         cancor$xcoef = cancor$A
@@ -352,7 +378,8 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
         cancor$B = NULL
         class(cancor) = "list"
       }        
-      ftest=ftest.cor(p=nrow(cancor$ycoef),q=nrow(cancor$xcoef),N=nrow(yRefs),cancor$cor)
+      ftest=ftest.cor(p=nrow(cancor$ycoef),q=nrow(cancor$xcoef),
+                      N=nrow(yRefs),cancor$cor)
       if (is.null(nVec))
       {
         fcheck = ftest$pgF[!is.na(ftest$pgF)]
@@ -361,23 +388,27 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       if (is.null(nVec)) nVec=1
       nVec=min(nVec,length(cancor$cor))
       nVec=max(nVec,1)
-      if (method %in% c("msn","msnPP")) projector = cancor$xcoef[,1:nVec,drop=FALSE] %*%
-                                        diag(cancor$cor[1:nVec,drop=FALSE],nVec,nVec)
+      if (method %in% c("msn","msnPP")) projector = 
+        cancor$xcoef[,1:nVec,drop=FALSE] %*% 
+          diag(cancor$cor[1:nVec,drop=FALSE],nVec,nVec)
                                         
       if (method == "msn2") 
       {
-        if (any (1/(1-cancor$cor[1:nVec,drop=FALSE]^2) < .Machine$double.eps*10000)) nVec=1
-        if (any (1/(1-cancor$cor[1:nVec,drop=FALSE]^2) < .Machine$double.eps*10000)) 
-           stop("msn2 can not be run likely because there are too few obesrvations.")
+        if (any (1/(1-cancor$cor[1:nVec,drop=FALSE]^2) < 
+            .Machine$double.eps*10000)) nVec=1
+        if (any (1/(1-cancor$cor[1:nVec,drop=FALSE]^2) < 
+            .Machine$double.eps*10000)) 
+          stop("msn2 can not be run likely because there are too few obesrvations.")
         projector = cancor$xcoef[,1:nVec,drop=FALSE] %*%
-                                        diag(cancor$cor[1:nVec,drop=FALSE],nVec,nVec) %*%
-                                        diag(sqrt(1/(1-cancor$cor[1:nVec,drop=FALSE]^2)),nVec,nVec)
-        if (any (projector == -Inf | projector == Inf | 
-                 is.na(projector) | is.nan(projector))) stop ("msn2 can not be run.")   
+                         diag(cancor$cor[1:nVec,drop=FALSE],nVec,nVec) %*%
+                         diag(sqrt(1/(1-cancor$cor[1:nVec,drop=FALSE]^2)),nVec,nVec)
+        if (any (projector == -Inf | projector == Inf | is.na(projector) | 
+          is.nan(projector))) stop ("msn2 can not be run.")   
       }                                        
       if (length(theCols)<ncol(xRefs))
       {
-         if (is.null(xDrop)) xDrop=xScale$center==0 #just get the names and create a logical
+         #just get the names and create a logical
+         if (is.null(xDrop)) xDrop=xScale$center==0
          remove=setdiff(colnames(xRefs),theCols)
          xDrop[remove]=TRUE
          warning ("x variables with colinearity: ",paste(remove,collapse=","))
@@ -403,7 +434,8 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       theCols = colnames(projector)
       if (length(theCols)<ncol(xRefs))
       {
-         if (is.null(xDrop)) xDrop=xScale$center==0 #just get the names and create a logical
+         #just get the names and create a logical
+         if (is.null(xDrop)) xDrop=xScale$center==0 
          remove=setdiff(colnames(xRefs),theCols)
          xDrop[remove]=TRUE
          warning ("x variables with colinearity: ",paste(remove,collapse=","))
@@ -434,7 +466,7 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       theCols = colnames(xcvRefs)
       if (length(theCols)<ncol(xRefs))
       {
-         if (is.null(xDrop)) xDrop=xScale$center==0 #just get the names and create a logical
+         if (is.null(xDrop)) xDrop=xScale$center==0 
          remove=setdiff(colnames(xRefs),theCols)
          xDrop[remove]=TRUE
          warning ("x variables with colinearity: ",paste(remove,collapse=","))
@@ -457,7 +489,7 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       nVec = ncol(xRefs)
       if (!noTrgs && length(trgs) > 0)
       {
-         xTrgs=xall[trgs,,drop=FALSE]
+         xTrgs=xall[trgs,!xDrop,drop=FALSE] 
          xcvTrgs=scale(xTrgs,center=xScale$center,scale=xScale$scale)
       }
    }
@@ -493,7 +525,8 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       {
          xTrgs=xall[trgs,,drop=FALSE]
          xcvTrgs=scale(xTrgs,center=xScale$center,scale=xScale$scale)
-         xcvTrgs=predict(ccaVegan,newdata=as.data.frame(xcvTrgs),type="lc",rank="full")
+         xcvTrgs=predict(ccaVegan,
+                 newdata=as.data.frame(xcvTrgs),type="lc",rank="full")
          xcvTrgs=xcvTrgs %*% diag(sqrt(ccaVegan$CCA$eig/sum(ccaVegan$CCA$eig)))
       }
       nVec = ncol(xcvRefs)
@@ -503,13 +536,16 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       rfBuildClasses=NULL
       xTrgs=xall[trgs,1,drop=FALSE]
       rfVersion=packageDescription("randomForest")[["Version"]]  
-      if (compareVersion(rfVersion,"4.5-22") < 0) stop("Update your version of randomForest.")
+      if (compareVersion(rfVersion,"4.5-22") < 0) 
+          stop("Update your version of randomForest.")
       if (is.null(ntree)) ntree=500
       if (ydum)
       {
-         if (!is.null(rfXsubsets)) warning("Specification of rfXsubsets ignored when unsupervised randomForest is run.")
+         if (!is.null(rfXsubsets)) warning(paste0("Specification of rfXsubsets",
+           " ignored when unsupervised randomForest is run."))
          yone=NULL
-         mt = if (is.null(mtry)) max(floor(sqrt(ncol(xRefs))),1) else min(mtry, ncol(xRefs))
+         mt = if (is.null(mtry)) max(floor(sqrt(ncol(xRefs))),1) else 
+                                 min(mtry, ncol(xRefs))
          ranForest=randomForest(x=xRefs,y=yone,proximity=FALSE,importance=TRUE,
                                 keep.forest=TRUE,mtry=mt,ntree=ntree)
          ranForest$type="yaImputeUnsupervised"
@@ -526,18 +562,21 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
             if (!is.null(rfXsubsets))
             {
               yV = names(yRefs)[i]
-              if (!is.null(rfXsubsets[[yV]])) xN = intersect (rfXsubsets[[yV]],xN)
+              if (!is.null(rfXsubsets[[yV]])) xN = intersect(rfXsubsets[[yV]],xN)
               if (length(xN)==0) stop ("rfXsubsets is empty for Y-variable ",yV)
             }
             yone=yRefs[,i]
             if (!is.factor(yone))
             { 
-              if (is.null(rfBuildClasses) && rfMode=="buildClasses") rfBuildClasses=TRUE
+              if (is.null(rfBuildClasses) && rfMode=="buildClasses") 
+                rfBuildClasses=TRUE
               if (is.null(rfBuildClasses))
               {
-                 if (compareVersion(rfVersion,"4.5-19") < 0) # if the version is prior to 19
+                  # if the version is prior to 19
+                 if (compareVersion(rfVersion,"4.5-19") < 0) 
                  {
-                   warning("yaImpute directly supports regression for continuous y's for randomForest version 4.5-19 and later.")
+                   warning(paste0("yaImpute directly supports regression for ",
+                     "continuous y's for randomForest version 4.5-19 and later."))
                    rfBuildClasses=TRUE
                  }
                  else rfBuildClasses=FALSE
@@ -545,21 +584,24 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
               if (rfBuildClasses)
               {
                 yone=as.numeric(yone)
-                breaks <- pretty(yone, n = min(20,nclass.Sturges(yone)), min.n = 1)
+                breaks <- pretty(yone, n = min(20,nclass.Sturges(yone)),min.n = 1)
                 div <- diff(breaks)[1]
                 yone=as.factor(floor(yone/div))
               }
             }
-            mt = if (is.null(mtry)) max(floor(sqrt(length(xN))), 1) else min(mtry, length(xN))
-            ranForest[[i]]=randomForest(x=xRefs[,xN,FALSE],y=yone,proximity=FALSE,
-                                        importance=TRUE,keep.forest=TRUE,mtry=mt,ntree=ntree[i])
+            mt = if (is.null(mtry)) max(floor(sqrt(length(xN))), 1) else 
+                                    min(mtry, length(xN))
+            ranForest[[i]]=randomForest(x=xRefs[,xN,FALSE],
+              y=yone,proximity=FALSE,importance=TRUE,keep.forest=TRUE,
+              mtry=mt,ntree=ntree[i])
          }
          names(ranForest)=colnames(yRefs)
       }
       nodes=NULL
       for (i in 1:length(ranForest))
       {
-         nodeset=attr(predict(ranForest[[i]],xall,proximity=FALSE,nodes=TRUE),"nodes")
+         nodeset=attr(predict(ranForest[[i]],xall,
+           proximity=FALSE,nodes=TRUE),"nodes")
          if (is.null(nodeset)) stop("randomForest did not return nodes")
          colnames(nodeset)=paste(colnames(nodeset),i,sep=".")
          nodes=if (is.null(nodes)) nodeset else cbind(nodes,nodeset)
@@ -577,18 +619,20 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       INTncol=as.integer(ncol(nodes))
       INTsort = INTrefNodes
       dim(INTsort) = c(INTnrow,INTncol)
-      INTsort=apply(INTsort,2,function (x) sort(x,index.return = TRUE, decreasing = FALSE)$ix-1)
+      INTsort=apply(INTsort,2,function (x) sort(x,index.return = TRUE, 
+        decreasing = FALSE)$ix-1)
       attributes(INTsort)=NULL
       INTsort = as.integer(INTsort)
-      attr(ranForest,"rfRefNodeSort") = list(INTrefNodes=INTrefNodes, INTnrow=INTnrow, 
-                                             INTncol=INTncol, INTsort=INTsort)
+      attr(ranForest,"rfRefNodeSort") = list(INTrefNodes=INTrefNodes, 
+                         INTnrow=INTnrow, INTncol=INTncol, INTsort=INTsort)
    }
    else if (method == "random")
    { 
       nVec = 1
       ann=FALSE
       xcvRefs=data.frame(random=runif(nrow(xRefs)),row.names=rownames(xRefs))
-      if (!noTrgs && length(trgs) > 0) xcvTrgs=data.frame(random=runif(length(trgs)),row.names=trgs)
+      if (!noTrgs && length(trgs) > 0) xcvTrgs=
+        data.frame(random=runif(length(trgs)),row.names=trgs)
    }
    else # default
    {
@@ -611,7 +655,8 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       neiIdsTrgs=matrix(data="",nrow=length(trgs),ncol=k)
       rownames(neiIdsTrgs)=trgs
       colnames(neiIdsTrgs)=paste("Id.k",1:k,sep="")
-      if (method %in%  c("msn","msn2","msnPP","mahalanobis","ica","euclidean","gnn","raw"))
+      if (method %in%  c("msn","msn2","msnPP","mahalanobis",
+                         "ica","euclidean","gnn","raw"))
       {
          if (ann)
          { 
@@ -689,8 +734,8 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
          {
              ann.out=ann(xcvRefs, xcvRefs, l, verbose=FALSE)$knnIndexDist
              neiDstRefs[TRUE]=sqrt(ann.out[,(l+2):ncol(ann.out)])
-             # check for a second neighbor being the reference itself (can happen if the first
-             # and second neighbors both have distance of zero.
+             # check for a second neighbor being the reference itself (can happen 
+             # if the first and second neighbors both have distance of zero).
              fix = ann.out[,1] != 1:nrow(ann.out)
              if (any(fix)) ann.out[fix,2] = ann.out[fix,1]             
              for (i in 2:l)
@@ -756,14 +801,14 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
    if (sum(fa)>0)
    {
       xlevels=vector(mode="list",length=sum(fa))
-      k=0
+      kk=0
       for (i in 1:length(fa))
       {
          if (fa[i])
          {
-            k=k+1
-            xlevels[[k]]=levels(xRefs[,i])
-            names(xlevels)[[k]]=names(xRefs)[i]
+            kk=kk+1
+            xlevels[[kk]]=levels(xRefs[,i])
+            names(xlevels)[[kk]]=names(xRefs)[i]
          }
       }
    }
@@ -782,12 +827,12 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
    }
 
    out=list(call=cl,yRefs=yRefs,xRefs=xRefs,obsDropped=obsDropped,yDrop=yDrop,
-            bootstrap= if (bootstrap) bootsamp else bootstrap,
-            xDrop=xDrop,trgRows=trgs,xall=xall,cancor=cancor,theFormula=theFormula,
-            ftest=ftest,yScale=yScale,xScale=xScale,ccaVegan=ccaVegan,ranForest=ranForest,
-            ICA=ICA,k=k,projector=projector,nVec=nVec,pVal=pVal,method=method,ann=ann,
-            xlevels=xlevels,neiDstTrgs=neiDstTrgs,neiIdsTrgs=neiIdsTrgs,
-            neiDstRefs=neiDstRefs,neiIdsRefs=neiIdsRefs,rfXsubsets=rfXsubsets)
+       bootstrap= if (bootstrap) bootsamp else bootstrap,
+       xDrop=xDrop,trgRows=trgs,xall=xall,cancor=cancor,theFormula=theFormula,
+       ftest=ftest,yScale=yScale,xScale=xScale,ccaVegan=ccaVegan,ranForest=ranForest,
+       ICA=ICA,k=k,projector=projector,nVec=nVec,pVal=pVal,method=method,ann=ann,
+       xlevels=xlevels,neiDstTrgs=neiDstTrgs,neiIdsTrgs=neiIdsTrgs,
+       neiDstRefs=neiDstRefs,neiIdsRefs=neiIdsRefs,rfXsubsets=rfXsubsets)
 
    class(out)="yai"
    out

@@ -9,7 +9,7 @@ The function removes neighbor reference observations for a given target if the r
 and target are in (a) the same group or (b) from different
 groups, depending on the \code{method} used. Group membership is identified for 
 reference and target observations using two vectors, \code{refGroups} for references 
-and \code{trgGroups} targets. If the group membership code is the same for a 
+and \code{trgGroups} for targets. If the group membership code is the same for a 
 refernece and a target, then they are in the same group while different codes mean  
 a lack of common group membership. 
 }

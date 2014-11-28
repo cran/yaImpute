@@ -8,8 +8,8 @@
   (\code{method="delVars"}) an k-NN imputation model. When adding variables
   the function keeps variables that strengthen imputation and
   deletes that weaken the imputation the least.
-  The measure of model strength is distance between
-  imputed and observed \emph{Y}-variables.
+  The measure of model strength is grmsd between
+  imputed and observed \emph{Y}-variables among the reference observations.
 }
 
 \usage{

@@ -5,7 +5,7 @@
 \description{
   The number of \emph{best} variables is estimated by finding an 
   apparent inflection point in the relationship between the 
-  generalized root mean square distance (see \code{link{grmsd}} and the number
+  generalized root mean square distance (see \code{\link{grmsd}} and the number
   of \emph{X}-variables. 
  }
 
