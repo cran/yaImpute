@@ -33,7 +33,7 @@ print.yai = function(x,...)
    else
    {
       cat ("CCA analysis:\n")
-      if (!require (vegan)) stop("install vegan and try again")
+      if (!requireNamespace ("vegan")) stop("install vegan and try again")
       print (x$ccaVegan)
    }
    if (is.null(x$ranForest))
@@ -43,7 +43,8 @@ print.yai = function(x,...)
    else
    {
       cat ("randomForest analysis:\n")
-      if (!require (randomForest)) stop("install randomForest and try again")
+      if (!requireNamespace ("randomForest")) 
+        stop("install randomForest and try again")
       print(yaiRFsummary(x))
    }
    cat (sum(x$yDrop),"y variables dropped ",

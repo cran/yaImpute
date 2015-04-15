@@ -48,7 +48,7 @@ errorStats(mahal,\dots,scale=FALSE,pzero=0.1,plg=0.5,seeMethod="lm")
 }
 
 \details{
-See \url{http://www.fs.fed.us/rm/pubs_other/rmrs_2007_stage_a001.pdf}
+See \url{http://www.treesearch.fs.fed.us/pubs/28385}
 }
 
 \seealso{
@@ -83,7 +83,7 @@ errorStats(mal,msn)
   Stage, A.R.; Crookston, N.L. (2007). Partitioning error components
   for accuracy-assessment of near neighbor methods of imputation.
   \emph{For. Sci.} 53(1):62-72.
-  \url{http://forest.moscowfsl.wsu.edu/gems/StagePartitioningFS.pdf}
+  \url{http://www.treesearch.fs.fed.us/pubs/28385}
 }
 
 

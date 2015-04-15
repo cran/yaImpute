@@ -85,7 +85,7 @@ AsciiGridPredict(object,xfiles,outfiles,xtypes=NULL,lon=NULL,lat=NULL,
        second is a data frame of the new predictor variables created for each row
        of data from your input maps. If NULL, the generic
        \code{predict} function is called for \code{object}.}
-  \item{\dots}{passed to \code{myPredFunc} or \code{predict}.}
+  \item{\dots}{passed to \code{myPredFunc}, \code{predict}, or \code{impute}.}
 }
 
 \details{
@@ -181,7 +181,8 @@ pLen <- matrix(iris[,3],10,15)
 pWid <- matrix(iris[,4],10,15)
 spcd <- matrix(as.numeric(iris[,5]),10,15)
 
-# Create and change to a temp directory.
+# Create and change to a temp directory. You can delete these steps
+# if you wish to keep the files in your working directory.
 curdir <- getwd()
 setwd(tempdir())
 cat ("Using working dir",getwd(),"\n")
@@ -229,6 +230,10 @@ outfiles1 <- list(distance="dist.txt",Species="spOutrfNN.txt",
 
 # map the imputation-based predictions for the input maps
 AsciiGridImpute(rfNN,xfiles,outfiles1,ancillaryData=iris)
+# read the asciigrids and get them ready to plot
+spOrig <- t(as.matrix(read.table("spcd.txt",skip=6)))
+sprfNN <- t(as.matrix(read.table("spOutrfNN.txt",skip=6)))
+dist <- t(as.matrix(read.table("dist.txt",skip=6)))
 
 # demonstrate the use of useid:
 spViaUse <- read.table("useindx.txt",skip=6)
@@ -240,17 +245,13 @@ for (col in colnames(spViaLevels)) spViaLevels[,col]=levels(y$Species)[spViaLeve
 
 identical(spViaLevels,spViaUse)
 
-# build a randomForest predictor
-rf <- randomForest(x=iris[refs,1:4],y=iris[refs,5])
-
-# map the predictions for the input maps
-AsciiGridPredict(rf,xfiles,list(predict="spOutrf.txt"))
-
-# read the asciigrids and get them ready to plot
-spOrig <- t(as.matrix(read.table("spcd.txt",skip=6)))
-sprfNN <- t(as.matrix(read.table("spOutrfNN.txt",skip=6)))
-sprf <- t(as.matrix(read.table("spOutrf.txt",skip=6)))
-dist <- t(as.matrix(read.table("dist.txt",skip=6)))
+if (require(randomForest))
+{
+  # build a randomForest predictor
+  rf <- randomForest(x=iris[refs,1:4],y=iris[refs,5])
+  AsciiGridPredict(rf,xfiles,list(predict="spOutrf.txt"))
+  sprf <- t(as.matrix(read.table("spOutrf.txt",skip=6)))
+} else sprf <- NULL
 
 # reset the directory to that where the example was started.
 setwd(curdir)
@@ -260,7 +261,8 @@ image(spOrig,main="Original",col=c("red","green","blue"),
       axes=FALSE,useRaster=TRUE)
 image(sprfNN,main="Using Impute",col=c("red","green","blue"),
       axes=FALSE,useRaster=TRUE)
-image(sprf,main="Using Predict",col=c("red","green","blue"),
+if (!is.null(sprf))
+  image(sprf,main="Using Predict",col=c("red","green","blue"),
       axes=FALSE,useRaster=TRUE)
 image(dist,main="Neighbor Distances",col=terrain.colors(15),
       axes=FALSE,useRaster=TRUE)

@@ -75,7 +75,8 @@ impute.yai <- function (object,ancillaryData=NULL,method="closest",
             warning ("w is required when method is dstWeighted")
             return(NULL)
          } 
-         wei <- t(apply(w[,1:k],1,function (x) {x <- 1/(1+x); x/sum(x)}))
+         wei <- t(apply(w[,1:k,drop=FALSE],1,
+           function (x) {x <- 1/(1+x); x/sum(x)}))
          rws <- match(ids[,1:k],rownames(refs))
          ans <- lapply(vars, function (v,rws,refs,wei)
            {
@@ -113,7 +114,8 @@ impute.yai <- function (object,ancillaryData=NULL,method="closest",
       } else 
       {
          wei <- if (method != "dstWeighted" || is.null(w)) NULL else  
-                t(apply(w[,1:k],1,function (x) {x <- 1/(1+x); x/sum(x)}))
+                t(apply(w[,1:k,drop=FALSE],1,
+                  function (x) {x <- 1/(1+x); x/sum(x)}))
          rws <- match(ids[,1:k],rownames(refs))
          ans <- lapply(vars, function (v,rws,refs,wei,nr)
            {
@@ -209,11 +211,13 @@ impute.yai <- function (object,ancillaryData=NULL,method="closest",
       if (is.null(ancillaryData)) 
       {
          if (object$method != "randomForest") vars <- yvars(object)
-         else if (names(object$ranForest)[[1]] == "unsupervised") vars <- xvars(object)
+         else if (names(object$ranForest)[[1]] == "unsupervised") 
+           vars <- xvars(object)
       }            
       else 
       {
-        if (! is.data.frame(ancillaryData)) ancillaryData <- as.data.frame(ancillaryData)
+        if (! is.data.frame(ancillaryData)) 
+          ancillaryData <- as.data.frame(ancillaryData)
         vars <- colnames(ancillaryData)
       }
    }
@@ -241,11 +245,13 @@ impute.yai <- function (object,ancillaryData=NULL,method="closest",
       if (length(object$neiIdsRefs)>0)
       {
          if (!(ncol(object$yRefs) == 1 && names(object$yRefs)[1]=="ydummy"))
-              yPredRefs <- pred(refs=object$yRefs,ids=object$neiIdsRefs,w=object$neiDstRefs,
-                           method=method,method.factor=method.factor,k=k,vars=vars,observed=observed)
+            yPredRefs <- pred(refs=object$yRefs,ids=object$neiIdsRefs,
+              w=object$neiDstRefs,method=method,method.factor=method.factor,
+              k=k,vars=vars,observed=observed)
          else yPredRefs <- NULL
-         xPredRefs <- pred(refs=object$xall,ids=object$neiIdsRefs,w=object$neiDstRefs,
-                           method=method,method.factor=method.factor,k=k,vars=vars,observed=observed)
+         xPredRefs <- pred(refs=object$xall,ids=object$neiIdsRefs,
+           w=object$neiDstRefs,method=method,method.factor=method.factor,
+           k=k,vars=vars,observed=observed)
          if      (is.null(yPredRefs) && is.null(xPredRefs)) r <- NULL
          else if (is.null(yPredRefs)) r <- xPredRefs
          else if (is.null(xPredRefs)) r <- yPredRefs
@@ -256,11 +262,13 @@ impute.yai <- function (object,ancillaryData=NULL,method="closest",
       if (length(object$neiIdsTrgs)>0)
       {
          if (!(ncol(object$yRefs) == 1 && names(object$yRefs)[1]=="ydummy"))
-             yPredTrgs <- pred(refs=object$yRefs,ids=object$neiIdsTrgs,w=object$neiDstTrgs,
-                               method=method,method.factor=method.factor,k=k,vars=vars,observed=observed)
+             yPredTrgs <- pred(refs=object$yRefs,ids=object$neiIdsTrgs,
+               w=object$neiDstTrgs,method=method,method.factor=method.factor,
+               k=k,vars=vars,observed=observed)
          else yPredTrgs <- NULL
-         xPredTrgs <- pred(refs=object$xall,ids=object$neiIdsTrgs,w=object$neiDstTrgs,
-                           method=method,method.factor=method.factor,k=k,vars=vars,observed=observed)
+         xPredTrgs <- pred(refs=object$xall,ids=object$neiIdsTrgs,
+           w=object$neiDstTrgs,method=method,method.factor=method.factor,
+           k=k,vars=vars,observed=observed)
 
          if      (is.null(yPredTrgs) && is.null(xPredTrgs)) t <- NULL
          else if (is.null(yPredTrgs)) t <- xPredTrgs
@@ -281,14 +289,15 @@ impute.yai <- function (object,ancillaryData=NULL,method="closest",
       if (!is.null(vars))
       {
          ancillaryData <- ancillaryData[,vars,FALSE]
-         if (is.null(ncol(ancillaryData))) stop ("requested variables not present in ancillaryData")
+         if (is.null(ncol(ancillaryData))) 
+           stop ("requested variables not present in ancillaryData")
       }
       rownames(ancillaryData) <- as.character(rownames(ancillaryData))
       ids <- as.character(rownames(object$xRefs))
       common <- intersect(ids,rownames(ancillaryData))
       missing <- setdiff(common,rownames(ancillaryData))
-      if (length(missing) != 0) warning (paste("no data for",length(missing),"observations:",
-                                paste(missing[1:min(15,length(missing))],collapse=",")))
+      if (length(missing) != 0) warning (paste("no data for",length(missing),
+        "observations:",paste(missing[1:min(15,length(missing))],collapse=",")))
       w  <- rbind(object$neiDstRefs,object$neiDstTrgs)
 
       ids <- rbind(object$neiIdsRefs,object$neiIdsTrgs)
@@ -303,8 +312,10 @@ impute.yai <- function (object,ancillaryData=NULL,method="closest",
          scale <- matrix(data=NA,nrow=ncol(ancillaryData),ncol=2)
          rownames(scale) <- colnames(ancillaryData)
          colnames(scale) <- c("center","scale")
-         scale[notFactors,"center"] <- apply(ancillaryData[,rownames(scale)[notFactors],FALSE],2,mean,na.rm=TRUE)
-         scale[notFactors,"scale" ] <- apply(ancillaryData[,rownames(scale)[notFactors],FALSE],2,sd,  na.rm=TRUE)
+         scale[notFactors,"center"] <- apply(ancillaryData[,
+           rownames(scale)[notFactors],FALSE],2,mean,na.rm=TRUE)
+         scale[notFactors,"scale" ] <- apply(ancillaryData[,
+           rownames(scale)[notFactors],FALSE],2,sd,  na.rm=TRUE)
       }
       else scale=NULL
    }

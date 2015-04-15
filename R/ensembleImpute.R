@@ -2,7 +2,8 @@ ensembleImpute <- function (imputes,method="mean",...)
 {
   cl = match.call()
   posM = c("mean","median")
-  if (!(method %in% posM)) stop ('method="',method,'" must be one of ',paste0('"',posM,'"',collapse=", "))
+  if (!(method %in% posM)) stop ('method="',method,'" must be one of ',
+    paste0('"',posM,'"',collapse=", "))
 
   for (i in 1:length(imputes)) if (("yai" %in% class(imputes[[i]])))
     imputes[[i]] = impute.yai(imputes[[i]],...)

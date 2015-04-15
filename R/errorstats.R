@@ -84,7 +84,7 @@ errorStats <- function(mahal,...,scale=FALSE,pzero=0.1,plg=0.5,seeMethod="lm")
       {
          if (method=="gam")
          {
-            if (!require(gam))
+            if (!requireNamespace(gam))
             {
               stop ("install package gam and try again") 
               # the purpose of this line of code is to suppress CRAN check notes

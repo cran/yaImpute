@@ -80,39 +80,53 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       
    if (method == "gnn") # (GNN), make sure we have package vegan loaded
    {
-      if (!require (vegan)) 
+      if (!requireNamespace ("vegan")) 
       {
         stop("install vegan and try again")
         # the purpose of this line of code is to suppress CRAN check notes
         cca <- rda <- function (...) NULL
+      } else {
+        cca <- vegan::cca
+        rda <- vegan::rda
       }
    }
    if (method == "ica") # (ica), make sure we have package fastICA loaded
    {
-      if (!require (fastICA)) 
+      if (!requireNamespace ("fastICA")) 
       {
         stop("install fastica and try again")
         # the purpose of this line of code is to suppress CRAN check notes
         fastICA <- function (...) NULL        
+      } else {
+        fastICA <- fastICA::fastICA
       }
+
    }
    if (method == "randomForest") # make sure we have package randomForest loaded
    {
-      if (!require (randomForest)) 
+      if (!requireNamespace ("randomForest")) 
       {
         stop("install randomForest and try again")
         # the purpose of this line of code is to suppress CRAN check notes
         randomForest <- function (...) NULL
+      } else {
+        randomForest <- randomForest::randomForest
       }
+
    }     
    if (method == "msnPP") # make sure we have package ccaPP loaded
    {
-      if (!require (ccaPP)) 
+      if (!requireNamespace ("ccaPP")) 
       {
         stop("install ccaPP and try again")
         # the purpose of this line of code is to suppress CRAN check notes
         fastMAD <- ccaGrid <- ccaProj <- function (...) NULL
+      } else {
+        fastMAD <- ccaPP::fastMAD
+        ccaGrid <- ccaPP::ccaGrid
+        ccaProj <- ccaPP::ccaProj
       }
+
    }     
 
    cl=match.call()
@@ -235,7 +249,6 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
      yRefs=yall[refs,,drop=FALSE]
      xRefs=xall[refs,,drop=FALSE]
    }
-   
    trgs=setdiff(rownames(xall),refs)
    
   
@@ -639,6 +652,15 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       stop("no code for specified method")
    }
 
+   # if bootstrap, then modify the reference list essentually removing the
+   # duplicate samples.  
+   if (bootstrap) 
+   {
+     unq = unique(bootsamp)
+     xcvRefs = xcvRefs[unq,,drop=FALSE]
+     xRefs   = xRefs  [unq,,drop=FALSE]
+   }
+
    k=min(k,nrow(xRefs))
 
    # ======= find neighbors for TARGETS
@@ -658,7 +680,7 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       if (method %in%  c("msn","msn2","msnPP","mahalanobis",
                          "ica","euclidean","gnn","raw"))
       {
-         if (ann)
+         if (ann)                                  
          { 
              ann.out=ann(xcvRefs, xcvTrgs, k, verbose=FALSE)$knnIndexDist
              neiDstTrgs[TRUE]=sqrt(ann.out[,(k+1):ncol(ann.out)])
@@ -813,18 +835,6 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
       }
    }
    
-   # if bootstrap, then modify the reference ID's in the result ID tables. 
-   if (bootstrap) 
-   {
-     if (!is.null(neiIdsTrgs)) neiIdsTrgs[] = sub("\\.[0-9]$","",neiIdsTrgs[])
-     if (!is.null(neiIdsRefs)) 
-     {
-       ub = unique(bootsamp)
-       neiDstRefs = neiDstRefs[ub,,drop=FALSE]
-       neiIdsRefs = neiIdsRefs[ub,,drop=FALSE]
-       neiIdsRefs[] = sub("\\.[0-9]$","",neiIdsRefs[])
-     }
-   }
 
    out=list(call=cl,yRefs=yRefs,xRefs=xRefs,obsDropped=obsDropped,yDrop=yDrop,
        bootstrap= if (bootstrap) bootsamp else bootstrap,

@@ -6,7 +6,7 @@ yaiRFsummary = function(object, nTop=0)
 {
    if (class(object) != "yai") stop ("arg must be of class yai")
    if (object$method != "randomForest") stop ("method must be randomForest")
-   if (!require (randomForest)) stop("install randomForest and try again")
+   if (!requireNamespace ("randomForest")) stop("install randomForest and try again")
    scaledImportance = yaiVarImp(object, nTop, plot=FALSE)
 
    error  = vector(mode="numeric",length=length(names(object$ranForest)))

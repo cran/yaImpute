@@ -11,10 +11,10 @@ function (x,y,method="addVars",yaiMethod="msn",wts=NULL,
     stop("method=\"",method,"\" must be one of: \"",
       paste0(okMethods,collapse="\", \""),"\"")
   if (is.null(wts)) wts <- rep(1,ncol(y))
-  if (useParallel && .Platform$OS.type != "Windows")
+  if (useParallel && .Platform$OS.type != "Windows" && 
+      requireNamespace ("parallel"))
   {
-    require(parallel)
-    myapply <- parallel::mclapply 
+    myapply <- parallel::mclapply
   } else { 
     if (useParallel) 
       warning("package parallel was not loaded and is not being used")
@@ -29,19 +29,19 @@ function (x,y,method="addVars",yaiMethod="msn",wts=NULL,
   # to support parallel on windows.
   if (yaiMethod == "gnn") # (GNN), make sure we have package vegan loaded
   {
-    if (!require (vegan)) stop("install vegan and try again")
+    if (!requireNamespace ("vegan")) stop("install vegan and try again")
   }
   if (yaiMethod == "ica") # (ica), make sure we have package fastICA loaded
   {
-    if (!require (fastICA)) stop("install fastICA and try again")
+    if (!requireNamespace ("fastICA")) stop("install fastICA and try again")
   }
   if (yaiMethod == "randomForest") # make sure we have package randomForest loaded
   {
-    if (!require (randomForest)) stop("install randomForest and try again")
+    if (!requireNamespace ("randomForest")) stop("install randomForest and try again")
   }     
   if (yaiMethod == "msnPP") # make sure we have package ccaPP loaded
   {
-    if (!require (ccaPP)) stop("install ccaPP and try again")
+    if (!requireNamespace ("ccaPP")) stop("install ccaPP and try again")
   }
   
   # single variable elimination logic:

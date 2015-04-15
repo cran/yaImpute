@@ -35,8 +35,11 @@ x <- iris[,1:3]      # Sepal.Length Sepal.Width Petal.Length
 y <- iris[refs,4:5]  # Petal.Width Species
 
 mal <- notablyDifferent(yai(x=x,y=y,method="mahalanobis"),vars=colnames(x))
-rf  <- notablyDifferent(yai(x=x,y=y,method="randomForest"),vars=colnames(x))
-plot.notablyDifferent(list(Mahalanobis=mal,randomForest=rf))
+if (require(randomForest))
+{
+  rf  <- notablyDifferent(yai(x=x,y=y,method="randomForest"),vars=colnames(x))
+  plot.notablyDifferent(list(Mahalanobis=mal,randomForest=rf))
+}
 
 }
 

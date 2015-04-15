@@ -30,12 +30,14 @@
 newtargets=function(object,newdata,k=NULL,ann=NULL)
 {
    if (class(object) != "yai") stop ("object must be class yai")
-   if (object$method == "ensemble") stop ("newtargets can not be found for objects with method 'ensemble'.")
+   if (object$method == "ensemble") 
+     stop ("newtargets can not be found for objects with method 'ensemble'.")
    if (is.null(newdata) | nrow(newdata)==0) stop ("newdata is required")
-   if (object$method == "gnn") # (GNN), make sure we have package vegan loaded
-      if (!require (vegan)) stop("install vegan and try again")
-   if (object$method == "randomForest") # make sure we have package randomForest loaded
-      if (!require (randomForest)) stop("install randomForest and try again")
+   if (object$method == "gnn") 
+      if (!requireNamespace ("vegan")) stop("install vegan and try again")
+   if (object$method == "randomForest") 
+      if (!requireNamespace ("randomForest")) 
+        stop("install randomForest and try again")
 
    sumSqDiff=function(x,y) { d=x-y; sum(d*d) }
    factorMatch = get("factorMatch",asNamespace("yaImpute"))

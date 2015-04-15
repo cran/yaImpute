@@ -1,3 +1,4 @@
+
 AsciiGridPredict <- 
 function(object,xfiles,outfiles,xtypes=NULL,lon=NULL,
          lat=NULL,rows=NULL,cols=NULL,
@@ -314,8 +315,10 @@ function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL,
             omitted=c(omitted,moreOrigRowNames[as.vector(attr(newdata,"na.action"))])
          }
       }
-      else  attr(newdata,"illegalLevelCounts")=0   # tag the vector so newtargets() will not duplicate
-                                                   # the creation of this attribute data
+      # tag the vector so newtargets() will not duplicate
+      # the creation of this attribute data
+      else  attr(newdata,"illegalLevelCounts")=0   
+                                                   
 
       if (length(omitted)==length(origRowNames)) # all missing.
       {
@@ -345,11 +348,13 @@ function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL,
             saveNames=rownames(newdata)
             rownames(newdata)=paste("m",as.character(1:nrow(newdata)),sep="!")
             new = newtargets(object,newdata,k=NULL,ann=ann)
-            if (!is.null(allY)) outdata = impute(new,ancillaryData=allY,observed=FALSE)
+            if (!is.null(allY)) outdata = impute(new,ancillaryData=allY,observed=FALSE,...)
             rownames(outdata)=saveNames
-            if (distYes)  dists = data.frame(distance=new$neiDstTrgs[,1],row.names=rownames(newdata))
+            if (distYes)  dists = data.frame(distance=new$neiDstTrgs[,1],
+                                  row.names=rownames(newdata))
             else          dists = NULL
-            if (useidYes) useIds= data.frame(useid=match(new$neiIdsTrgs[,1],rownames(object$xRefs)),row.names=rownames(newdata))
+            if (useidYes) useIds= data.frame(useid=match(new$neiIdsTrgs[,1],
+                                  rownames(object$xRefs)),row.names=rownames(newdata))
             else          useIds= NULL
             if (!is.null(outdata) && !is.null(dists) ) outdata=cbind(outdata,dists)
             else if (is.null(outdata)) outdata=dists
@@ -370,8 +375,24 @@ function(object,xfiles,outfiles,xtypes=NULL,ancillaryData=NULL,
          {
            outLegend=vector("list",ncol(outdata))
            names(outLegend)=names(outdata)
-           for (n in names(outLegend)) outLegend[[n]]=if (is.factor(outdata[,n])) levels(outdata[,n]) else NULL
-         }                    
+           for (n in names(outLegend)) outLegend[[n]]=if (is.factor(outdata[,n])) 
+             levels(outdata[,n]) else NULL
+         } else {
+           for (n in names(outLegend))
+           {
+             if (is.factor(outdata[,n]))
+             { 
+               for (lev in levels(outdata[,n]))
+               {
+                 if (length(grep(lev,outLegend[[n]],fixed=TRUE)) == 0)
+                   outLegend[[n]] = c(outLegend[[n]],lev)
+               }
+             }
+           }
+         }
+         #convert factors to numbers that match the outLegend
+         for (n in colnames(outdata)) if (is.factor(outdata[,n]))
+           outdata[,n] <- match(levels(outdata[,n])[outdata[,n]],outLegend[[n]])
          if (nrow(outdata) != nrow(newdata))
          {
             cat ("First six lines non-missing predictions for row ",ir,"\n")

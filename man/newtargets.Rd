@@ -75,11 +75,14 @@ impute(malNew,vars=yvars(malNew))
 mal2 <- yai(x=x,method="mahalanobis")
 identical(foruse(mal),foruse(mal2))
 
-# here, method randomForest's unsupervised classification is used (no Y).
-rf <- yai(x=x,method="randomForest")
-# now get imputations for the targets in the iris data (those that are
-# not references).
-rfNew <- newtargets(rf,iris[!(rownames(iris) \%in\% rownames(x)),])
+if (require(randomForest))
+{
+  # here, method randomForest's unsupervised classification is used (no Y).
+  rf <- yai(x=x,method="randomForest")
+  # now get imputations for the targets in the iris data (those that are
+  # not references).
+  rfNew <- newtargets(rf,iris[!(rownames(iris) \%in\% rownames(x)),])
+}
 
 }
 

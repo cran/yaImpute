@@ -1,6 +1,27 @@
+Changes in version 1.0-24:
+
+* Changed the examples for several functions so that they run even when dependent
+packages are not present.
+* Changed package title to comply with CRAN rules
+* Changed require to requireNamespace to errorstats.R
+* Fixed error in AsciiGridImpute insuring that factors are correctly output
+and that the legend is accurate.
+* Fixed url to a citation thanks to RForge checks!
+* Added the ability to pass ... to impute() it is called by AsciiGridImpute().
+* Made several changes to conform to the instructions regarding the use of 
+"requireNamespace" for "suggested" packages. 
+* Modified how reference observations are delt with when bootstrapping. 
+Now, a reference that has been selected more than once due to sampling with 
+replacement can not be used to represent itself unless options are used to 
+force that behavior. Prior to this change, a reference could be used to represent
+itself when it existed more than once in the bootstrap sample causing deflated
+error estimates. Thanks to Patrick Fekety for pointing the problem and doing
+most of the work that lead to a solution.
+
 Changes in version 1.0-23:
+
 * Added package parallel to the suggested list in DESCRIPTION, issue reported by
-CRAN checks.
+RForge checks.
 * Fixed a bug in yai() when categorical predictors are used, reported by Nan Pond.
 * Fixed a bug in yai() that was revealed when bootstrapping. 
 Thanks to Jan Rombouts.
@@ -8,6 +29,7 @@ Thanks to Jan Rombouts.
 Thanks to Nicolas Py.
 
 Changes in version 1.0-22:
+
 * Greatly improved the speed of impute.R, thanks to Bastien Ferland-Raymond who 
 pointed out the problem. 
 * Fixed an error in AsciiGridImpute() pointed out by Nicolas PY.
