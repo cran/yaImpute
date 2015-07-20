@@ -1,6 +1,6 @@
-1e66cc5ff2677460798e47da03890bf0 *DESCRIPTION
-31d15934eda99dfacc143e3c16272da7 *NAMESPACE
-043f03a730779f5dcfbcba36f14e5d95 *NEWS
+dd74e51e766a502c08c5d8c052bf79ac *DESCRIPTION
+a780f1f6f6b49906283fb5519cc6e151 *NAMESPACE
+c2abfa18840d199f807a3490ea586398 *NEWS
 a0bdbd5f1d94f3039dfba433e2cdb245 *R/ann.R
 e2009c6ecb9d1181afa4ac2d0f56316f *R/applyMask.R
 55c39a15adb271ac50a63a9c3672a7ba *R/asciigridimpute.R
@@ -29,8 +29,8 @@ b82f44f1784f58ec889acf4b343e96b7 *R/whatsMax.R
 01b6a39f74da7b5a168d01c6e80c36ba *R/yai.R
 a5b253fa48b11bec81228b2077801aeb *R/yaiRFsummary.R
 503acea3c6454ce2e3c6ad08aab1aaf8 *R/yaiVarImp.R
-c2b0a73e0dd4b2008d3c80ca61dafa95 *data/MoscowMtStJoe.RData
-dfba04d021deb71efc219ced0842c956 *data/TallyLake.RData
+5f90ac01ce82c3ac20917f2cb2f9cfa1 *data/MoscowMtStJoe.RData
+46af4e5844609453ddf4427c62033d46 *data/TallyLake.RData
 366769e6f9a7f3433c8f8cbed12d1f98 *inst/CITATION
 574137791d4c9ebfc5d42d62732d7a70 *inst/COPYRIGHTS
 2c9b672c6ea23d68569824f899eb8109 *man/MoscowMtStJoe.Rd

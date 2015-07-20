@@ -1,9 +1,15 @@
+Changes in version 1.0-25 and 1.0-26:
+
+* Added import directives to meet recent CRAN rules that say that functions 
+from default packages other than base which are used in the package
+code need to be imported.
+
 Changes in version 1.0-24:
 
 * Changed the examples for several functions so that they run even when dependent
 packages are not present.
 * Changed package title to comply with CRAN rules
-* Changed require to requireNamespace to errorstats.R
+* Changed require to requireNamespace in errorstats.R
 * Fixed error in AsciiGridImpute insuring that factors are correctly output
 and that the legend is accurate.
 * Fixed url to a citation thanks to RForge checks!

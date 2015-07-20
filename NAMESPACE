@@ -35,6 +35,11 @@ yaiRFsummary,
 yaiVarImp, 
 yvars)
 
+importFrom(grDevices, gray, nclass.Sturges)
+importFrom(utils, compareVersion, flush.console, head, 
+           packageDescription)
+import(graphics, stats)
+
 S3method(impute, yai)
 S3method(plot, compare.yai)
 S3method(plot, impute.yai)
