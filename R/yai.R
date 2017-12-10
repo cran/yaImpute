@@ -232,9 +232,7 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
        nyn = sample(1:ncol(yall),ny)
        yall = yall[,nyn,drop=FALSE]
      }
-   }
-   
-   
+   }   
    # if this is a bootstrap run, draw the sample.
    if (bootstrap)
    { 
@@ -267,10 +265,7 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
          xRefs=xall[refs,,drop=FALSE]
          trgs=setdiff(rownames(xall),refs)
       }
-   }
-
-   if (method == "gnn") # remove columns with zero sums.
-   {
+      # now remove columns with zero sums.
       yDrop=apply(yRefs,2,sum) <= 0
       if (sum(yDrop) > 0) warning ("y variables with zero sums: ",
                                     paste(colnames(yRefs)[yDrop],collapse=","))
@@ -331,6 +326,7 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
    ccaVegan=NULL
    ranForest=NULL
    xTrgs=NULL
+   xcvRefs=NULL
    xcvTrgs=NULL
    ICA=NULL
 
@@ -618,8 +614,7 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
          if (is.null(nodeset)) stop("randomForest did not return nodes")
          colnames(nodeset)=paste(colnames(nodeset),i,sep=".")
          nodes=if (is.null(nodes)) nodeset else cbind(nodes,nodeset)
-      }
-  
+      }      
       if (bootstrap) 
       {
         rn = sub("\\.[0-9]$","",rownames(xRefs))
@@ -653,12 +648,13 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
    }
 
    # if bootstrap, then modify the reference list essentually removing the
-   # duplicate samples.  
-   if (bootstrap) 
+   # duplicate samples. For randomForest, correct processing is done above.
+  
+   if (bootstrap && method != "randomForest") 
    {
      unq = unique(bootsamp)
-     xcvRefs = xcvRefs[unq,,drop=FALSE]
-     xRefs   = xRefs  [unq,,drop=FALSE]
+     if (!is.null(xcvRefs)) xcvRefs = xcvRefs[unq,,drop=FALSE] 
+     xRefs = xRefs[unq,,drop=FALSE]
    }
 
    k=min(k,nrow(xRefs))

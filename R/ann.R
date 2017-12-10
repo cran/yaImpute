@@ -41,7 +41,7 @@
                "priority"=as.integer(pri), "bucket.size"=as.integer(bucket.size),
                "split.rule"=as.integer(split.rule), "shrink.rule"=as.integer(shrink.rule), "verbose"=as.integer(verbose))
   
-  out <- .Call("ann", args)
+  out <- .Call("annf", args)
   out$k <- k
   out$tree.type <- tree.type
 

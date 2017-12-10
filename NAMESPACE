@@ -1,7 +1,7 @@
-useDynLib(yaImpute)
+useDynLib(yaImpute, .registration = TRUE)
 
 export(
-ann, 
+ann,
 applyMask, 
 AsciiGridImpute, 
 AsciiGridPredict, 

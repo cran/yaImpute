@@ -1,7 +1,7 @@
-dd74e51e766a502c08c5d8c052bf79ac *DESCRIPTION
-a780f1f6f6b49906283fb5519cc6e151 *NAMESPACE
-c2abfa18840d199f807a3490ea586398 *NEWS
-a0bdbd5f1d94f3039dfba433e2cdb245 *R/ann.R
+04ef0bb275f10eb1fade10b2670af815 *DESCRIPTION
+0157c96982ec68d1c0ad242a657f81b9 *NAMESPACE
+5f2ebfc5fb9d13d962ad5df6508ab6d9 *NEWS
+8a6d08da5415ac5eb44fdd25c6b334b9 *R/ann.R
 e2009c6ecb9d1181afa4ac2d0f56316f *R/applyMask.R
 55c39a15adb271ac50a63a9c3672a7ba *R/asciigridimpute.R
 8d86c83babc4038b0faaa0e954d82b8f *R/buildConsensus.R
@@ -26,11 +26,11 @@ c58678acafcea3d705da6c17fedb9267 *R/notablydifferent.R
 f5ee800f50ad34e33dd64b7d83c512e2 *R/varSelection.R
 0aa28c1ba5f1dcef6274a088ecaab896 *R/vars.yai.R
 b82f44f1784f58ec889acf4b343e96b7 *R/whatsMax.R
-01b6a39f74da7b5a168d01c6e80c36ba *R/yai.R
+1acb48240ba7dd4127c6ea28527bc13d *R/yai.R
 a5b253fa48b11bec81228b2077801aeb *R/yaiRFsummary.R
 503acea3c6454ce2e3c6ad08aab1aaf8 *R/yaiVarImp.R
-5f90ac01ce82c3ac20917f2cb2f9cfa1 *data/MoscowMtStJoe.RData
-46af4e5844609453ddf4427c62033d46 *data/TallyLake.RData
+1443dc8735108964ae294fe746c130ed *data/MoscowMtStJoe.RData
+d665cae85c22a860ffd3f8c779a5baa9 *data/TallyLake.RData
 366769e6f9a7f3433c8f8cbed12d1f98 *inst/CITATION
 574137791d4c9ebfc5d42d62732d7a70 *inst/COPYRIGHTS
 2c9b672c6ea23d68569824f899eb8109 *man/MoscowMtStJoe.Rd
@@ -70,7 +70,7 @@ c18166ff2cb4d70c0bab0900974ee658 *man/rmsd.yai.Rd
 30981527caebdb8b3fb4f9b420624775 *src/ANN/ANN.h
 dd5ad0d9f71e3a72c2bcb996ffb410d2 *src/ANN/ANNperf.h
 002a00de5a6412758a1275c31bbeca95 *src/ANN/ANNx.h
-1b091b08caf3560cc0358ca716909e58 *src/annImpute.cpp
+bd13eb6700d6604414b1378045d5315e *src/annImpute.cpp
 581b55d86ec8bb94d028e69f0b95d44f *src/bd_fix_rad_search.cpp
 10d404510331667b3d9b6208d7e28ece *src/bd_pr_search.cpp
 e18365b2dd7d9a0ee7cca1b8d94fe8ee *src/bd_search.cpp
@@ -96,3 +96,4 @@ a8660e8360c99a5f9ace9144db760a95 *src/pr_queue_k.h
 e16a72ba8cd8fa2b4eb25f3130c41c68 *src/rfoneprox.cpp
 3f6ec2d16b4c99398861ff34e8f037c3 *src/util.cpp
 7618f29f679ab9a265875b01a9572f92 *src/util.h
+b3da2de36ffffb2310e4d7e60c0e9be4 *src/yaImpute_init.c

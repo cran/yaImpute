@@ -1,3 +1,12 @@
+Changes in version 1.0-27 and 1.0-29:
+
+* Addressed an issue in the ann source code (likely a false positive) found 
+by rchk at CRAN.
+* Added RegisteredNativeSymbol usage according to best practices
+* The error when bootstraping with method="randomForests" is fixed.
+* Fixed an error in yai() when it is called by varSelection() using 
+yaiMethod="randomForest", thanks to Andrew Haywood.
+
 Changes in version 1.0-25 and 1.0-26:
 
 * Added import directives to meet recent CRAN rules that say that functions 

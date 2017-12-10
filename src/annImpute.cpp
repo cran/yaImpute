@@ -13,7 +13,7 @@ using namespace std;
 
 extern "C" {
 
-  SEXP ann(SEXP args)
+  SEXP annf(SEXP args)
   {
     SEXP ref, refDims, target, tarDims, knnIndxDistMtrx;
     int nProtect = 0;
@@ -195,7 +195,6 @@ extern "C" {
     /**************************
             clean-up
     ***************************/
-    UNPROTECT(nProtect);
     delete kdTree;
     delete bdTree;
     delete brute;
@@ -203,6 +202,7 @@ extern "C" {
     delete [] dists;
     annDeallocPts(dataPts);
     annClose();
+    UNPROTECT(nProtect);
  
     return(result);
   }
