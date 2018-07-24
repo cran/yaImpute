@@ -51,7 +51,7 @@ yai(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
     \itemize{
       \item{\code{euclidean }}{distance is computed in a normalized X space.}
       \item{\code{raw }}{like euclidean, except no normalization is done.}
-      \item{\code{mahalanobis }}{distance is computed in its namesakes space.}
+      \item{\code{mahalanobis }}{ distance is computed in its namesakes space.}
       \item{\code{ica }}{like mahalanobis, but based on \emph{Independent Component Analysis} using
           package \code{\link[fastICA]{fastICA}}.}
       \item{\code{msn }}{distance is computed in a projected canonical space.}
@@ -64,12 +64,14 @@ yai(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
          (\code{\link[vegan]{cca}} from package \pkg{vegan}). 
          If \code{\link[vegan]{cca}} fails, \code{\link[vegan]{rda}} is used
          and a warning is issued.}
-      \item{\code{randomForest}}{distance is one minus the proportion of 
+      \item{\code{randomForest }}{ distance is one minus the proportion of 
          \pkg{randomForest} trees where a target observation is in the same terminal node 
          as a reference observation (see \code{\link[randomForest]{randomForest}}).}
-      \item{\code{random }}{like raw except that the X space is a single vector of uniform random [0,1]
+      \item{\code{random }}{ like raw except that the X space is a single vector of uniform random [0,1]
          numbers generated using \code{\link[stats]{runif}}, results in random assignment of neighbors,
          and forces \code{ann} to be FALSE.}
+      \item{\code{gower }}{ distance is computed in its namesakes space using function 
+        \code{\link[gower]{gower_topn}} from package \pkg{gower}; forces \code{ann} to be FALSE.}
     }   
   }
   \item{ann}{TRUE if \code{\link{ann}} is used to find neighbors, FALSE if a slow search is used.}
@@ -241,6 +243,14 @@ plot(mal,vars=yvars(mal)[1:16])
 
 # compare these results using the generalized mean distances..
 grmsd(mal,msn)
+
+# try method="gower"
+if (require(gower))
+{
+  gow <- yai(x=x, y=y, method="gower", k=1)
+  # compare these results using the generalized mean distances..
+  grmsd(mal,msn,gow)
+}
 
 # try method="randomForest"
 if (require(randomForest))

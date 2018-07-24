@@ -43,13 +43,17 @@ function (x,y,method="addVars",yaiMethod="msn",wts=NULL,
   {
     if (!requireNamespace ("ccaPP")) stop("install ccaPP and try again")
   }
-  
+  if (yaiMethod == "gower") # make sure we have package gower loaded
+  {
+    if (!requireNamespace ("gower")) stop("install gower and try again")
+  }     
+
   # single variable elimination logic:
   if (method=="delVars")    
   {
     allErr <- unlist( myapply(1:max(1,nboot), function (i,x,y,wts,yaiMethod,...)
                suppressWarnings(grmsd(one=suppressWarnings(yai(x=x,y=y,
-               method=yaiMethod,bootstrap=bootstrap,bootstrap,...)),
+               method=yaiMethod,bootstrap=bootstrap,...)),
                ancillaryData=y,wts=wts)) ,x,y,wts,yaiMethod,bootstrap,...) )
     if (trace) cat ("With all vars, mean grmsd (over boostraps) = ",mean(allErr),
             "; stddev=",sd(allErr),"; Num cols = ",ncol(x),"\n",sep="")

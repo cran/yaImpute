@@ -22,6 +22,7 @@
 //		Initial release
 //	Revision 1.0  04/01/05
 //		Changed names LO, HI to ANN_LO, ANN_HI
+// removed "register" c++ directive, 23 DEC 2017, NLCrookston
 //----------------------------------------------------------------------
 
 #include "kd_search.h"					// kd-search declarations
@@ -171,12 +172,12 @@ void ANNkd_split::ann_search(ANNdist box_dist)
 
 void ANNkd_leaf::ann_search(ANNdist box_dist)
 {
-	register ANNdist dist;				// distance to data point
-	register ANNcoord* pp;				// data coordinate pointer
-	register ANNcoord* qq;				// query coordinate pointer
-	register ANNdist min_dist;			// distance to k-th closest point
-	register ANNcoord t;
-	register int d;
+	ANNdist dist;				// distance to data point
+	ANNcoord* pp;				// data coordinate pointer
+	ANNcoord* qq;				// query coordinate pointer
+	ANNdist min_dist;			// distance to k-th closest point
+	ANNcoord t;
+	int d;
 
 	min_dist = ANNkdPointMK->max_key(); // k-th smallest distance so far
 
