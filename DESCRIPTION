@@ -1,6 +1,6 @@
 Package: yaImpute
-Version: 1.0-31
-Date: 2018-12-26
+Version: 1.0-32
+Date: 2020-02-13
 Title: Nearest Neighbor Observation Imputation and Evaluation Tools
 Author: Nicholas L. Crookston, Andrew O. Finley, John Coulston (Sunil Arya and David Mount for ANN)
 Copyright: ANN library is copyright University of Maryland and Sunil
@@ -21,7 +21,7 @@ Description: Performs nearest neighbor-based imputation using one or more altern
 License: GPL (>= 2)
 Repository: CRAN
 Repository/R-Forge/Project: yaimpute
-Repository/R-Forge/Revision: 103
-Repository/R-Forge/DateTimeStamp: 2018-12-26 23:21:55
-Date/Publication: 2019-01-09 19:30:03 UTC
-Packaged: 2018-12-26 23:32:03 UTC; rforge
+Repository/R-Forge/Revision: 105
+Repository/R-Forge/DateTimeStamp: 2020-02-13 20:41:20
+Date/Publication: 2020-02-17 18:00:02 UTC
+Packaged: 2020-02-13 20:50:10 UTC; rforge

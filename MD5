@@ -1,6 +1,6 @@
-98ab9637baff2008d21f61593ecd5299 *DESCRIPTION
-0157c96982ec68d1c0ad242a657f81b9 *NAMESPACE
-2dfe4ffc5f9c3ede46db91765056658e *NEWS
+6c58354ccdbcc8d71edf9bb637d41712 *DESCRIPTION
+ed6d6a069ec13a37f4dc1dfad18edb31 *NAMESPACE
+07a349d498466f8c08706e8542bf019d *NEWS
 8a6d08da5415ac5eb44fdd25c6b334b9 *R/ann.R
 e2009c6ecb9d1181afa4ac2d0f56316f *R/applyMask.R
 55c39a15adb271ac50a63a9c3672a7ba *R/asciigridimpute.R
@@ -12,10 +12,10 @@ b60e4571f940956391d6d3c978ca2520 *R/compare.yai.R
 8ec60d987cca25269c04b1cf5c37b667 *R/errorstats.R
 858807b2fe080f8259cbe8dd3f394f85 *R/findFactors.R
 520517d9b550fa9be43576555ef75862 *R/foruse.R
-caa0b74b2541b9ce8302e28a327f5d73 *R/grmsd.R
+e9de96c1a1387ea93f2750dceadd0db7 *R/grmsd.R
 4d5be23dbc11143c365da3736d00b24c *R/impute.R
 76a2494583afea54b836ae5275a11656 *R/mostused.R
-9bbd49bd1512d056eb24288e7712c55f *R/newtargets.R
+2d3618cbbc001da3a0d8d4649a8b5e0e *R/newtargets.R
 c58678acafcea3d705da6c17fedb9267 *R/notablydifferent.R
 17b89ff3b4c5a2d7d3ef015f0e4dc08f *R/notablydistant.R
 0740cff34de409e00f3fb7bd9621a0d9 *R/plot.yai.R
@@ -23,14 +23,14 @@ c58678acafcea3d705da6c17fedb9267 *R/notablydifferent.R
 29110a182eefdbe200491bd68f74f359 *R/print.yai.R
 11f9513803826ee51b2dd5343e07e522 *R/rmsd.yai.R
 3521111262b458f4df090895e8afd41f *R/uniondatajoin.R
-b9e224c66c02b55361e1eabd8f8baa66 *R/varSelection.R
+72135ac1d7277d3c3723f67c63ab5233 *R/varSelection.R
 0aa28c1ba5f1dcef6274a088ecaab896 *R/vars.yai.R
 b82f44f1784f58ec889acf4b343e96b7 *R/whatsMax.R
-ac0a2f94ed05bcc495aa08ec8a1d8d03 *R/yai.R
+6db126baa32f1c74aa65895941f29ce2 *R/yai.R
 a5b253fa48b11bec81228b2077801aeb *R/yaiRFsummary.R
 503acea3c6454ce2e3c6ad08aab1aaf8 *R/yaiVarImp.R
-e5215fe9b83d54ff3aa65590656b48b6 *data/MoscowMtStJoe.RData
-3d69f20b3a4d5adc8362c21846bcc8ba *data/TallyLake.RData
+7583c1d80f855ae269a8f5286f0252e7 *data/MoscowMtStJoe.RData
+365af796b25afc910719e8097e12b6be *data/TallyLake.RData
 366769e6f9a7f3433c8f8cbed12d1f98 *inst/CITATION
 574137791d4c9ebfc5d42d62732d7a70 *inst/COPYRIGHTS
 2c9b672c6ea23d68569824f899eb8109 *man/MoscowMtStJoe.Rd
@@ -46,7 +46,7 @@ e5215fe9b83d54ff3aa65590656b48b6 *data/MoscowMtStJoe.RData
 4e76bd15298749802cded7db93961696 *man/ensembleImpute.Rd
 5d0004af6d5c536f51cd72bab8551013 *man/errorStats.Rd
 d9df99fcf4da201fb232048331afd605 *man/foruse.Rd
-d616d151e463be117038776d0f72c835 *man/grmsd.Rd
+06d2b2898f5e1e3cc245e4b28617d4c6 *man/grmsd.Rd
 9846ed7dd387b8158f80a946ad2fd079 *man/impute.yai.Rd
 c99e3efc1d6b92615121983e09d6db47 *man/mostused.Rd
 a7dc048966692df047fa9262298af309 *man/newtargets.Rd
@@ -60,7 +60,7 @@ a91f64caafce0f303d4e78d94ec85858 *man/predict.yai.Rd
 d72ec8455b02ea69bc1be20d3e496d2e *man/print.Rd
 c18166ff2cb4d70c0bab0900974ee658 *man/rmsd.yai.Rd
 9fdbfb464853bfc624bebc210407fecf *man/unionDataJoin.Rd
-72a5305a3f6d8299dce8b1c26490348b *man/varSelection.Rd
+4b809df15f3d669a2e1b2d69a99d89b7 *man/varSelection.Rd
 13999957f53681f625cc1887888f9ed2 *man/vars.Rd
 9f7affcc4c69ecba69622d9dee0d545d *man/whatsMax.Rd
 bc2141b684e5fa7722d65aaa92638131 *man/yai.Rd
@@ -96,4 +96,4 @@ ab5f84aebb06d97e5dff0d0d530ab040 *src/pr_queue_k.h
 e16a72ba8cd8fa2b4eb25f3130c41c68 *src/rfoneprox.cpp
 3f6ec2d16b4c99398861ff34e8f037c3 *src/util.cpp
 7618f29f679ab9a265875b01a9572f92 *src/util.h
-b3da2de36ffffb2310e4d7e60c0e9be4 *src/yaImpute_init.c
+dc5bcbb6af45e7c813527938242052b4 *src/yaImpute_init.c

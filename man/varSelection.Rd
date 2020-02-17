@@ -13,7 +13,8 @@
 }
 
 \usage{
-varSelection(x,y,method="addVars",yaiMethod="msn",wts=NULL,nboot=20,trace=FALSE,
+varSelection(x,y,method="addVars",yaiMethod="msn",imputeMethod="closest",
+  wts=NULL,nboot=20,trace=FALSE,
   useParallel=if (.Platform$OS.type == "windows") FALSE else TRUE,...)
 }
 
@@ -23,6 +24,7 @@ varSelection(x,y,method="addVars",yaiMethod="msn",wts=NULL,nboot=20,trace=FALSE,
   \item{method}{if \code{addVars}, the X-Varialbes are added and  
      if \code{delVars} they are deleted (see details).}
   \item{yaiMethod}{passed as \code{method} to \code{\link{yai}}.}
+  \item{imputeMethod}{passed as \code{method} to \code{\link{impute.yai}}.}
   \item{wts}{passed as argument \code{wts} to \code{\link{grmsd}} 
      which is used to score the alternative varialbe sets.}
   \item{nboot}{the number of bootstrap samples used at each variable selection 

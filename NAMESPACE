@@ -1,4 +1,4 @@
-useDynLib(yaImpute, .registration = TRUE)
+useDynLib(yaImpute)
 
 export(
 ann,

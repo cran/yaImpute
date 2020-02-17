@@ -743,7 +743,7 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
         prox=lapply(apply(nodes[rownames(xTrgs),,drop=FALSE],1,as.list),function (x) 
           {
              prx=.Call("rfoneprox", INTrefNodes, INTsort, INTnrow, INTncol,
-                       as.integer(x), vector("integer",INTnrow),dup=FALSE) 
+                       as.integer(x), vector("integer",INTnrow)) 
              if (k > 1)  px=sort(prx,index.return = TRUE, decreasing = TRUE)$ix[1:k]
              else        px=which.max(prx)
              c(prx[px],px)  # counts followed by pointers to references
@@ -818,7 +818,7 @@ yai <- function(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
         prox=lapply(apply(refNodes,1,as.list),function (x) 
           {
              prx=.Call("rfoneprox", INTrefNodes, INTsort, INTnrow, INTncol,
-                       as.integer(x), vector("integer",INTnrow),dup=FALSE) 
+                       as.integer(x), vector("integer",INTnrow)) 
              if (k > 1) px=sort(prx,index.return = TRUE, decreasing = TRUE)$ix[2:l]
              else
              { 

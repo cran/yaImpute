@@ -223,7 +223,7 @@ newtargets=function(object,newdata,k=NULL,ann=NULL)
    {
      prox=lapply(apply(nodes,1,as.list),function (x) {
            prx=.Call("rfoneprox", INTrefNodes, INTsort, INTnrow, INTncol,
-                     as.integer(x), vector("integer",INTnrow),dup=FALSE) 
+                     as.integer(x), vector("integer",INTnrow)) 
            if (object$k > 1) px=sort(prx,index.return = TRUE, decreasing = TRUE)$ix[1:object$k]
            else              px=which.max(prx)
            c(prx[px],px)  # counts followed by pointers to references

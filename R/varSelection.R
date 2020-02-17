@@ -1,6 +1,6 @@
 varSelection <- 
-function (x,y,method="addVars",yaiMethod="msn",wts=NULL,
-         nboot=20,trace=FALSE,
+function (x,y,method="addVars",yaiMethod="msn",imputeMethod="closest",
+         wts=NULL,nboot=20,trace=FALSE,
          useParallel=if (.Platform$OS.type == "windows") FALSE else TRUE,...)
 {
   if (missing(x)) stop ("x must be specified.")
@@ -66,7 +66,7 @@ function (x,y,method="addVars",yaiMethod="msn",wts=NULL,
       for (var in 1:ncol(xa)) err[[var]] <- unlist(myapply(1:max(1,nboot), 
           function (i,xa,y,wts,var,yaiMethod,bootstrap,...)
              suppressWarnings(grmsd(one=suppressWarnings(yai(x=xa[,-var, 
-                drop=FALSE],y=y, method=yaiMethod,bootstrap=bootstrap,...)),
+                drop=FALSE],y=y, method=yaiMethod, bootstrap=bootstrap,...)),
                 ancillaryData=y,wts=wts)), xa,y,wts,var,yaiMethod,bootstrap,...) )
       names(err) <- names(xa)
 

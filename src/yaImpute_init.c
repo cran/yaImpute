@@ -5,11 +5,11 @@
 
 /* .Call calls */
 extern SEXP annf(SEXP);
-extern SEXP rfoneprox(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP rfoneprox(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
     {"annf",      (DL_FUNC) &annf,      1},
-    {"rfoneprox", (DL_FUNC) &rfoneprox, 7},
+    {"rfoneprox", (DL_FUNC) &rfoneprox, 6},
     {NULL, NULL, 0}
 };
 

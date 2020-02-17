@@ -14,7 +14,7 @@ follow the column naming convention described in the details.
 }
 
 \usage{
-grmsd(\dots,ancillaryData=NULL,vars=NULL,wts=NULL,rtnVectors=FALSE)
+grmsd(\dots,ancillaryData=NULL,vars=NULL,wts=NULL,rtnVectors=FALSE,imputeMethod="closest")
 }
 
 \arguments{
@@ -33,6 +33,7 @@ grmsd(\dots,ancillaryData=NULL,vars=NULL,wts=NULL,rtnVectors=FALSE)
     details below.}
   \item{rtnVectors}{The vectors of individual distances are returned (see Value) 
     rather than the mean Mahalanobis distance.} 
+  \item{imputeMethod}{passed as \code{method} to \code{\link{impute.yai}}.}
 }
 
 \details{ 
