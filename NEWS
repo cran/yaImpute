@@ -1,3 +1,11 @@
+Changes in version 1.0-33:
+
+* Modified several url's as needed to adjust to changes in some web addresses.
+* Changed reference to original JSS paper to use doi as suggested by Achim Zeileis.
+* Changed maintainer to Jeffrey Evans <jeffrey_evans "at" tnc.org> and added him as an author.
+* Added code in newtargets() that changes "newdata" to a dataframe if 
+it isn't one on input (thanks to Caio Hamamura for the suggestion).
+
 Changes in version 1.0-32:
 
 * Corrected the interface information in yaImpute_init.c so that it matches

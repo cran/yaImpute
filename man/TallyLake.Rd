@@ -7,7 +7,7 @@
 \description{
   Polygon-based reference data used by Stage and Crookston (2007)
   to demonstrate partitioning of error components and related statistics.
-  Observations are summaries of data collected on forest stands (ploygons).
+  Observations are summaries of data collected on forest stands (polygons).
 }
 
 \usage{
@@ -40,7 +40,7 @@ data(TallyLake)
   }
   Additional X-variables:
   \itemize{
-    \item{\code{ctim    }}{Mean of slope curviture over pixels in stand}
+    \item{\code{ctim    }}{Mean of slope curvature over pixels in stand}
     \item{\code{tmb1m   }}{Mean of LandSat band 1 over pixels in stand}
     \item{\code{tmb2m   }}{Mean of LandSat band 2 over pixels in stand}
     \item{\code{tmb3m   }}{Mean of LandSat band 3 over pixels in stand}
@@ -51,7 +51,7 @@ data(TallyLake)
     \item{\code{insom   }}{Mean of solar insolation over pixels in stand}
     \item{\code{msavim  }}{Mean of AVI for pixels in stand}
     \item{\code{ndvim   }}{Mean of NDVI for pixels in stand}
-    \item{\code{crvm    }}{Mean of slope curviture for pixels in stand}
+    \item{\code{crvm    }}{Mean of slope curvature for pixels in stand}
     \item{\code{tancrvm }}{Mean of tangent curvature for pixels in stand}
     \item{\code{tancrvsd}}{Standard deviation of tangent curvature for pixels in stand}
   }
@@ -60,10 +60,11 @@ data(TallyLake)
 \references{
   Stage, A.R.; Crookston, N.L. 2007. Partitioning error components
   for accuracy-assessment of near neighbor methods of imputation.
-  \emph{For. Sci.} 53(1):62-72 \url{http://www.treesearch.fs.fed.us/pubs/28385}
+  \emph{For. Sci.} 53(1):62-72 \url{https://academic.oup.com/forestscience/article/53/1/62/4604364}
                                                                                      
   Stage, A.R. (1976). An expression for the effect of aspect, slope, and
-  habitat type on tree growth. \emph{For. Sci.} 22(4):457-460.
+  habitat type on tree growth. \emph{For. Sci.} 22(4):457-460.  
+  \url{https://academic.oup.com/forestscience/article-abstract/22/4/457/4675852}
 }
 
 \source{

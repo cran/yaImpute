@@ -94,7 +94,7 @@ applyMask(m55,iris$Species,trgGroups=iris2$Species,
 
 \author{
   Nicholas L. Crookston \email{ncrookston.fs@gmail.com} \cr
-  Acknowledgement: This function was inspired by correspondence with Clara Anton Fernandez.
+  Acknowledgment: This function was inspired by correspondence with Clara Anton Fernandez.
 }
 
 \keyword{multivariate}

@@ -38,7 +38,7 @@
    \code{dstWeighted}: a \emph{mode} where the count is the sum of the weights (1/(1+d)) rather than
        each having a weight of 1.}
   \item{k}{the number neighbors to use in averages, when NULL all present are used.}
-  \item{vars}{a character vector of variables to impute, when NULL, the behaviour depends
+  \item{vars}{a character vector of variables to impute, when NULL, the behavior depends
      on the value of \code{ancillaryData}: when it is NULL, the Y-variables are imputed and 
      otherwise all present in \code{ancillaryData} are imputed.}
   \item{observed}{when TRUE, columns are created for \emph{observed} values (those from the

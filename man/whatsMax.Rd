@@ -6,7 +6,7 @@
   For each row, the function identifies the column that has the maximum
   value. The function returns a data frame with two columns: the first is
   the column name corresponding to the column of maximum value and the
-  second is the correspond maximum. The first column is convereted to a
+  second is the correspond maximum. The first column is converted to a
   factor.
 
   If the maximum is zero, the maximum column is identified as "zero".

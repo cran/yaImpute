@@ -100,7 +100,7 @@ yai(x=NULL,y=NULL,data=NULL,k=1,noTrgs=FALSE,noRefs=FALSE,
 }
 
 \details{
-See the paper at \url{http://www.jstatsoft.org/v23/i10} (it includes examples).
+See the paper at \doi{https://doi.org/10.18637/jss.v023.i10} (it includes examples).
 
 The following information is in addition to the content in the papers.
 
@@ -282,7 +282,7 @@ if (require(randomForest))
 
 \author{
   Nicholas L. Crookston \email{ncrookston.fs@gmail.com} \cr
-  John Coulston \email{jcoulston@fs.fed.us} \cr
+  John Coulston \email{jcoulston@fs.usda.gov} \cr
   Andrew O. Finley \email{finleya@msu.edu} 
 }
 

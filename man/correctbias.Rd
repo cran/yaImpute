@@ -109,7 +109,7 @@ correctBias(object,trgVal,trgValCI=NULL,nStdev=1.5,excludeRefIds=NULL,trace=FALS
   is left NULL, the population is made of all reference and all
   target observations. Reference observations that should be left out
   of the calculations because they are not part of the population can be specified
-  using the \code{excludeRefIds} argument as a vector of character strings identifing 
+  using the \code{excludeRefIds} argument as a vector of character strings identifying 
   the rownames to leave out, or a vector of row numbers that identify the row numbers to 
   leave out. If \code{excludeRefIds="all"}, all reference observations are excluded.
 }

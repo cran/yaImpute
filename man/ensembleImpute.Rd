@@ -28,7 +28,7 @@ ensembleImpute(imputes, method="mean",\dots)
     \item{\code{sd }}{A data.frame of standard deviations for continuous variables
        if there are any. The columns are not reported if the standard deviation is
        zero for all observations which is typically true of "observed" values. }
-    \item{\code{N }}{the number of replictions used to compute the corresponding data; 
+    \item{\code{N }}{the number of replications used to compute the corresponding data; 
        reported only if the number differs from the total number of replications. This 
        will be the case when \code{bootstrap}, \code{sampleVar}, or both are used in 
        \code{\link{yai}}.}

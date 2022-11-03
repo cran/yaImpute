@@ -1,6 +1,6 @@
 \name{notablyDifferent}
 \alias{notablyDifferent}
-\title{Finds obervations with large differences between observed and imputed values}
+\title{Finds observations with large differences between observed and imputed values}
 
 \description{
    This routine identifies observations with large errors as measured by scaled 

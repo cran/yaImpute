@@ -19,8 +19,8 @@ yvars(object)
 }
 
 \value{
-  \item{yvars}{A charactor vector of \emph{Y}-variables.}
-  \item{xvars}{A charactor vector of \emph{X}-variables.}
+  \item{yvars}{A character vector of \emph{Y}-variables.}
+  \item{xvars}{A character vector of \emph{X}-variables.}
   \item{vars}{A list of both vectors.}
 }
 

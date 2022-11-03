@@ -102,7 +102,7 @@ AsciiGridPredict(object,xfiles,outfiles,xtypes=NULL,lon=NULL,lat=NULL,
   at a time from each. The output file(s) are created one line at time as the
   input maps are processed.
 
-  Use \code{AsciiGridImpute} for objects builts with \code{\link{yai}},
+  Use \code{AsciiGridImpute} for objects builds with \code{\link{yai}},
   otherwise use \code{AsciiGridPredict}. When \code{AsciiGridPredict} is
   used, the following rules apply. First, when \code{myPredFunc} is not
   null it is called with the arguments \code{object, newdata, \dots} where the

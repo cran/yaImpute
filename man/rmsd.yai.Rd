@@ -20,7 +20,7 @@ rmsd.yai (object,vars=NULL,scale=FALSE,\dots)
     variables are included}
   \item{scale}{when \code{TRUE}, the values are scaled (see details), if a named vector,
     the values are scaled by the corresponding values.}
-  \item{\dots}{passed to called methods, very useful for passing arugment
+  \item{\dots}{passed to called methods, very useful for passing argument
      \code{ancillaryData} to function \code{\link{impute.yai}}}
 }
 
@@ -39,7 +39,7 @@ rmsd.yai (object,vars=NULL,scale=FALSE,\dots)
 }
 
 \seealso{
-\code{\link{yai}}, \code{\link{impute.yai}} and \url{http://www.jstatsoft.org/v23/i10}.
+\code{\link{yai}}, \code{\link{impute.yai}} and \doi{https://doi.org/10.18637/jss.v023.i10}.
 }
 
 \author{

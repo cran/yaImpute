@@ -21,7 +21,7 @@ varSelection(x,y,method="addVars",yaiMethod="msn",imputeMethod="closest",
 \arguments{
   \item{x}{a set of \emph{X}-Variables as used in \code{\link{yai}}.}
   \item{y}{a set of \emph{Y}-Variables as used in \code{\link{yai}}.}
-  \item{method}{if \code{addVars}, the X-Varialbes are added and  
+  \item{method}{if \code{addVars}, the X-Variables are added and  
      if \code{delVars} they are deleted (see details).}
   \item{yaiMethod}{passed as \code{method} to \code{\link{yai}}.}
   \item{imputeMethod}{passed as \code{method} to \code{\link{impute.yai}}.}
@@ -65,7 +65,7 @@ time such that those that remain provide the smallest
   is related to the largest \code{grmsd} is deleted.
           
   \item Once a variable has been added or deleted, the function proceeds to select
-  another variable for selection or deletion by considering all remaining varialbes.
+  another variable for selection or deletion by considering all remaining variables.
   }
 }
 
