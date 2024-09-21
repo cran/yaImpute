@@ -23,10 +23,10 @@ void showMatrix(double *x, int xnrow, int xncol){
 
 SEXP getListElement (SEXP list, const char *str)
 {
-  SEXP elmt = R_NilValue, names = getAttrib(list, R_NamesSymbol);
+  SEXP elmt = R_NilValue, names = Rf_getAttrib(list, R_NamesSymbol);
   int i;
   
-  for (i = 0; i < length(list); i++)
+  for (i = 0; i < Rf_length(list); i++)
     if(strcmp(CHAR(STRING_ELT(names, i)), str) == 0) {
       elmt = VECTOR_ELT(list, i);
       break;

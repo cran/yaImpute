@@ -191,11 +191,11 @@ ANNdecomp trySimpleShrink(				// try a simple shrink
 												// compute tight bounding box
 	annEnclRect(pa, pidx, n, dim, inner_box);
 
-	ANNcoord max_length = 0;					// find longest box side
+	ANNcoord max_Rf_length = 0;					// find longest box side
 	for (i = 0; i < dim; i++) {
-		ANNcoord length = inner_box.hi[i] - inner_box.lo[i];
-		if (length > max_length) {
-			max_length = length;
+		ANNcoord Rf_length = inner_box.hi[i] - inner_box.lo[i];
+		if (Rf_length > max_Rf_length) {
+			max_Rf_length = Rf_length;
 		}
 	}
 
@@ -204,13 +204,13 @@ ANNdecomp trySimpleShrink(				// try a simple shrink
 												// gap between boxes
 		ANNcoord gap_hi = bnd_box.hi[i] - inner_box.hi[i];
 												// big enough gap to shrink?
-		if (gap_hi < max_length*BD_GAP_THRESH)
+		if (gap_hi < max_Rf_length*BD_GAP_THRESH)
 			inner_box.hi[i] = bnd_box.hi[i];	// no - expand
 		else shrink_ct++;						// yes - shrink this side
 
 												// repeat for high side
 		ANNcoord gap_lo = inner_box.lo[i] - bnd_box.lo[i];
-		if (gap_lo < max_length*BD_GAP_THRESH)
+		if (gap_lo < max_Rf_length*BD_GAP_THRESH)
 			inner_box.lo[i] = bnd_box.lo[i];	// no - expand
 		else shrink_ct++;						// yes - shrink this side
 	}

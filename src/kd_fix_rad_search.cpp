@@ -163,7 +163,7 @@ void ANNkd_leaf::ann_FR_search(ANNdist box_dist)
 			ANN_COORD(1)				// one more coordinate hit
 			ANN_FLOP(5)					// increment floating ops
 
-			t = *(qq++) - *(pp++);		// compute length and adv coordinate
+			t = *(qq++) - *(pp++);		// compute Rf_length and adv coordinate
 										// exceeds dist to k-th smallest?
 			if( (dist = ANN_SUM(dist, ANN_POW(t))) > ANNkdFRSqRad) {
 				break;

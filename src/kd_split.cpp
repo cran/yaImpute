@@ -85,17 +85,17 @@ void midpt_split(
 {
 	int d;
 
-	ANNcoord max_length = bnds.hi[0] - bnds.lo[0];
-	for (d = 1; d < dim; d++) {			// find length of longest box side
-		ANNcoord length = bnds.hi[d] - bnds.lo[d];
-		if (length > max_length) {
-			max_length = length;
+	ANNcoord max_Rf_length = bnds.hi[0] - bnds.lo[0];
+	for (d = 1; d < dim; d++) {			// find Rf_length of longest box side
+		ANNcoord Rf_length = bnds.hi[d] - bnds.lo[d];
+		if (Rf_length > max_Rf_length) {
+			max_Rf_length = Rf_length;
 		}
 	}
 	ANNcoord max_spread = -1;			// find long side with most spread
 	for (d = 0; d < dim; d++) {
 										// is it among longest?
-		if (double(bnds.hi[d] - bnds.lo[d]) >= (1-SMERR)*max_length) {
+		if (double(bnds.hi[d] - bnds.lo[d]) >= (1-SMERR)*max_Rf_length) {
 										// compute its spread
 			ANNcoord spr = annSpread(pa, pidx, n, d);
 			if (spr > max_spread) {		// is it max so far?
@@ -155,17 +155,17 @@ void sl_midpt_split(
 {
 	int d;
 
-	ANNcoord max_length = bnds.hi[0] - bnds.lo[0];
-	for (d = 1; d < dim; d++) {			// find length of longest box side
-		ANNcoord length = bnds.hi[d] - bnds.lo[d];
-		if (length > max_length) {
-			max_length = length;
+	ANNcoord max_Rf_length = bnds.hi[0] - bnds.lo[0];
+	for (d = 1; d < dim; d++) {			// find Rf_length of longest box side
+		ANNcoord Rf_length = bnds.hi[d] - bnds.lo[d];
+		if (Rf_length > max_Rf_length) {
+			max_Rf_length = Rf_length;
 		}
 	}
 	ANNcoord max_spread = -1;			// find long side with most spread
 	for (d = 0; d < dim; d++) {
 										// is it among longest?
-		if ((bnds.hi[d] - bnds.lo[d]) >= (1-SMERR)*max_length) {
+		if ((bnds.hi[d] - bnds.lo[d]) >= (1-SMERR)*max_Rf_length) {
 										// compute its spread
 			ANNcoord spr = annSpread(pa, pidx, n, d);
 			if (spr > max_spread) {		// is it max so far?
@@ -251,12 +251,12 @@ void fair_split(
 	int					&n_lo)			// num of points on low side (returned)
 {
 	int d;
-	ANNcoord max_length = bnds.hi[0] - bnds.lo[0];
+	ANNcoord max_Rf_length = bnds.hi[0] - bnds.lo[0];
 	cut_dim = 0;
-	for (d = 1; d < dim; d++) {			// find length of longest box side
-		ANNcoord length = bnds.hi[d] - bnds.lo[d];
-		if (length > max_length) {
-			max_length = length;
+	for (d = 1; d < dim; d++) {			// find Rf_length of longest box side
+		ANNcoord Rf_length = bnds.hi[d] - bnds.lo[d];
+		if (Rf_length > max_Rf_length) {
+			max_Rf_length = Rf_length;
 			cut_dim = d;
 		}
 	}
@@ -264,10 +264,10 @@ void fair_split(
 	ANNcoord max_spread = 0;			// find legal cut with max spread
 	cut_dim = 0;
 	for (d = 0; d < dim; d++) {
-		ANNcoord length = bnds.hi[d] - bnds.lo[d];
+		ANNcoord Rf_length = bnds.hi[d] - bnds.lo[d];
 										// is this side midpoint splitable
 										// without violating aspect ratio?
-		if (((double) max_length)*2.0/((double) length) <= FS_ASPECT_RATIO) {
+		if (((double) max_Rf_length)*2.0/((double) Rf_length) <= FS_ASPECT_RATIO) {
 										// compute spread along this dim
 			ANNcoord spr = annSpread(pa, pidx, n, d);
 			if (spr > max_spread) {		// best spread so far
@@ -277,14 +277,14 @@ void fair_split(
 		}
 	}
 
-	max_length = 0;						// find longest side other than cut_dim
+	max_Rf_length = 0;						// find longest side other than cut_dim
 	for (d = 0; d < dim; d++) {
-		ANNcoord length = bnds.hi[d] - bnds.lo[d];
-		if (d != cut_dim && length > max_length)
-			max_length = length;
+		ANNcoord Rf_length = bnds.hi[d] - bnds.lo[d];
+		if (d != cut_dim && Rf_length > max_Rf_length)
+			max_Rf_length = Rf_length;
 	}
 										// consider most extreme splits
-	ANNcoord small_piece = max_length / FS_ASPECT_RATIO;
+	ANNcoord small_piece = max_Rf_length / FS_ASPECT_RATIO;
 	ANNcoord lo_cut = bnds.lo[cut_dim] + small_piece;// lowest legal cut
 	ANNcoord hi_cut = bnds.hi[cut_dim] - small_piece;// highest legal cut
 
@@ -357,12 +357,12 @@ void sl_fair_split(
 	ANNcoord min, max;					// min/max coordinates
 	int br1, br2;						// split break points
 
-	ANNcoord max_length = bnds.hi[0] - bnds.lo[0];
+	ANNcoord max_Rf_length = bnds.hi[0] - bnds.lo[0];
 	cut_dim = 0;
-	for (d = 1; d < dim; d++) {			// find length of longest box side
-		ANNcoord length = bnds.hi[d] - bnds.lo[d];
-		if (length	> max_length) {
-			max_length = length;
+	for (d = 1; d < dim; d++) {			// find Rf_length of longest box side
+		ANNcoord Rf_length = bnds.hi[d] - bnds.lo[d];
+		if (Rf_length	> max_Rf_length) {
+			max_Rf_length = Rf_length;
 			cut_dim = d;
 		}
 	}
@@ -370,10 +370,10 @@ void sl_fair_split(
 	ANNcoord max_spread = 0;			// find legal cut with max spread
 	cut_dim = 0;
 	for (d = 0; d < dim; d++) {
-		ANNcoord length = bnds.hi[d] - bnds.lo[d];
+		ANNcoord Rf_length = bnds.hi[d] - bnds.lo[d];
 										// is this side midpoint splitable
 										// without violating aspect ratio?
-		if (((double) max_length)*2.0/((double) length) <= FS_ASPECT_RATIO) {
+		if (((double) max_Rf_length)*2.0/((double) Rf_length) <= FS_ASPECT_RATIO) {
 										// compute spread along this dim
 			ANNcoord spr = annSpread(pa, pidx, n, d);
 			if (spr > max_spread) {		// best spread so far
@@ -383,14 +383,14 @@ void sl_fair_split(
 		}
 	}
 
-	max_length = 0;						// find longest side other than cut_dim
+	max_Rf_length = 0;						// find longest side other than cut_dim
 	for (d = 0; d < dim; d++) {
-		ANNcoord length = bnds.hi[d] - bnds.lo[d];
-		if (d != cut_dim && length > max_length)
-			max_length = length;
+		ANNcoord Rf_length = bnds.hi[d] - bnds.lo[d];
+		if (d != cut_dim && Rf_length > max_Rf_length)
+			max_Rf_length = Rf_length;
 	}
 										// consider most extreme splits
-	ANNcoord small_piece = max_length / FS_ASPECT_RATIO;
+	ANNcoord small_piece = max_Rf_length / FS_ASPECT_RATIO;
 	ANNcoord lo_cut = bnds.lo[cut_dim] + small_piece;// lowest legal cut
 	ANNcoord hi_cut = bnds.hi[cut_dim] - small_piece;// highest legal cut
 										// find min and max along cut_dim

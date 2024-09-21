@@ -47,7 +47,7 @@
 //		Constants
 //----------------------------------------------------------------------
 
-const int		STRING_LEN		= 500;	// maximum string length
+const int		STRING_LEN		= 500;	// maximum string Rf_length
 //const double	EPSILON			= 1E-5; // small number for float comparison
 
 enum ANNtreeType {KD_TREE, BD_TREE};	// tree types (used in loading)

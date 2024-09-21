@@ -1,7 +1,7 @@
 Package: yaImpute
 Type: Package
 Title: Nearest Neighbor Observation Imputation and Evaluation Tools
-Version: 1.0-34
+Version: 1.0-34.1
 Date: 2023-12-12
 Authors@R: c(
   person(family="Evans", given="Jeffrey S.", email = "jeffrey_evans@tnc.org", 
@@ -31,9 +31,9 @@ NeedsCompilation: yes
 Repository: CRAN
 Encoding: UTF-8
 RoxygenNote: 7.2.3
-Packaged: 2023-12-12 23:14:22 UTC; jeffrey_evans
+Packaged: 2024-09-21 08:51:10 UTC; hornik
 Author: Jeffrey S. Evans [aut, cre] (<https://orcid.org/0000-0002-5533-7044>),
   Nicholas L. Crookston [aut],
   Andrew O. Finley [aut],
   John Coulston (Sunil Arya and David Mount for ANN) [ctb, com]
-Date/Publication: 2023-12-12 23:50:02 UTC
+Date/Publication: 2024-09-21 09:00:18 UTC
