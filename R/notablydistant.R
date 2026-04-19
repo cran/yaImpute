@@ -22,6 +22,7 @@ notablyDistant  <-  function (object,kth=1,threshold=NULL,p=0.01,
 {
    if (missing(object)) stop ("object required.")
    if (!inherits(object, "yai")) stop ("class must be yai")
+   #if (class(object) != "yai") stop ("class must be yai")
    if (kth>object$k) kth <- object$k
    if (kth<1)        kth <- 1
    if (is.null(threshold))

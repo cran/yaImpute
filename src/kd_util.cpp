@@ -53,15 +53,15 @@ double annAspectRatio(
 	int					dim,			// dimension
 	const ANNorthRect	&bnd_box)		// bounding cube
 {
-	ANNcoord Rf_length = bnd_box.hi[0] - bnd_box.lo[0];
-	ANNcoord min_Rf_length = Rf_length;				// min side Rf_length
-	ANNcoord max_Rf_length = Rf_length;				// max side Rf_length
+	ANNcoord length = bnd_box.hi[0] - bnd_box.lo[0];
+	ANNcoord min_length = length;				// min side length
+	ANNcoord max_length = length;				// max side length
 	for (int d = 0; d < dim; d++) {
-		Rf_length = bnd_box.hi[d] - bnd_box.lo[d];
-		if (Rf_length < min_Rf_length) min_Rf_length = Rf_length;
-		if (Rf_length > max_Rf_length) max_Rf_length = Rf_length;
+		length = bnd_box.hi[d] - bnd_box.lo[d];
+		if (length < min_length) min_length = length;
+		if (length > max_length) max_length = length;
 	}
-	return max_Rf_length/min_Rf_length;
+	return max_length/min_length;
 }
 
 //----------------------------------------------------------------------
@@ -100,8 +100,8 @@ void annEnclCube(						// compute smallest enclosing cube
 										// compute smallest enclosing rect
 	annEnclRect(pa, pidx, n, dim, bnds);
 
-	ANNcoord max_len = 0;				// max Rf_length of any side
-	for (d = 0; d < dim; d++) {			// determine max side Rf_length
+	ANNcoord max_len = 0;				// max length of any side
+	for (d = 0; d < dim; d++) {			// determine max side length
 		ANNcoord len = bnds.hi[d] - bnds.lo[d];
 		if (len > max_len) {			// update max_len if longest
 			max_len = len;

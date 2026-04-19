@@ -5,6 +5,7 @@
 #include <ctime>
 using namespace std;
 
+#define R_NO_REMAP
 #include <R.h>
 #include <Rmath.h>
 #include <Rinternals.h>
@@ -44,7 +45,7 @@ extern "C" {
 
     //ref matrix
     PROTECT(ref = getListElement(args, "ref"));  nProtect++;
-    PROTECT(refDims = Rf_getAttrib(ref, R_DimSymbol)); nProtect++;      
+    PROTECT(refDims = Rf_getAttrib(ref, R_DimSymbol)); nProtect++;
     refDim1 = INTEGER(refDims)[0];
     refDim2 = INTEGER(refDims)[1];
     dataPts = annAllocPts(refDim1, refDim2);

@@ -1,23 +1,14 @@
-citHeader("To cite package 'yaImpute' in publications use:")
-  bibentry(
+citHeader("To cite yaImpute package in publications please use:")  
+   bibentry(
     bibtype = "Article",
-    title = "yaImpute: An R Package for kNN Imputation",
-    author = c( person("Nicholas L. Crookston"), person("Andrew O. Finley")),
-	journal =	"Journal of Statistical Software",
-    volume =	"23",
-    number =	"10",
-    day =  	"10",
-    month =	"10",
-    year = "2007",
-    coden =	"JSSOBK",
+	author = as.person("N.L. Crookston, A.O. Finley"),
+	title = "yaImpute: An R Package for kNN Imputation",
+	journal = "Journal of Statistical Software",
+	number = "10",
+    volume = "23",
     issn = 	"1548-7660",
-    bibdate =	"2007-10-10",
-    url =  	"https://doi.org/10.18637/jss.v023.i10",
-    accepted =	"2007-10-10",
-    submitted =	"2007-06-20",
-    textVersion =
-          paste("Crookston, Nicholas L.; Finley, Andrew O. 2007. ",
-          "yaImpute: An R Package for k-NN Imputation. ",
-          "Journal of Statistical Software. 23(10):1-16. ",
-          "https://doi.org/10.18637/jss.v023.i10")   
-   )
+    year = "2007",
+	url =  	"https://doi.org/10.18637/jss.v023.i10",
+	keywords = "imputation kNN"
+   )   
+  
